@@ -57,7 +57,10 @@ def build_paragraphs(items, per=5):
             s0 = t
             for w in it["words"]: words.append(dict(word=w["word"], start=w["start"]+t, end=w["end"]+t))
             buf.append(it["audio"]); t += len(it["audio"])/SR
-            sents.append(dict(text=it["text"], start=s0, end=t))
+            # 句边界真值用该句首词起点 / 末词终点：Kokoro 合成音频首尾各带约 250–300 ms 静音，
+            # 若用音频片段的起止点当真值，句边界误差会被这段静音整体抬高。audio_start/audio_end 另存备查。
+            sents.append(dict(text=it["text"], start=it["words"][0]["start"]+s0, end=it["words"][-1]["end"]+s0,
+                              audio_start=s0, audio_end=t))
         audio = np.concatenate(buf + [np.zeros(int(0.4*SR), np.float32)])
         paras.append(dict(audio=audio, words=words, sents=sents, text=" ".join(it["text"] for it in chunk)))
     return paras
@@ -85,7 +88,11 @@ def run():
             if tag != "equal": continue
             for k in range(a1 - a0):
                 tw, hw = truth[a0+k], hyp[b0+k]; n_matched += 1
-                word_errs.append(dict(word=tw["word"], ds=abs(hw["start"]-tw["start"]), de=abs(hw["end"]-tw["end"])))
+                ti = a0 + k
+                gap_after = (truth[ti+1]["start"] - tw["end"]) if ti + 1 < len(truth) else None  # 真值里词后的停顿
+                word_errs.append(dict(para=i, word=tw["word"], ds=abs(hw["start"]-tw["start"]), de=abs(hw["end"]-tw["end"]),
+                                      t_start=tw["start"], t_end=tw["end"], h_start=hw["start"], h_end=hw["end"],
+                                      gap_after=gap_after))
         # 句边界：真值句首词 / 句末词 对应的假设词
         for s in p["sents"]:
             first = min(truth, key=lambda w: abs(w["start"]-s["start"])); last = max(truth, key=lambda w: w["end"] if w["end"] <= s["end"]+1e-3 else -1)

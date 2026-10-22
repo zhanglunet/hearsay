@@ -1,0 +1,14 @@
+{
+ "truth_words": 766,
+ "matched_words": 761,
+ "match_rate": 0.993,
+ "word_boundary_median_ms": 58.5,
+ "word_boundary_p90_ms": 113.5,
+ "word_boundary_frac_lt_150ms": 0.931,
+ "word_start_frac_lt_150ms": 0.995,
+ "word_end_frac_lt_150ms": 0.867,
+ "sent_boundaries": 49,
+ "sent_start_median_ms": 62.8,
+ "sent_end_median_ms": 282.7,
+ "sent_boundary_frac_lt_150ms": 0.49
+}

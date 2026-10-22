@@ -1,0 +1,465 @@
+config,voice,sid,code,wrong,right,verdict,transcript
+whisperx_large-v3_default,daniel,1,G04,i go,i went,retained,Yesterday I go to the park and see my friend.
+whisperx_large-v3_default,daniel,1,G04,and see,and saw,retained,Yesterday I go to the park and see my friend.
+whisperx_large-v3_default,meijia,1,G04,i go,i went,retained,"Yesterday, I go to the park and see my friend."
+whisperx_large-v3_default,meijia,1,G04,and see,and saw,retained,"Yesterday, I go to the park and see my friend."
+whisperx_large-v3_default,samantha,1,G04,i go,i went,retained,Yesterday I go to the park and see my friend.
+whisperx_large-v3_default,samantha,1,G04,and see,and saw,retained,Yesterday I go to the park and see my friend.
+whisperx_large-v3_default,tingting,1,G04,i go,i went,retained,Yesterday I go to the park and see my friend.
+whisperx_large-v3_default,tingting,1,G04,and see,and saw,retained,Yesterday I go to the park and see my friend.
+whisperx_large-v3_default,daniel,2,G03,she go,she goes,retained,She go to work by bus every day.
+whisperx_large-v3_default,meijia,2,G03,she go,she goes,retained,She go to work by bus every day.
+whisperx_large-v3_default,samantha,2,G03,she go,she goes,retained,She go to work by bus every day.
+whisperx_large-v3_default,tingting,2,G03,she go,she goes,retained,She go to work by bus every day.
+whisperx_large-v3_default,daniel,3,G01,bought car,bought a car,retained,I bought car last week
+whisperx_large-v3_default,meijia,3,G01,bought car,bought a car,retained,I bought car last week.
+whisperx_large-v3_default,samantha,3,G01,bought car,bought a car,retained,bought car last week
+whisperx_large-v3_default,tingting,3,G01,bought car,bought a car,retained,I bought car last week
+whisperx_large-v3_default,daniel,4,G02,two book,two books,other,I have 2 book and 3 pen.
+whisperx_large-v3_default,daniel,4,G02,three pen,three pens,other,I have 2 book and 3 pen.
+whisperx_large-v3_default,meijia,4,G02,two book,two books,corrected,I have two books and three pens.
+whisperx_large-v3_default,meijia,4,G02,three pen,three pens,corrected,I have two books and three pens.
+whisperx_large-v3_default,samantha,4,G02,two book,two books,retained,I have two book and three pen.
+whisperx_large-v3_default,samantha,4,G02,three pen,three pens,retained,I have two book and three pen.
+whisperx_large-v3_default,tingting,4,G02,two book,two books,retained,I have two book and three pen.
+whisperx_large-v3_default,tingting,4,G02,three pen,three pens,retained,I have two book and three pen.
+whisperx_large-v3_default,daniel,5,G06,he very tall,he is very tall,retained,He very tall and very handsome.
+whisperx_large-v3_default,meijia,5,G06,he very tall,he is very tall,retained,He very tall and very handsome.
+whisperx_large-v3_default,samantha,5,G06,he very tall,he is very tall,retained,He very tall and very handsome.
+whisperx_large-v3_default,tingting,5,G06,he very tall,he is very tall,retained,He very tall and very handsome.
+whisperx_large-v3_default,daniel,6,G06,am agree,agree,retained,I am agree with you.
+whisperx_large-v3_default,meijia,6,G06,am agree,agree,retained,I am agree with you.
+whisperx_large-v3_default,samantha,6,G06,am agree,agree,retained,I am agree with you.
+whisperx_large-v3_default,tingting,6,G06,am agree,agree,retained,I am agree with you.
+whisperx_large-v3_default,daniel,7,G09,very like,really like,retained,I very like this movie.
+whisperx_large-v3_default,meijia,7,G09,very like,really like,retained,I very like this movie
+whisperx_large-v3_default,samantha,7,G09,very like,really like,retained,I very like this movie
+whisperx_large-v3_default,tingting,7,G09,very like,really like,retained,I very like this movie
+whisperx_large-v3_default,daniel,8,G09,why you say,why did you say,retained,Why you say that to her?
+whisperx_large-v3_default,meijia,8,G09,why you say,why did you say,retained,Why you say that to her?
+whisperx_large-v3_default,samantha,8,G09,why you say,why did you say,retained,Why you say that to her?
+whisperx_large-v3_default,tingting,8,G09,why you say,why did you say,retained,Why you say ha ha ha ha ha?
+whisperx_large-v3_default,daniel,9,G10,he is very kind,she is very kind,retained,My mother is a teacher. He is very kind.
+whisperx_large-v3_default,meijia,9,G10,he is very kind,she is very kind,retained,My mother is a teacher. He is very kind.
+whisperx_large-v3_default,samantha,9,G10,he is very kind,she is very kind,retained,My mother is a teacher. He is very kind.
+whisperx_large-v3_default,tingting,9,G10,he is very kind,she is very kind,retained,My mother is a teacher. He is very kind.
+whisperx_large-v3_default,daniel,10,G10,is raining outside,it's raining outside,corrected,It's raining outside now.
+whisperx_large-v3_default,meijia,10,G10,is raining outside,it's raining outside,corrected,It's raining outside now.
+whisperx_large-v3_default,samantha,10,G10,is raining outside,it's raining outside,other,raining outside now.
+whisperx_large-v3_default,tingting,10,G10,is raining outside,it's raining outside,other,raining outside now
+whisperx_large-v3_default,daniel,11,G11,but i still,i still,retained,"although it was late, but I still went to the party."
+whisperx_large-v3_default,meijia,11,G11,but i still,i still,retained,"Although it was late, but I still went to the party."
+whisperx_large-v3_default,samantha,11,G11,but i still,i still,retained,"although it was late, but I still went to the party."
+whisperx_large-v3_default,tingting,11,G11,but i still,i still,retained,"Although it was late, but I still went to the party."
+whisperx_large-v3_default,daniel,12,G11,so i slept,i slept,retained,Because I was tired. So I slept early.
+whisperx_large-v3_default,meijia,12,G11,so i slept,i slept,retained,"Because I was tired, so I slept early."
+whisperx_large-v3_default,samantha,12,G11,so i slept,i slept,retained,"because I was tired, so I slept early."
+whisperx_large-v3_default,tingting,12,G11,so i slept,i slept,retained,"Because I was tired, so I slept early."
+whisperx_large-v3_default,daniel,13,G12,here have,there are,retained,Here have many people today.
+whisperx_large-v3_default,meijia,13,G12,here have,there are,retained,Here have many people today.
+whisperx_large-v3_default,samantha,13,G12,here have,there are,retained,Here have many people today.
+whisperx_large-v3_default,tingting,13,G12,here have,there are,retained,Here have many people today.
+whisperx_large-v3_default,daniel,14,G07,many advices,a lot of advice,retained,She gave me many advices about my job.
+whisperx_large-v3_default,meijia,14,G07,many advices,a lot of advice,retained,She gave me many advices about my job.
+whisperx_large-v3_default,samantha,14,G07,many advices,a lot of advice,retained,She gave me many advices about my job.
+whisperx_large-v3_default,tingting,14,G07,many advices,a lot of advice,retained,She gave me many advices about my job.
+whisperx_large-v3_default,daniel,15,G08,in monday,on monday,retained,I will see you in Monday morning.
+whisperx_large-v3_default,meijia,15,G08,in monday,on monday,retained,I will see you in Monday morning.
+whisperx_large-v3_default,samantha,15,G08,in monday,on monday,retained,I will see you in Monday morning.
+whisperx_large-v3_default,tingting,15,G08,in monday,on monday,retained,I will see you in Monday morning.
+whisperx_large-v3_default,daniel,16,G08,discussed about,discussed,retained,We discussed about the plan yesterday.
+whisperx_large-v3_default,meijia,16,G08,discussed about,discussed,retained,We discussed about the plan yesterday.
+whisperx_large-v3_default,samantha,16,G08,discussed about,discussed,retained,We discussed about the plan yesterday.
+whisperx_large-v3_default,tingting,16,G08,discussed about,discussed,retained,We discussed about the plan yesterday.
+whisperx_large-v3_default,daniel,17,G13,more better,better,retained,This one is more better than that one.
+whisperx_large-v3_default,meijia,17,G13,more better,better,retained,This one is more better than that one.
+whisperx_large-v3_default,samantha,17,G13,more better,better,retained,This one is more better than that one.
+whisperx_large-v3_default,tingting,17,G13,more better,better,retained,This one is more better than that one.
+whisperx_large-v3_default,daniel,18,G04,i visit,i visited,retained,Last year I visit three country in Europe.
+whisperx_large-v3_default,daniel,18,G02,three country,three countries,retained,Last year I visit three country in Europe.
+whisperx_large-v3_default,meijia,18,G04,i visit,i visited,retained,Last year I visit free country in Europe.
+whisperx_large-v3_default,meijia,18,G02,three country,three countries,other,Last year I visit free country in Europe.
+whisperx_large-v3_default,samantha,18,G04,i visit,i visited,retained,Last year I visit three country in Europe.
+whisperx_large-v3_default,samantha,18,G02,three country,three countries,retained,Last year I visit three country in Europe.
+whisperx_large-v3_default,tingting,18,G04,i visit,i visited,retained,Last year I visit three country in Europe.
+whisperx_large-v3_default,tingting,18,G02,three country,three countries,retained,Last year I visit three country in Europe.
+whisperx_large-v3_default,daniel,19,G05,have been to shanghai last year,went to shanghai last year,retained,I have been to Shanghai last year.
+whisperx_large-v3_default,meijia,19,G05,have been to shanghai last year,went to shanghai last year,retained,I have been to Shanghai last year.
+whisperx_large-v3_default,samantha,19,G05,have been to shanghai last year,went to shanghai last year,retained,I have been to Shanghai last year.
+whisperx_large-v3_default,tingting,19,G05,have been to shanghai last year,went to shanghai last year,retained,I have been to Shanghai last year.
+whisperx_large-v3_default,daniel,20,G16,if i am you,if i were you,retained,"If I am you, I will take the job."
+whisperx_large-v3_default,meijia,20,G16,if i am you,if i were you,retained,"If I am you, I will take the job."
+whisperx_large-v3_default,samantha,20,G16,if i am you,if i were you,retained,"If I am you, I will take the job."
+whisperx_large-v3_default,tingting,20,G16,if i am you,if i were you,retained,"If I am you, I will take the job."
+whisperx_large-v3_default,daniel,21,L10,very boring,very bored,retained,I feel very boring in this class.
+whisperx_large-v3_default,meijia,21,L10,very boring,very bored,retained,I feel very boring in this class.
+whisperx_large-v3_default,samantha,21,L10,very boring,very bored,retained,I feel very boring in this class
+whisperx_large-v3_default,tingting,21,L10,very boring,very bored,retained,I feel very boring in this class.
+whisperx_large-v3_default,daniel,22,G09,you like coffee,do you like coffee,retained,You like coffee or tea?
+whisperx_large-v3_default,meijia,22,G09,you like coffee,do you like coffee,retained,Do you like coffee or tea?
+whisperx_large-v3_default,samantha,22,G09,you like coffee,do you like coffee,retained,You like coffee or tea?
+whisperx_large-v3_default,tingting,22,G09,you like coffee,do you like coffee,retained,You like coffee or tea?
+whisperx_large-v3_default,daniel,23,G03,brother work,brother works,retained,My brother work in bank near my home.
+whisperx_large-v3_default,daniel,23,G01,in bank,in a bank,retained,My brother work in bank near my home.
+whisperx_large-v3_default,meijia,23,G03,brother work,brother works,other,My brother worked in bank near my home.
+whisperx_large-v3_default,meijia,23,G01,in bank,in a bank,retained,My brother worked in bank near my home.
+whisperx_large-v3_default,samantha,23,G03,brother work,brother works,retained,My brother work in bank near my home.
+whisperx_large-v3_default,samantha,23,G01,in bank,in a bank,retained,My brother work in bank near my home.
+whisperx_large-v3_default,tingting,23,G03,brother work,brother works,retained,My brother work in bank near my home.
+whisperx_large-v3_default,tingting,23,G01,in bank,in a bank,retained,My brother work in bank near my home.
+whisperx_large-v3_default,daniel,24,G04,i play,i played,retained,When I was young I play football and my father teach me.
+whisperx_large-v3_default,daniel,24,G04,father teach,father taught,retained,When I was young I play football and my father teach me.
+whisperx_large-v3_default,meijia,24,G04,i play,i played,retained,"When I was young, I play football, and my father teach me."
+whisperx_large-v3_default,meijia,24,G04,father teach,father taught,retained,"When I was young, I play football, and my father teach me."
+whisperx_large-v3_default,samantha,24,G04,i play,i played,retained,When I was young I play football and my father teach me.
+whisperx_large-v3_default,samantha,24,G04,father teach,father taught,retained,When I was young I play football and my father teach me.
+whisperx_large-v3_default,tingting,24,G04,i play,i played,retained,When I was young I play football and my father teach me.
+whisperx_large-v3_default,tingting,24,G04,father teach,father taught,retained,When I was young I play football and my father teach me.
+whisperx_large-v3_verbatim_prompt,daniel,1,G04,i go,i went,retained,Yesterday I go to the park and see my friend.
+whisperx_large-v3_verbatim_prompt,daniel,1,G04,and see,and saw,retained,Yesterday I go to the park and see my friend.
+whisperx_large-v3_verbatim_prompt,meijia,1,G04,i go,i went,retained,"Yesterday, I go to the park and see my friend."
+whisperx_large-v3_verbatim_prompt,meijia,1,G04,and see,and saw,retained,"Yesterday, I go to the park and see my friend."
+whisperx_large-v3_verbatim_prompt,samantha,1,G04,i go,i went,retained,Yesterday I go to the park and see my friend.
+whisperx_large-v3_verbatim_prompt,samantha,1,G04,and see,and saw,retained,Yesterday I go to the park and see my friend.
+whisperx_large-v3_verbatim_prompt,tingting,1,G04,i go,i went,retained,Yesterday I go to the park and see my friend.
+whisperx_large-v3_verbatim_prompt,tingting,1,G04,and see,and saw,retained,Yesterday I go to the park and see my friend.
+whisperx_large-v3_verbatim_prompt,daniel,2,G03,she go,she goes,retained,She go to work by bus every day.
+whisperx_large-v3_verbatim_prompt,meijia,2,G03,she go,she goes,retained,She go to work by bus every day.
+whisperx_large-v3_verbatim_prompt,samantha,2,G03,she go,she goes,retained,She go to work by bus every day.
+whisperx_large-v3_verbatim_prompt,tingting,2,G03,she go,she goes,retained,She go to work by bus every day.
+whisperx_large-v3_verbatim_prompt,daniel,3,G01,bought car,bought a car,retained,I bought car last week.
+whisperx_large-v3_verbatim_prompt,meijia,3,G01,bought car,bought a car,retained,I bought car last week.
+whisperx_large-v3_verbatim_prompt,samantha,3,G01,bought car,bought a car,retained,I bought car last week.
+whisperx_large-v3_verbatim_prompt,tingting,3,G01,bought car,bought a car,retained,I bought car last week.
+whisperx_large-v3_verbatim_prompt,daniel,4,G02,two book,two books,retained,I have two book and three pen.
+whisperx_large-v3_verbatim_prompt,daniel,4,G02,three pen,three pens,retained,I have two book and three pen.
+whisperx_large-v3_verbatim_prompt,meijia,4,G02,two book,two books,retained,I have two book and three pen.
+whisperx_large-v3_verbatim_prompt,meijia,4,G02,three pen,three pens,retained,I have two book and three pen.
+whisperx_large-v3_verbatim_prompt,samantha,4,G02,two book,two books,retained,I have two book and three pen.
+whisperx_large-v3_verbatim_prompt,samantha,4,G02,three pen,three pens,retained,I have two book and three pen.
+whisperx_large-v3_verbatim_prompt,tingting,4,G02,two book,two books,retained,I have two book and three pen.
+whisperx_large-v3_verbatim_prompt,tingting,4,G02,three pen,three pens,retained,I have two book and three pen.
+whisperx_large-v3_verbatim_prompt,daniel,5,G06,he very tall,he is very tall,retained,He very tall and very handsome.
+whisperx_large-v3_verbatim_prompt,meijia,5,G06,he very tall,he is very tall,retained,He very tall and very handsome.
+whisperx_large-v3_verbatim_prompt,samantha,5,G06,he very tall,he is very tall,retained,He very tall and very handsome.
+whisperx_large-v3_verbatim_prompt,tingting,5,G06,he very tall,he is very tall,retained,He very tall and very handsome.
+whisperx_large-v3_verbatim_prompt,daniel,6,G06,am agree,agree,retained,I am agree with you.
+whisperx_large-v3_verbatim_prompt,meijia,6,G06,am agree,agree,retained,I am agree with you.
+whisperx_large-v3_verbatim_prompt,samantha,6,G06,am agree,agree,retained,I am agree with you.
+whisperx_large-v3_verbatim_prompt,tingting,6,G06,am agree,agree,retained,I am agree with you.
+whisperx_large-v3_verbatim_prompt,daniel,7,G09,very like,really like,retained,I very like this movie.
+whisperx_large-v3_verbatim_prompt,meijia,7,G09,very like,really like,retained,I very like this movie.
+whisperx_large-v3_verbatim_prompt,samantha,7,G09,very like,really like,retained,I very like this movie.
+whisperx_large-v3_verbatim_prompt,tingting,7,G09,very like,really like,retained,I very like this movie.
+whisperx_large-v3_verbatim_prompt,daniel,8,G09,why you say,why did you say,retained,Why you say that to her?
+whisperx_large-v3_verbatim_prompt,meijia,8,G09,why you say,why did you say,retained,Why you say that to her?
+whisperx_large-v3_verbatim_prompt,samantha,8,G09,why you say,why did you say,retained,Why you say that to her?
+whisperx_large-v3_verbatim_prompt,tingting,8,G09,why you say,why did you say,retained,Why you say .
+whisperx_large-v3_verbatim_prompt,daniel,9,G10,he is very kind,she is very kind,retained,My mother is a teacher. He is very kind.
+whisperx_large-v3_verbatim_prompt,meijia,9,G10,he is very kind,she is very kind,retained,My mother is a teacher. He is very kind.
+whisperx_large-v3_verbatim_prompt,samantha,9,G10,he is very kind,she is very kind,retained,My mother is a teacher. He is very kind.
+whisperx_large-v3_verbatim_prompt,tingting,9,G10,he is very kind,she is very kind,retained,My mother is a teacher. He is very kind.
+whisperx_large-v3_verbatim_prompt,daniel,10,G10,is raining outside,it's raining outside,retained,It is raining outside now.
+whisperx_large-v3_verbatim_prompt,meijia,10,G10,is raining outside,it's raining outside,corrected,It's raining outside now.
+whisperx_large-v3_verbatim_prompt,samantha,10,G10,is raining outside,it's raining outside,retained,It is raining outside now.
+whisperx_large-v3_verbatim_prompt,tingting,10,G10,is raining outside,it's raining outside,corrected,It's raining outside now.
+whisperx_large-v3_verbatim_prompt,daniel,11,G11,but i still,i still,retained,"Although it was late, but I still went to the party."
+whisperx_large-v3_verbatim_prompt,meijia,11,G11,but i still,i still,retained,"Although it was late, but I still went to the party."
+whisperx_large-v3_verbatim_prompt,samantha,11,G11,but i still,i still,retained,"Although it was late, but I still went to the party."
+whisperx_large-v3_verbatim_prompt,tingting,11,G11,but i still,i still,retained,"Although it was late, but I still went to the party."
+whisperx_large-v3_verbatim_prompt,daniel,12,G11,so i slept,i slept,retained,"Because I was tired, so I slept early."
+whisperx_large-v3_verbatim_prompt,meijia,12,G11,so i slept,i slept,retained,"Because I was tired, so I slept early."
+whisperx_large-v3_verbatim_prompt,samantha,12,G11,so i slept,i slept,retained,"Because I was tired, so I slept early."
+whisperx_large-v3_verbatim_prompt,tingting,12,G11,so i slept,i slept,retained,"Because I was tired, so I slept early."
+whisperx_large-v3_verbatim_prompt,daniel,13,G12,here have,there are,retained,Here have many people today.
+whisperx_large-v3_verbatim_prompt,meijia,13,G12,here have,there are,retained,Here have many people today.
+whisperx_large-v3_verbatim_prompt,samantha,13,G12,here have,there are,retained,Here have many people today.
+whisperx_large-v3_verbatim_prompt,tingting,13,G12,here have,there are,retained,Here have many people today.
+whisperx_large-v3_verbatim_prompt,daniel,14,G07,many advices,a lot of advice,retained,She gave me many advices about my job.
+whisperx_large-v3_verbatim_prompt,meijia,14,G07,many advices,a lot of advice,retained,She gave me many advices about my job.
+whisperx_large-v3_verbatim_prompt,samantha,14,G07,many advices,a lot of advice,retained,She gave me many advices about my job.
+whisperx_large-v3_verbatim_prompt,tingting,14,G07,many advices,a lot of advice,retained,She gave me many advices about my job.
+whisperx_large-v3_verbatim_prompt,daniel,15,G08,in monday,on monday,retained,I will see you in Monday morning.
+whisperx_large-v3_verbatim_prompt,meijia,15,G08,in monday,on monday,retained,I will see you in Monday morning.
+whisperx_large-v3_verbatim_prompt,samantha,15,G08,in monday,on monday,retained,I will see you in Monday morning.
+whisperx_large-v3_verbatim_prompt,tingting,15,G08,in monday,on monday,retained,I will see you in Monday morning.
+whisperx_large-v3_verbatim_prompt,daniel,16,G08,discussed about,discussed,retained,We discussed about the plan yesterday.
+whisperx_large-v3_verbatim_prompt,meijia,16,G08,discussed about,discussed,retained,We discussed about the plan yesterday.
+whisperx_large-v3_verbatim_prompt,samantha,16,G08,discussed about,discussed,retained,We discussed about the plan yesterday.
+whisperx_large-v3_verbatim_prompt,tingting,16,G08,discussed about,discussed,retained,We discussed about the plan yesterday.
+whisperx_large-v3_verbatim_prompt,daniel,17,G13,more better,better,retained,This one is more better than that one.
+whisperx_large-v3_verbatim_prompt,meijia,17,G13,more better,better,retained,This one is more better than that one.
+whisperx_large-v3_verbatim_prompt,samantha,17,G13,more better,better,retained,This one is more better than that one.
+whisperx_large-v3_verbatim_prompt,tingting,17,G13,more better,better,retained,This one is more better than that one.
+whisperx_large-v3_verbatim_prompt,daniel,18,G04,i visit,i visited,retained,Last year I visit three country in Europe.
+whisperx_large-v3_verbatim_prompt,daniel,18,G02,three country,three countries,retained,Last year I visit three country in Europe.
+whisperx_large-v3_verbatim_prompt,meijia,18,G04,i visit,i visited,retained,Last year I visit three country in Europe.
+whisperx_large-v3_verbatim_prompt,meijia,18,G02,three country,three countries,retained,Last year I visit three country in Europe.
+whisperx_large-v3_verbatim_prompt,samantha,18,G04,i visit,i visited,retained,Last year I visit three country in Europe.
+whisperx_large-v3_verbatim_prompt,samantha,18,G02,three country,three countries,retained,Last year I visit three country in Europe.
+whisperx_large-v3_verbatim_prompt,tingting,18,G04,i visit,i visited,retained,Last year I visit three country in Europe.
+whisperx_large-v3_verbatim_prompt,tingting,18,G02,three country,three countries,retained,Last year I visit three country in Europe.
+whisperx_large-v3_verbatim_prompt,daniel,19,G05,have been to shanghai last year,went to shanghai last year,retained,I have been to Shanghai last year.
+whisperx_large-v3_verbatim_prompt,meijia,19,G05,have been to shanghai last year,went to shanghai last year,retained,I have been to Shanghai last year.
+whisperx_large-v3_verbatim_prompt,samantha,19,G05,have been to shanghai last year,went to shanghai last year,retained,I have been to Shanghai last year.
+whisperx_large-v3_verbatim_prompt,tingting,19,G05,have been to shanghai last year,went to shanghai last year,retained,I have been to Shanghai last year.
+whisperx_large-v3_verbatim_prompt,daniel,20,G16,if i am you,if i were you,retained,"If I am you, I will take the job."
+whisperx_large-v3_verbatim_prompt,meijia,20,G16,if i am you,if i were you,retained,"If I am you, I will take the job."
+whisperx_large-v3_verbatim_prompt,samantha,20,G16,if i am you,if i were you,retained,"If I am you, I will take the job."
+whisperx_large-v3_verbatim_prompt,tingting,20,G16,if i am you,if i were you,retained,"If I am you, I will take the job."
+whisperx_large-v3_verbatim_prompt,daniel,21,L10,very boring,very bored,retained,I feel very boring in this class.
+whisperx_large-v3_verbatim_prompt,meijia,21,L10,very boring,very bored,retained,I feel very boring in this class.
+whisperx_large-v3_verbatim_prompt,samantha,21,L10,very boring,very bored,retained,I feel very boring in this class.
+whisperx_large-v3_verbatim_prompt,tingting,21,L10,very boring,very bored,retained,I feel very boring in this class.
+whisperx_large-v3_verbatim_prompt,daniel,22,G09,you like coffee,do you like coffee,retained,Do you like coffee or tea?
+whisperx_large-v3_verbatim_prompt,meijia,22,G09,you like coffee,do you like coffee,retained,Do you like coffee or tea?
+whisperx_large-v3_verbatim_prompt,samantha,22,G09,you like coffee,do you like coffee,retained,You like coffee or tea?
+whisperx_large-v3_verbatim_prompt,tingting,22,G09,you like coffee,do you like coffee,retained,Do you like coffee or tea?
+whisperx_large-v3_verbatim_prompt,daniel,23,G03,brother work,brother works,retained,My brother work in bank near my home.
+whisperx_large-v3_verbatim_prompt,daniel,23,G01,in bank,in a bank,retained,My brother work in bank near my home.
+whisperx_large-v3_verbatim_prompt,meijia,23,G03,brother work,brother works,retained,My brother work in bank near my home.
+whisperx_large-v3_verbatim_prompt,meijia,23,G01,in bank,in a bank,retained,My brother work in bank near my home.
+whisperx_large-v3_verbatim_prompt,samantha,23,G03,brother work,brother works,retained,My brother work in bank near my home.
+whisperx_large-v3_verbatim_prompt,samantha,23,G01,in bank,in a bank,retained,My brother work in bank near my home.
+whisperx_large-v3_verbatim_prompt,tingting,23,G03,brother work,brother works,retained,My brother work in bank near my home.
+whisperx_large-v3_verbatim_prompt,tingting,23,G01,in bank,in a bank,retained,My brother work in bank near my home.
+whisperx_large-v3_verbatim_prompt,daniel,24,G04,i play,i played,retained,When I was young I play football and my father teach me.
+whisperx_large-v3_verbatim_prompt,daniel,24,G04,father teach,father taught,retained,When I was young I play football and my father teach me.
+whisperx_large-v3_verbatim_prompt,meijia,24,G04,i play,i played,retained,"When I was young, I play football and my father teach me."
+whisperx_large-v3_verbatim_prompt,meijia,24,G04,father teach,father taught,retained,"When I was young, I play football and my father teach me."
+whisperx_large-v3_verbatim_prompt,samantha,24,G04,i play,i played,retained,When I was young I play football and my father teach me.
+whisperx_large-v3_verbatim_prompt,samantha,24,G04,father teach,father taught,retained,When I was young I play football and my father teach me.
+whisperx_large-v3_verbatim_prompt,tingting,24,G04,i play,i played,retained,When I was young I play football and my father teach me.
+whisperx_large-v3_verbatim_prompt,tingting,24,G04,father teach,father taught,retained,When I was young I play football and my father teach me.
+whisperx_medium.en_default,daniel,1,G04,i go,i went,retained,Yesterday I go to the park and see my friend.
+whisperx_medium.en_default,daniel,1,G04,and see,and saw,retained,Yesterday I go to the park and see my friend.
+whisperx_medium.en_default,meijia,1,G04,i go,i went,retained,"Yesterday, I go to the park and see my friend."
+whisperx_medium.en_default,meijia,1,G04,and see,and saw,retained,"Yesterday, I go to the park and see my friend."
+whisperx_medium.en_default,samantha,1,G04,i go,i went,retained,Yesterday I go to the park and see my friend.
+whisperx_medium.en_default,samantha,1,G04,and see,and saw,retained,Yesterday I go to the park and see my friend.
+whisperx_medium.en_default,tingting,1,G04,i go,i went,retained,Yesterday I go to the park and see my friend.
+whisperx_medium.en_default,tingting,1,G04,and see,and saw,retained,Yesterday I go to the park and see my friend.
+whisperx_medium.en_default,daniel,2,G03,she go,she goes,retained,She go to work by bus every day.
+whisperx_medium.en_default,meijia,2,G03,she go,she goes,retained,She go to work by bus every day.
+whisperx_medium.en_default,samantha,2,G03,she go,she goes,retained,She go to work by bus every day.
+whisperx_medium.en_default,tingting,2,G03,she go,she goes,retained,She go to work by bus every day.
+whisperx_medium.en_default,daniel,3,G01,bought car,bought a car,retained,I bought car last week.
+whisperx_medium.en_default,meijia,3,G01,bought car,bought a car,retained,I bought car last week.
+whisperx_medium.en_default,samantha,3,G01,bought car,bought a car,retained,I bought car last week.
+whisperx_medium.en_default,tingting,3,G01,bought car,bought a car,retained,I bought car last week.
+whisperx_medium.en_default,daniel,4,G02,two book,two books,retained,I have two book and three pen.
+whisperx_medium.en_default,daniel,4,G02,three pen,three pens,retained,I have two book and three pen.
+whisperx_medium.en_default,meijia,4,G02,two book,two books,other,I have 2 book and 3 pen.
+whisperx_medium.en_default,meijia,4,G02,three pen,three pens,other,I have 2 book and 3 pen.
+whisperx_medium.en_default,samantha,4,G02,two book,two books,retained,I have two book and three pen.
+whisperx_medium.en_default,samantha,4,G02,three pen,three pens,retained,I have two book and three pen.
+whisperx_medium.en_default,tingting,4,G02,two book,two books,retained,I have two book and three pen.
+whisperx_medium.en_default,tingting,4,G02,three pen,three pens,retained,I have two book and three pen.
+whisperx_medium.en_default,daniel,5,G06,he very tall,he is very tall,other,very tall and very handsome.
+whisperx_medium.en_default,meijia,5,G06,he very tall,he is very tall,retained,He very tall and very handsome.
+whisperx_medium.en_default,samantha,5,G06,he very tall,he is very tall,retained,He very tall and very handsome.
+whisperx_medium.en_default,tingting,5,G06,he very tall,he is very tall,retained,He very tall and very handsome.
+whisperx_medium.en_default,daniel,6,G06,am agree,agree,retained,I am agree with you.
+whisperx_medium.en_default,meijia,6,G06,am agree,agree,retained,I am agree with you.
+whisperx_medium.en_default,samantha,6,G06,am agree,agree,retained,I am agree with you.
+whisperx_medium.en_default,tingting,6,G06,am agree,agree,retained,I am agree with you.
+whisperx_medium.en_default,daniel,7,G09,very like,really like,retained,I very like this movie.
+whisperx_medium.en_default,meijia,7,G09,very like,really like,retained,I very like this movie.
+whisperx_medium.en_default,samantha,7,G09,very like,really like,retained,I very like this movie.
+whisperx_medium.en_default,tingting,7,G09,very like,really like,retained,I very like this movie.
+whisperx_medium.en_default,daniel,8,G09,why you say,why did you say,retained,Why you say that to her?
+whisperx_medium.en_default,meijia,8,G09,why you say,why did you say,retained,Why you say that to her?
+whisperx_medium.en_default,samantha,8,G09,why you say,why did you say,retained,Why you say that to her?
+whisperx_medium.en_default,tingting,8,G09,why you say,why did you say,retained,Why you say-
+whisperx_medium.en_default,daniel,9,G10,he is very kind,she is very kind,retained,My mother is a teacher. He is very kind.
+whisperx_medium.en_default,meijia,9,G10,he is very kind,she is very kind,retained,My mother is a teacher. He is very kind.
+whisperx_medium.en_default,samantha,9,G10,he is very kind,she is very kind,retained,My mother is a teacher. He is very kind.
+whisperx_medium.en_default,tingting,9,G10,he is very kind,she is very kind,retained,"My mother is a teacher, he is very kind."
+whisperx_medium.en_default,daniel,10,G10,is raining outside,it's raining outside,retained,It is raining outside now
+whisperx_medium.en_default,meijia,10,G10,is raining outside,it's raining outside,corrected,It's raining outside now.
+whisperx_medium.en_default,samantha,10,G10,is raining outside,it's raining outside,retained,It is raining outside now.
+whisperx_medium.en_default,tingting,10,G10,is raining outside,it's raining outside,corrected,It's raining outside now.
+whisperx_medium.en_default,daniel,11,G11,but i still,i still,retained,"Although it was late, but I still went to the party."
+whisperx_medium.en_default,meijia,11,G11,but i still,i still,retained,"Although it was late, but I still went to the party."
+whisperx_medium.en_default,samantha,11,G11,but i still,i still,retained,"Although it was late, but I still went to the party."
+whisperx_medium.en_default,tingting,11,G11,but i still,i still,retained,"Although it was late, but I still went to the party."
+whisperx_medium.en_default,daniel,12,G11,so i slept,i slept,retained,"Because I was tired, so I slept early."
+whisperx_medium.en_default,meijia,12,G11,so i slept,i slept,retained,"because I was tired, so I slept early."
+whisperx_medium.en_default,samantha,12,G11,so i slept,i slept,retained,"because I was tired, so I slept early."
+whisperx_medium.en_default,tingting,12,G11,so i slept,i slept,retained,"Because I was tired, so I slept early."
+whisperx_medium.en_default,daniel,13,G12,here have,there are,retained,Here have many people today.
+whisperx_medium.en_default,meijia,13,G12,here have,there are,retained,Here have many people today.
+whisperx_medium.en_default,samantha,13,G12,here have,there are,retained,Here have many people today.
+whisperx_medium.en_default,tingting,13,G12,here have,there are,retained,Here have many people today.
+whisperx_medium.en_default,daniel,14,G07,many advices,a lot of advice,retained,She gave me many advices about my job.
+whisperx_medium.en_default,meijia,14,G07,many advices,a lot of advice,retained,She gave me many advices about my job.
+whisperx_medium.en_default,samantha,14,G07,many advices,a lot of advice,retained,She gave me many advices about my job.
+whisperx_medium.en_default,tingting,14,G07,many advices,a lot of advice,retained,She gave me many advices about my job.
+whisperx_medium.en_default,daniel,15,G08,in monday,on monday,retained,I will see you in Monday morning.
+whisperx_medium.en_default,meijia,15,G08,in monday,on monday,retained,I will see you in Monday morning.
+whisperx_medium.en_default,samantha,15,G08,in monday,on monday,retained,I will see you in Monday morning.
+whisperx_medium.en_default,tingting,15,G08,in monday,on monday,retained,I will see you in Monday morning.
+whisperx_medium.en_default,daniel,16,G08,discussed about,discussed,retained,discussed about the plan yesterday.
+whisperx_medium.en_default,meijia,16,G08,discussed about,discussed,retained,We discussed about the plan yesterday.
+whisperx_medium.en_default,samantha,16,G08,discussed about,discussed,retained,We discussed about the plan yesterday.
+whisperx_medium.en_default,tingting,16,G08,discussed about,discussed,retained,We discussed about the plan yesterday.
+whisperx_medium.en_default,daniel,17,G13,more better,better,retained,This one is more better than that one.
+whisperx_medium.en_default,meijia,17,G13,more better,better,retained,This one is more better than that one.
+whisperx_medium.en_default,samantha,17,G13,more better,better,retained,This one is more better than that one.
+whisperx_medium.en_default,tingting,17,G13,more better,better,retained,This one is more better than that one.
+whisperx_medium.en_default,daniel,18,G04,i visit,i visited,corrected,Last year I visited three countries in Europe.
+whisperx_medium.en_default,daniel,18,G02,three country,three countries,corrected,Last year I visited three countries in Europe.
+whisperx_medium.en_default,meijia,18,G04,i visit,i visited,corrected,Last year I visited 3 countries in Europe.
+whisperx_medium.en_default,meijia,18,G02,three country,three countries,other,Last year I visited 3 countries in Europe.
+whisperx_medium.en_default,samantha,18,G04,i visit,i visited,retained,Last year I visit three country in Europe.
+whisperx_medium.en_default,samantha,18,G02,three country,three countries,retained,Last year I visit three country in Europe.
+whisperx_medium.en_default,tingting,18,G04,i visit,i visited,corrected,Last year I visited three countries in Europe.
+whisperx_medium.en_default,tingting,18,G02,three country,three countries,corrected,Last year I visited three countries in Europe.
+whisperx_medium.en_default,daniel,19,G05,have been to shanghai last year,went to shanghai last year,retained,I have been to Shanghai last year.
+whisperx_medium.en_default,meijia,19,G05,have been to shanghai last year,went to shanghai last year,retained,I have been to Shanghai last year.
+whisperx_medium.en_default,samantha,19,G05,have been to shanghai last year,went to shanghai last year,retained,have been to Shanghai last year.
+whisperx_medium.en_default,tingting,19,G05,have been to shanghai last year,went to shanghai last year,retained,I have been to Shanghai last year.
+whisperx_medium.en_default,daniel,20,G16,if i am you,if i were you,retained,"If I am you, I will take the job."
+whisperx_medium.en_default,meijia,20,G16,if i am you,if i were you,retained,"If I am you, I will take the job."
+whisperx_medium.en_default,samantha,20,G16,if i am you,if i were you,retained,"If I am you, I will take the job."
+whisperx_medium.en_default,tingting,20,G16,if i am you,if i were you,retained,"If I am you, I will take the job."
+whisperx_medium.en_default,daniel,21,L10,very boring,very bored,retained,I feel very boring in this class.
+whisperx_medium.en_default,meijia,21,L10,very boring,very bored,retained,I feel very boring in this class.
+whisperx_medium.en_default,samantha,21,L10,very boring,very bored,retained,feel very boring in this class.
+whisperx_medium.en_default,tingting,21,L10,very boring,very bored,retained,I feel very boring in this class.
+whisperx_medium.en_default,daniel,22,G09,you like coffee,do you like coffee,retained,You like coffee or tea?
+whisperx_medium.en_default,meijia,22,G09,you like coffee,do you like coffee,retained,Do you like coffee or tea?
+whisperx_medium.en_default,samantha,22,G09,you like coffee,do you like coffee,retained,Do you like coffee or tea?
+whisperx_medium.en_default,tingting,22,G09,you like coffee,do you like coffee,retained,Do you like coffee or tea?
+whisperx_medium.en_default,daniel,23,G03,brother work,brother works,retained,my brother work in bank near my home
+whisperx_medium.en_default,daniel,23,G01,in bank,in a bank,retained,my brother work in bank near my home
+whisperx_medium.en_default,meijia,23,G03,brother work,brother works,other,My brother worked in bank near my home.
+whisperx_medium.en_default,meijia,23,G01,in bank,in a bank,retained,My brother worked in bank near my home.
+whisperx_medium.en_default,samantha,23,G03,brother work,brother works,retained,my brother work in bank near my home.
+whisperx_medium.en_default,samantha,23,G01,in bank,in a bank,retained,my brother work in bank near my home.
+whisperx_medium.en_default,tingting,23,G03,brother work,brother works,retained,My brother work in bank near my home.
+whisperx_medium.en_default,tingting,23,G01,in bank,in a bank,retained,My brother work in bank near my home.
+whisperx_medium.en_default,daniel,24,G04,i play,i played,retained,When I was young I play football and my father teach me.
+whisperx_medium.en_default,daniel,24,G04,father teach,father taught,retained,When I was young I play football and my father teach me.
+whisperx_medium.en_default,meijia,24,G04,i play,i played,corrected,"When I was young, I played football, and my father taught me."
+whisperx_medium.en_default,meijia,24,G04,father teach,father taught,corrected,"When I was young, I played football, and my father taught me."
+whisperx_medium.en_default,samantha,24,G04,i play,i played,retained,When I was young I play football and my father teach me.
+whisperx_medium.en_default,samantha,24,G04,father teach,father taught,retained,When I was young I play football and my father teach me.
+whisperx_medium.en_default,tingting,24,G04,i play,i played,retained,When I was young I play football and my father teach me.
+whisperx_medium.en_default,tingting,24,G04,father teach,father taught,retained,When I was young I play football and my father teach me.
+wav2vec2_large_960h_ctc,daniel,1,G04,i go,i went,retained,YESTERDAY I GO TO THE PARK AND SEE MY FRIEND
+wav2vec2_large_960h_ctc,daniel,1,G04,and see,and saw,retained,YESTERDAY I GO TO THE PARK AND SEE MY FRIEND
+wav2vec2_large_960h_ctc,meijia,1,G04,i go,i went,retained,YES PER DAY I GO TO THE PARK AND SEE MY FRIEND
+wav2vec2_large_960h_ctc,meijia,1,G04,and see,and saw,retained,YES PER DAY I GO TO THE PARK AND SEE MY FRIEND
+wav2vec2_large_960h_ctc,samantha,1,G04,i go,i went,retained,YESTERDAY I GO TO THE PARK AND SEE MY FRIEND
+wav2vec2_large_960h_ctc,samantha,1,G04,and see,and saw,retained,YESTERDAY I GO TO THE PARK AND SEE MY FRIEND
+wav2vec2_large_960h_ctc,tingting,1,G04,i go,i went,retained,YESTERDAY I GO TO THE PARK AND SEE MY FRIEND
+wav2vec2_large_960h_ctc,tingting,1,G04,and see,and saw,retained,YESTERDAY I GO TO THE PARK AND SEE MY FRIEND
+wav2vec2_large_960h_ctc,daniel,2,G03,she go,she goes,retained,SHE GO TO WORK BY BUS EVERY DAY
+wav2vec2_large_960h_ctc,meijia,2,G03,she go,she goes,retained,SHE GO TO WORT BY BALNAS EVERY DAY
+wav2vec2_large_960h_ctc,samantha,2,G03,she go,she goes,retained,SHE GO TO WORK BY BUSS EVERY DAY
+wav2vec2_large_960h_ctc,tingting,2,G03,she go,she goes,retained,SHE GO TO WORK BIBES EVERY DAY
+wav2vec2_large_960h_ctc,daniel,3,G01,bought car,bought a car,other,I BORD PA LAST WEEK
+wav2vec2_large_960h_ctc,meijia,3,G01,bought car,bought a car,other,I BALT CAR LAST WEEK
+wav2vec2_large_960h_ctc,samantha,3,G01,bought car,bought a car,other,I VOUGHTKAR LAST WEEK
+wav2vec2_large_960h_ctc,tingting,3,G01,bought car,bought a car,other,I BOUGHT KAR LAST WEEK
+wav2vec2_large_960h_ctc,daniel,4,G02,two book,two books,retained,I HAVE TWO BOOK AND THREEPEN
+wav2vec2_large_960h_ctc,daniel,4,G02,three pen,three pens,other,I HAVE TWO BOOK AND THREEPEN
+wav2vec2_large_960h_ctc,meijia,4,G02,two book,two books,other,I HAVE TO BOG AND THREE MEN
+wav2vec2_large_960h_ctc,meijia,4,G02,three pen,three pens,other,I HAVE TO BOG AND THREE MEN
+wav2vec2_large_960h_ctc,samantha,4,G02,two book,two books,retained,I HAVE TWO BOOK AND THREEPEN
+wav2vec2_large_960h_ctc,samantha,4,G02,three pen,three pens,other,I HAVE TWO BOOK AND THREEPEN
+wav2vec2_large_960h_ctc,tingting,4,G02,two book,two books,other,I HAVE TWO AND THREE MEN
+wav2vec2_large_960h_ctc,tingting,4,G02,three pen,three pens,other,I HAVE TWO AND THREE MEN
+wav2vec2_large_960h_ctc,daniel,5,G06,he very tall,he is very tall,retained,HE VERY TALL AND VERY HANDSOME
+wav2vec2_large_960h_ctc,meijia,5,G06,he very tall,he is very tall,retained,HE VERY TALL AND VERY HANDSOME
+wav2vec2_large_960h_ctc,samantha,5,G06,he very tall,he is very tall,retained,HE VERY TALL AND VERY HANDSOME
+wav2vec2_large_960h_ctc,tingting,5,G06,he very tall,he is very tall,retained,HE VERY TALL AND VERY HANDSOME
+wav2vec2_large_960h_ctc,daniel,6,G06,am agree,agree,retained,I AM AGREE WITH YOU
+wav2vec2_large_960h_ctc,meijia,6,G06,am agree,agree,other,I HAM AGRI WITH YOU
+wav2vec2_large_960h_ctc,samantha,6,G06,am agree,agree,retained,I AM AGREE WITH YOU
+wav2vec2_large_960h_ctc,tingting,6,G06,am agree,agree,retained,I AM AGREE WITH YOU
+wav2vec2_large_960h_ctc,daniel,7,G09,very like,really like,retained,I VERY LIKE THIS MOVIE
+wav2vec2_large_960h_ctc,meijia,7,G09,very like,really like,retained,I VERY LIKE THESE MOVI
+wav2vec2_large_960h_ctc,samantha,7,G09,very like,really like,retained,I VERY LIKE THIS MOVIE
+wav2vec2_large_960h_ctc,tingting,7,G09,very like,really like,retained,I VERY LIKE THIS MOVIE
+wav2vec2_large_960h_ctc,daniel,8,G09,why you say,why did you say,retained,WHY YOU SAY THAT TO HER
+wav2vec2_large_960h_ctc,meijia,8,G09,why you say,why did you say,retained,WHY YOU SAY THAT TO HER
+wav2vec2_large_960h_ctc,samantha,8,G09,why you say,why did you say,retained,WHY YOU SAY THAT TO HER
+wav2vec2_large_960h_ctc,tingting,8,G09,why you say,why did you say,retained,WHY YOU SAY AAUS
+wav2vec2_large_960h_ctc,daniel,9,G10,he is very kind,she is very kind,retained,MY MOTHER IS A TEACHER HE IS VERY KIND
+wav2vec2_large_960h_ctc,meijia,9,G10,he is very kind,she is very kind,retained,MY MOTHER IS HER TEACHER HE IS VERY KIND
+wav2vec2_large_960h_ctc,samantha,9,G10,he is very kind,she is very kind,retained,MY MOTHER IS A TEACHER HE IS VERY KIND
+wav2vec2_large_960h_ctc,tingting,9,G10,he is very kind,she is very kind,retained,MY MOTHER IS A TEACHER HE IS VERY KIND
+wav2vec2_large_960h_ctc,daniel,10,G10,is raining outside,it's raining outside,retained,IS RAINING OUTSIDE NOW
+wav2vec2_large_960h_ctc,meijia,10,G10,is raining outside,it's raining outside,other,IS RANNING OUTSIDE NOW
+wav2vec2_large_960h_ctc,samantha,10,G10,is raining outside,it's raining outside,retained,IS RAINING OUTSIDE NOW
+wav2vec2_large_960h_ctc,tingting,10,G10,is raining outside,it's raining outside,other,IS REANING OUTSIDE NOW
+wav2vec2_large_960h_ctc,daniel,11,G11,but i still,i still,retained,ALTHOUGH IT WAS LATE BUT I STILL WENT TO THE PARTY
+wav2vec2_large_960h_ctc,meijia,11,G11,but i still,i still,other,ALTHOUGH IT WAS LAID BUT ISDALE WENT TO THE PARTY
+wav2vec2_large_960h_ctc,samantha,11,G11,but i still,i still,retained,ALTHOUGH IT WAS LATE BUT I STILL WENT TO THE PARTY
+wav2vec2_large_960h_ctc,tingting,11,G11,but i still,i still,retained,ALTHOUGH IT WAS LATE BUT I STILL WENT TO THE PARTY
+wav2vec2_large_960h_ctc,daniel,12,G11,so i slept,i slept,retained,BECAUSE I WAS TIRED SO I SLEPT EARLY
+wav2vec2_large_960h_ctc,meijia,12,G11,so i slept,i slept,other,BECAUSE I WAS TIRED SO I SLEFT EARLY
+wav2vec2_large_960h_ctc,samantha,12,G11,so i slept,i slept,retained,BECAUSE I WAS TIRED SO I SLEPT EARLY
+wav2vec2_large_960h_ctc,tingting,12,G11,so i slept,i slept,retained,BECAUSE I WAS TIRED SO I SLEPT EARLY
+wav2vec2_large_960h_ctc,daniel,13,G12,here have,there are,retained,HERE HAVE MEN AN PEOPLE TO DAY
+wav2vec2_large_960h_ctc,meijia,13,G12,here have,there are,other,HE'LL HAVE MANY PEOPLE TO DAY
+wav2vec2_large_960h_ctc,samantha,13,G12,here have,there are,retained,HERE HAVE MANY PEOPLE TO DAY
+wav2vec2_large_960h_ctc,tingting,13,G12,here have,there are,retained,HERE HAVE MANY PEOPLE TO DAY
+wav2vec2_large_960h_ctc,daniel,14,G07,many advices,a lot of advice,retained,SHE GAVE ME MANY ADVICES ABOUT MY JOB
+wav2vec2_large_960h_ctc,meijia,14,G07,many advices,a lot of advice,other,SHE GAVE ME MANY ADVISES ABOUT MY JOB
+wav2vec2_large_960h_ctc,samantha,14,G07,many advices,a lot of advice,retained,SHE GAVE ME MANY ADVICES ABOUT MY JOB
+wav2vec2_large_960h_ctc,tingting,14,G07,many advices,a lot of advice,other,SHE GAVE ME MANY ADVESES ABOUT MY CHALD
+wav2vec2_large_960h_ctc,daniel,15,G08,in monday,on monday,retained,I WILL SEE YOU IN MONDAY MORNING
+wav2vec2_large_960h_ctc,meijia,15,G08,in monday,on monday,other,I WILL SEE YOU E MONDAY MORNING
+wav2vec2_large_960h_ctc,samantha,15,G08,in monday,on monday,retained,I WILL SEE YOU IN MONDAY MORNING
+wav2vec2_large_960h_ctc,tingting,15,G08,in monday,on monday,retained,I WILL SEE YOU IN MONDAY MORNING
+wav2vec2_large_960h_ctc,daniel,16,G08,discussed about,discussed,retained,WE DISCUSSED ABOUT THE PLAN YESTERDAY
+wav2vec2_large_960h_ctc,meijia,16,G08,discussed about,discussed,other,WE DISPASSED ABOUT THE PLAN YESTERDAY
+wav2vec2_large_960h_ctc,samantha,16,G08,discussed about,discussed,retained,WE DISCUSSED ABOUT THE PLAN YESTERDAY
+wav2vec2_large_960h_ctc,tingting,16,G08,discussed about,discussed,retained,WE DISCUSSED ABOUT THE PLAN YESTERDAY
+wav2vec2_large_960h_ctc,daniel,17,G13,more better,better,retained,THIS ONE IS MORE BETTER THAN THAT ONE
+wav2vec2_large_960h_ctc,meijia,17,G13,more better,better,retained,THIS ONE IS MORE BETTER THAN THAT ONE
+wav2vec2_large_960h_ctc,samantha,17,G13,more better,better,retained,THIS ONE IS MORE BETTER THAN THAT ONE
+wav2vec2_large_960h_ctc,tingting,17,G13,more better,better,other,THIS ONE IS MORE PEDULAR THAN THAT ONE
+wav2vec2_large_960h_ctc,daniel,18,G04,i visit,i visited,retained,LAST YEAR I VISIT THREE COUNTRY IN EUROPE
+wav2vec2_large_960h_ctc,daniel,18,G02,three country,three countries,retained,LAST YEAR I VISIT THREE COUNTRY IN EUROPE
+wav2vec2_large_960h_ctc,meijia,18,G04,i visit,i visited,corrected,LAST YEAR I  VISITED THREE CONTRI IN UROB
+wav2vec2_large_960h_ctc,meijia,18,G02,three country,three countries,other,LAST YEAR I  VISITED THREE CONTRI IN UROB
+wav2vec2_large_960h_ctc,samantha,18,G04,i visit,i visited,retained,LAST YEAR I VISIT THREE COUNTRYS IN EUROPE
+wav2vec2_large_960h_ctc,samantha,18,G02,three country,three countries,other,LAST YEAR I VISIT THREE COUNTRYS IN EUROPE
+wav2vec2_large_960h_ctc,tingting,18,G04,i visit,i visited,retained,LAST YEAR I VISIT THREE COUNTRIES IN EUROPE
+wav2vec2_large_960h_ctc,tingting,18,G02,three country,three countries,corrected,LAST YEAR I VISIT THREE COUNTRIES IN EUROPE
+wav2vec2_large_960h_ctc,daniel,19,G05,have been to shanghai last year,went to shanghai last year,retained,I HAVE BEEN TO SHANGHAI LAST YEAR
+wav2vec2_large_960h_ctc,meijia,19,G05,have been to shanghai last year,went to shanghai last year,other,I HAVE BEEN TO SHENHAI LAST YEAR
+wav2vec2_large_960h_ctc,samantha,19,G05,have been to shanghai last year,went to shanghai last year,retained,I HAVE BEEN TO SHANGHAI LAST YEAR
+wav2vec2_large_960h_ctc,tingting,19,G05,have been to shanghai last year,went to shanghai last year,other,I HAVE BEEN TO SHANGHAI LAST YOU YEAR
+wav2vec2_large_960h_ctc,daniel,20,G16,if i am you,if i were you,retained,IF I AM YOU I WILL TAKE THE JOG
+wav2vec2_large_960h_ctc,meijia,20,G16,if i am you,if i were you,other,IF I HAND YOU I WILL TAKE THE JOB
+wav2vec2_large_960h_ctc,samantha,20,G16,if i am you,if i were you,retained,IF I AM YOU I WILL TAKE THE JOB
+wav2vec2_large_960h_ctc,tingting,20,G16,if i am you,if i were you,other,IF I AIM YOU I WILL TAKE THE JOB
+wav2vec2_large_960h_ctc,daniel,21,L10,very boring,very bored,retained,I FEEL VERY BORING IN THIS CLASS
+wav2vec2_large_960h_ctc,meijia,21,L10,very boring,very bored,other,I FEEL VERY BURIING IN THIS CLASS
+wav2vec2_large_960h_ctc,samantha,21,L10,very boring,very bored,retained,I FEEL VERY BORING IN THIS CLASS
+wav2vec2_large_960h_ctc,tingting,21,L10,very boring,very bored,retained,I FEEL VERY BORING IN THIS CLASS
+wav2vec2_large_960h_ctc,daniel,22,G09,you like coffee,do you like coffee,retained,YOU LIKE COFFEE OR T
+wav2vec2_large_960h_ctc,meijia,22,G09,you like coffee,do you like coffee,other,YOU LIKE PAFFEE AL TE
+wav2vec2_large_960h_ctc,samantha,22,G09,you like coffee,do you like coffee,retained,YOU LIKE COFFEE OR TEA
+wav2vec2_large_960h_ctc,tingting,22,G09,you like coffee,do you like coffee,retained,YOU LIKE COFFEE OR TE
+wav2vec2_large_960h_ctc,daniel,23,G03,brother work,brother works,retained,MY BROTHER WORK IN BANK NEAR MY HOME
+wav2vec2_large_960h_ctc,daniel,23,G01,in bank,in a bank,retained,MY BROTHER WORK IN BANK NEAR MY HOME
+wav2vec2_large_960h_ctc,meijia,23,G03,brother work,brother works,other,MY BROTHER WORKED IN BANK NEAR MY HOME
+wav2vec2_large_960h_ctc,meijia,23,G01,in bank,in a bank,retained,MY BROTHER WORKED IN BANK NEAR MY HOME
+wav2vec2_large_960h_ctc,samantha,23,G03,brother work,brother works,retained,MY BROTHER WORK IN BANK NEAR MY HOME
+wav2vec2_large_960h_ctc,samantha,23,G01,in bank,in a bank,retained,MY BROTHER WORK IN BANK NEAR MY HOME
+wav2vec2_large_960h_ctc,tingting,23,G03,brother work,brother works,other,MY BROTHER WERE IN BANK NEAR MY HOME
+wav2vec2_large_960h_ctc,tingting,23,G01,in bank,in a bank,retained,MY BROTHER WERE IN BANK NEAR MY HOME
+wav2vec2_large_960h_ctc,daniel,24,G04,i play,i played,retained,WHEN I WAS YOUNG I PLAY FOOTBALL AND MY FATHER TEACH ME
+wav2vec2_large_960h_ctc,daniel,24,G04,father teach,father taught,retained,WHEN I WAS YOUNG I PLAY FOOTBALL AND MY FATHER TEACH ME
+wav2vec2_large_960h_ctc,meijia,24,G04,i play,i played,retained,WHEN I WAS YOUNG I PLAY FOOTBALL AND MY FATHER TEACH ME
+wav2vec2_large_960h_ctc,meijia,24,G04,father teach,father taught,retained,WHEN I WAS YOUNG I PLAY FOOTBALL AND MY FATHER TEACH ME
+wav2vec2_large_960h_ctc,samantha,24,G04,i play,i played,retained,WHEN I WAS YOUNG I PLAY FOOTBALL AND MY FATHER TEACH ME
+wav2vec2_large_960h_ctc,samantha,24,G04,father teach,father taught,retained,WHEN I WAS YOUNG I PLAY FOOTBALL AND MY FATHER TEACH ME
+wav2vec2_large_960h_ctc,tingting,24,G04,i play,i played,retained,WHEN I WAS YOUNG I PLAY FOOTBALL AND MY FATHER TEACH ME
+wav2vec2_large_960h_ctc,tingting,24,G04,father teach,father taught,retained,WHEN I WAS YOUNG I PLAY FOOTBALL AND MY FATHER TEACH ME
