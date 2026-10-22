@@ -1,0 +1,25 @@
+# experiments — M1 技术风险验证
+
+对应设计文档 [第 6 节](../docs/design/2026-10-22-m0-learner-model.md#6-m1-需要验证的风险)。
+
+| 目录 | 验证什么 | 阈值 |
+|---|---|---|
+| `exp_a_grammar/` | 转写是否保留学习者的语法错误（24 句、29 个植入错误、4 个 macOS 合成音，含 2 个中文语音读英文模拟口音） | 错误保留率 ≥ 80% |
+| `exp_b_pronounce/` | OpenPronounce 对中文口音英语评分的稳定性（speechocean762 test 切分，8 种扰动条件） | 同一录音扰动后分数标准差 < 0.1（0–1 归一） |
+| `exp_c_timestamps/` | whisperX 词级时间戳精度（Kokoro 合成 50 句，token 时间戳为真值） | 边界误差 < 150 ms 的比例 ≥ 90% |
+
+## 运行
+
+```bash
+cd experiments
+uv venv --python 3.11 .venv && source .venv/bin/activate
+uv pip install torch torchaudio whisperx kokoro openpronounce soundfile numpy scipy pandas pyarrow librosa
+source run_env.sh            # 设置 espeak-ng 库路径等；国内镜像需 HEARSAY_USE_CN_MIRRORS=1
+mkdir -p data && curl -L -o data/speechocean762_test.parquet \
+  https://huggingface.co/datasets/mispeech/speechocean762/resolve/main/data/test-00000-of-00001.parquet
+python exp_a_grammar/run.py && python exp_a_grammar/report.py
+python exp_c_timestamps/run.py
+python exp_b_pronounce/run.py 40
+```
+
+`exp_a_grammar/audio/` 里的 wav 由 macOS `say` 生成，已入库（Linux 上无法重新生成）。

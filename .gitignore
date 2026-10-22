@@ -5,3 +5,10 @@ node_modules/
 __pycache__/
 *.pyc
 dist/
+experiments/.venv/
+experiments/data/
+experiments/exp_c_timestamps/audio/
+experiments/**/results.csv
+experiments/**/runs.csv
+experiments/**/words.csv
+experiments/**/word_errors.csv
