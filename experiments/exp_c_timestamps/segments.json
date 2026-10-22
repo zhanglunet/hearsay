@@ -1,0 +1,370 @@
+{
+ "summary": {
+  "paragraphs": 10,
+  "sentences": 50,
+  "transcribe_segments": 10,
+  "transcribe_one2one_paragraphs": 0,
+  "aligned_segments": 51,
+  "aligned_one2one_paragraphs": 8,
+  "aligned_one2one_sentences": 40,
+  "aligned_sent_start_median_ms": 60.8,
+  "aligned_sent_start_frac_lt_150ms": 1.0,
+  "aligned_sent_end_median_ms": 282.5,
+  "aligned_sent_end_frac_lt_150ms": 0.0
+ },
+ "paragraphs": [
+  {
+   "para": "para_00",
+   "n_sents": 5,
+   "transcribe_segments": 1,
+   "transcribe_one2one": false,
+   "transcribe_sents_per_seg": [
+    5
+   ],
+   "aligned_segments": 5,
+   "aligned_one2one": true,
+   "aligned_sent_to_segs": [
+    [
+     0
+    ],
+    [
+     1
+    ],
+    [
+     2
+    ],
+    [
+     3
+    ],
+    [
+     4
+    ]
+   ],
+   "aligned_texts": [
+    "I usually take the subway to work because the traffic downtown is terrible in the morning.",
+    "My sister moved to Chicago last spring, and she already found a job at a small design studio.",
+    "Could you send me the report before the meeting so I have time to read it carefully?",
+    "We were planning to go hiking this weekend, but the forecast says it will rain all day.",
+    "The restaurant on the corner has really good noodles, and the owner always remembers my name."
+   ]
+  },
+  {
+   "para": "para_01",
+   "n_sents": 5,
+   "transcribe_segments": 1,
+   "transcribe_one2one": false,
+   "transcribe_sents_per_seg": [
+    5
+   ],
+   "aligned_segments": 5,
+   "aligned_one2one": true,
+   "aligned_sent_to_segs": [
+    [
+     0
+    ],
+    [
+     1
+    ],
+    [
+     2
+    ],
+    [
+     3
+    ],
+    [
+     4
+    ]
+   ],
+   "aligned_texts": [
+    "I have been learning English for about three years, but I still find listening the hardest part.",
+    "He said he would call me back in ten minutes, and that was almost two hours ago.",
+    "If you want to improve your pronunciation, you should record yourself, and listen to it.",
+    "The flight was delayed for four hours, so we missed our connection in Frankfurt.",
+    "She asked me whether I had ever been to Japan, and I told her about my trip last year."
+   ]
+  },
+  {
+   "para": "para_02",
+   "n_sents": 5,
+   "transcribe_segments": 1,
+   "transcribe_one2one": false,
+   "transcribe_sents_per_seg": [
+    5
+   ],
+   "aligned_segments": 6,
+   "aligned_one2one": false,
+   "aligned_sent_to_segs": [
+    [
+     0
+    ],
+    [
+     1
+    ],
+    [
+     2
+    ],
+    [
+     3
+    ],
+    [
+     4,
+     5
+    ]
+   ],
+   "aligned_texts": [
+    "Our team meets every Tuesday afternoon to talk about what went well and what did not.",
+    "I am not sure if the store is still open, but we can check on the way home.",
+    "My neighbor plays the piano every evening, and honestly, I have started to enjoy it.",
+    "The new phone is a bit expensive, but the camera is much better than my old one.",
+    "Can you believe it is already October?",
+    "This year has gone by so quickly."
+   ]
+  },
+  {
+   "para": "para_03",
+   "n_sents": 5,
+   "transcribe_segments": 1,
+   "transcribe_one2one": false,
+   "transcribe_sents_per_seg": [
+    5
+   ],
+   "aligned_segments": 5,
+   "aligned_one2one": true,
+   "aligned_sent_to_segs": [
+    [
+     0
+    ],
+    [
+     1
+    ],
+    [
+     2
+    ],
+    [
+     3
+    ],
+    [
+     4
+    ]
+   ],
+   "aligned_texts": [
+    "I tried to fix the printer myself, but in the end, I had to call someone from IT.",
+    "They are building a new library next to the park, and it should open next summer.",
+    "Before you leave the office please make sure all the windows are closed.",
+    "I did not sleep well last night, so I am going to need a lot of coffee today.",
+    "We watched a documentary about deep-sea animals, and some of them looked like aliens."
+   ]
+  },
+  {
+   "para": "para_04",
+   "n_sents": 5,
+   "transcribe_segments": 1,
+   "transcribe_one2one": false,
+   "transcribe_sents_per_seg": [
+    5
+   ],
+   "aligned_segments": 5,
+   "aligned_one2one": false,
+   "aligned_sent_to_segs": [
+    [
+     0
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     2
+    ],
+    [
+     3
+    ],
+    [
+     4
+    ]
+   ],
+   "aligned_texts": [
+    "The manager wants everyone to finish the training course by the end of this month.",
+    "I ran into an old friend at the airport, and we ended up talking for an hour.",
+    "It took me almost a year to feel comfortable speaking English on the phone.",
+    "My favorite part of the day is the quiet half hour before everyone else wakes up.",
+    "She was nervous about the interview, but it turned out to be quite relaxed."
+   ]
+  },
+  {
+   "para": "para_05",
+   "n_sents": 5,
+   "transcribe_segments": 1,
+   "transcribe_one2one": false,
+   "transcribe_sents_per_seg": [
+    5
+   ],
+   "aligned_segments": 5,
+   "aligned_one2one": true,
+   "aligned_sent_to_segs": [
+    [
+     0
+    ],
+    [
+     1
+    ],
+    [
+     2
+    ],
+    [
+     3
+    ],
+    [
+     4
+    ]
+   ],
+   "aligned_texts": [
+    "We should probably book the hotel soon because prices go up closer to the holidays.'",
+    "The teacher explained the grammar point three times, and I finally understood it.",
+    "I left my umbrella on the bus again, and that is the third one this year.",
+    "There is a small café near my apartment where I like to read on Sunday mornings.",
+    "He grew up in a tiny village in the mountains and moved to the city when he was eighteen."
+   ]
+  },
+  {
+   "para": "para_06",
+   "n_sents": 5,
+   "transcribe_segments": 1,
+   "transcribe_one2one": false,
+   "transcribe_sents_per_seg": [
+    5
+   ],
+   "aligned_segments": 5,
+   "aligned_one2one": true,
+   "aligned_sent_to_segs": [
+    [
+     0
+    ],
+    [
+     1
+    ],
+    [
+     2
+    ],
+    [
+     3
+    ],
+    [
+     4
+    ]
+   ],
+   "aligned_texts": [
+    "The project deadline was moved up by two weeks, so everyone is a little stressed.",
+    "I prefer cooking at home because it is cheaper, and I know exactly what I am eating.",
+    "Did you hear that the company is opening a new office in Singapore next year?",
+    "My grandmother still writes letters by hand and refuses to use email.",
+    "We got lost on the way to the concert, but we still made it before the first song."
+   ]
+  },
+  {
+   "para": "para_07",
+   "n_sents": 5,
+   "transcribe_segments": 1,
+   "transcribe_one2one": false,
+   "transcribe_sents_per_seg": [
+    5
+   ],
+   "aligned_segments": 5,
+   "aligned_one2one": true,
+   "aligned_sent_to_segs": [
+    [
+     0
+    ],
+    [
+     1
+    ],
+    [
+     2
+    ],
+    [
+     3
+    ],
+    [
+     4
+    ]
+   ],
+   "aligned_texts": [
+    "The doctor told him to exercise more and eat less salt.",
+    "I think the hardest thing about moving abroad is being far away from family.",
+    "They painted the whole house in one weekend with help from a few friends.",
+    "Please let me know if the time does not work for you and we can reschedule.",
+    "The baby finally fell asleep after crying for most of the afternoon."
+   ]
+  },
+  {
+   "para": "para_08",
+   "n_sents": 5,
+   "transcribe_segments": 1,
+   "transcribe_one2one": false,
+   "transcribe_sents_per_seg": [
+    5
+   ],
+   "aligned_segments": 5,
+   "aligned_one2one": true,
+   "aligned_sent_to_segs": [
+    [
+     0
+    ],
+    [
+     1
+    ],
+    [
+     2
+    ],
+    [
+     3
+    ],
+    [
+     4
+    ]
+   ],
+   "aligned_texts": [
+    "I usually read the news on my phone while I wait for the bus.",
+    "Her presentation was clear and well organized, and the audience asked a lot of questions.",
+    "We ordered too much food and ended up taking half of it home.",
+    "It is much easier to understand people when I can see their faces.",
+    "The museum was free on Sunday, so it was crowded but worth the visit."
+   ]
+  },
+  {
+   "para": "para_09",
+   "n_sents": 5,
+   "transcribe_segments": 1,
+   "transcribe_one2one": false,
+   "transcribe_sents_per_seg": [
+    5
+   ],
+   "aligned_segments": 5,
+   "aligned_one2one": true,
+   "aligned_sent_to_segs": [
+    [
+     0
+    ],
+    [
+     1
+    ],
+    [
+     2
+    ],
+    [
+     3
+    ],
+    [
+     4
+    ]
+   ],
+   "aligned_texts": [
+    "I need to renew my passport before I can book the trip to Canada.\"",
+    "He apologized for being late and explained that his train had broken down.",
+    "The weather in spring here changes so fast that you need a jacket and sunglasses at the same time.",
+    "My coworker brings homemade cookies every Friday and they disappear within minutes.",
+    "After the long walk we sat by the river and watched the boats go past."
+   ]
+  }
+ ]
+}
