@@ -1,0 +1,36 @@
+{
+ "n_utterances": 39,
+ "conditions": [
+  "orig",
+  "orig_repeat",
+  "gain+6dB",
+  "gain-6dB",
+  "noise_snr30",
+  "noise_snr20",
+  "telephone_8k",
+  "shift_100ms"
+ ],
+ "determinism_max_abs_diff": 0.0,
+ "score_std_mean_all_conds": 0.0489,
+ "score_std_p90_all_conds": 0.0916,
+ "frac_utts_std_lt_0.1_all_conds": 0.949,
+ "score_std_mean_excl_telephone": 0.0357,
+ "frac_utts_std_lt_0.1_excl_telephone": 0.949,
+ "mean_score_shift_by_cond": {
+  "orig": 0.0,
+  "orig_repeat": 0.0,
+  "gain+6dB": -0.0019,
+  "gain-6dB": 0.0,
+  "noise_snr30": -0.0063,
+  "noise_snr20": -0.0561,
+  "telephone_8k": -0.0474,
+  "shift_100ms": 0.0034
+ },
+ "spearman_score_vs_human_total": 0.366,
+ "spearman_negPER_vs_human_accuracy": 0.259,
+ "word_flag_precision": 0.303,
+ "word_flag_recall": 0.588,
+ "n_words": 233,
+ "n_human_bad_words": 34,
+ "median_sec_per_utt": 8.26
+}
