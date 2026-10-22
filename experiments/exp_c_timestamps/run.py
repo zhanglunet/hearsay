@@ -7,6 +7,15 @@ import json, re, random, time
 from pathlib import Path
 import numpy as np, soundfile as sf
 
+# 兼容垫片：torch>=2.6 默认 weights_only=True，whisperX 自带的 pyannote VAD 权重（含 omegaconf 对象）加载会失败；
+# 该权重由 whisperX 官方托管，这里把未显式指定的 weights_only 改回 False。
+import torch as _torch
+_orig_torch_load = _torch.load
+def _torch_load_compat(*a, **k):
+    if k.get("weights_only") is None: k["weights_only"] = False
+    return _orig_torch_load(*a, **k)
+_torch.load = _torch_load_compat
+
 HERE = Path(__file__).parent
 random.seed(7)
 SENTS = [l.strip() for l in open(HERE / "sentences.txt") if l.strip()]
