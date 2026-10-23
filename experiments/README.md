@@ -27,3 +27,5 @@ python exp_b_pronounce/run.py 40
 `exp_a_grammar/audio/` 里的 wav 由 macOS `say` 生成，已入库（Linux 上无法重新生成）。
 
 结果与结论见 [`docs/design/2026-10-23-m1-risk-validation.md`](../docs/design/2026-10-23-m1-risk-validation.md)（2026-10-23，CPU 运行）。
+
+GitHub Actions（[`.github/workflows/ci.yml`](../.github/workflows/ci.yml)）只做语法检查，不跑上面的 A/B/C，也不下载模型或数据集。

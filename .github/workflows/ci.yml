@@ -1,0 +1,42 @@
+# Syntax check only. Do not install torch, whisperX, Kokoro, or OpenPronounce,
+# and do not run the experiment scripts: they download Hugging Face models or
+# datasets at import time, and none of them has a --help or dry-run mode.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  syntax:
+    name: Syntax check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install syntax checker
+        run: python -m pip install --disable-pip-version-check ruff==0.17.2
+
+      - name: Byte-compile experiment scripts
+        run: python -m compileall -q -f experiments
+
+      - name: Ruff syntax check
+        # E9/F63/F7/F82 are syntax and other fatal errors. Skip style rules so
+        # this job does not require reformatting the experiment scripts.
+        run: python -m ruff check --select E9,F63,F7,F82 experiments
