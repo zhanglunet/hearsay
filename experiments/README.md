@@ -14,6 +14,8 @@
 cd experiments
 uv venv --python 3.11 .venv && source .venv/bin/activate
 uv pip install torch torchaudio whisperx kokoro openpronounce soundfile numpy scipy pandas pyarrow librosa
+# torch>=2.9 的 torchaudio 删掉了 pyannote.audio 3.x 还在用的 AudioMetaData，whisperX 会导入失败；CPU 机器钉到 2.8.0
+uv pip install "torch==2.8.0" "torchaudio==2.8.0" --index-url https://download.pytorch.org/whl/cpu
 source run_env.sh            # 设置 espeak-ng 库路径等；国内镜像需 HEARSAY_USE_CN_MIRRORS=1
 mkdir -p data && curl -L -o data/speechocean762_test.parquet \
   https://huggingface.co/datasets/mispeech/speechocean762/resolve/main/data/test-00000-of-00001.parquet
@@ -23,3 +25,5 @@ python exp_b_pronounce/run.py 40
 ```
 
 `exp_a_grammar/audio/` 里的 wav 由 macOS `say` 生成，已入库（Linux 上无法重新生成）。
+
+结果与结论见 [`docs/design/2026-10-23-m1-risk-validation.md`](../docs/design/2026-10-23-m1-risk-validation.md)（2026-10-23，CPU 运行）。
