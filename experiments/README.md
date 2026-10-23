@@ -30,4 +30,6 @@ python exp_d_phonemes/run.py   # 音素级；不跑 8 种扰动。模型加载�
 
 结果与结论见 [`docs/design/2026-10-23-m1-risk-validation.md`](../docs/design/2026-10-23-m1-risk-validation.md)（2026-10-23，CPU 运行）。
 
+真人录音复测（[issue #4](https://github.com/zhanglunet/hearsay/issues/4)，尚未采集）只入库模板，不提交签署件或音频：[知情同意书](../docs/ops/m1-consent.md)、[采集规范](../docs/ops/m1-recording-protocol.md)。
+
 GitHub Actions（[`.github/workflows/ci.yml`](../.github/workflows/ci.yml)）只做语法检查，不跑上面的 A/B/C/D，也不下载模型或数据集。
