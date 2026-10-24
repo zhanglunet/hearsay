@@ -1,0 +1,342 @@
+{
+  "id": "demo-espeak-shadow-6",
+  "kind": "monologue",
+  "title": "日常口语六句（合成演示）",
+  "target_cefr": "A2",
+  "topic_tags": [
+    "daily",
+    "work"
+  ],
+  "generated_by": "imported",
+  "learner_recording": false,
+  "synthetic": true,
+  "voice": "espeak-ng en-us",
+  "speech_rate": 148,
+  "audio_ref": "reference.wav",
+  "sample_rate": 22050,
+  "duration_ms": 22461,
+  "timing_source": "espeak_sentence_concat",
+  "timing_note_zh": "演示音频由 espeak-ng 整句合成后拼接，句与句之间有静音。句界来自拼接位置；句内词时间是把孤立词的时长比例铺进该句。播放用句界，不逐词裁剪。",
+  "tail_pad_ms": 250,
+  "inter_sentence_silence_ms": 450,
+  "sentences_text": [
+    "I usually take the subway to work because the traffic is terrible.",
+    "Could you send me the report before the meeting today?",
+    "We were planning to go hiking this weekend but it will rain.",
+    "The restaurant on the corner has really good noodles.",
+    "I have been learning English for about three years now.",
+    "Please record yourself and listen to it again tomorrow."
+  ],
+  "word_timestamps": [
+    {
+      "word": "i",
+      "start_ms": 0,
+      "end_ms": 264
+    },
+    {
+      "word": "usually",
+      "start_ms": 264,
+      "end_ms": 679
+    },
+    {
+      "word": "take",
+      "start_ms": 679,
+      "end_ms": 997
+    },
+    {
+      "word": "the",
+      "start_ms": 997,
+      "end_ms": 1243
+    },
+    {
+      "word": "subway",
+      "start_ms": 1243,
+      "end_ms": 1652
+    },
+    {
+      "word": "to",
+      "start_ms": 1652,
+      "end_ms": 1926
+    },
+    {
+      "word": "work",
+      "start_ms": 1926,
+      "end_ms": 2237
+    },
+    {
+      "word": "because",
+      "start_ms": 2237,
+      "end_ms": 2666
+    },
+    {
+      "word": "the",
+      "start_ms": 2666,
+      "end_ms": 2912
+    },
+    {
+      "word": "traffic",
+      "start_ms": 2912,
+      "end_ms": 3368
+    },
+    {
+      "word": "is",
+      "start_ms": 3368,
+      "end_ms": 3649
+    },
+    {
+      "word": "terrible",
+      "start_ms": 3649,
+      "end_ms": 4061
+    },
+    {
+      "word": "could",
+      "start_ms": 4511,
+      "end_ms": 4760
+    },
+    {
+      "word": "you",
+      "start_ms": 4760,
+      "end_ms": 5019
+    },
+    {
+      "word": "send",
+      "start_ms": 5019,
+      "end_ms": 5347
+    },
+    {
+      "word": "me",
+      "start_ms": 5347,
+      "end_ms": 5614
+    },
+    {
+      "word": "the",
+      "start_ms": 5614,
+      "end_ms": 5836
+    },
+    {
+      "word": "report",
+      "start_ms": 5836,
+      "end_ms": 6201
+    },
+    {
+      "word": "before",
+      "start_ms": 6201,
+      "end_ms": 6578
+    },
+    {
+      "word": "the",
+      "start_ms": 6578,
+      "end_ms": 6800
+    },
+    {
+      "word": "meeting",
+      "start_ms": 6800,
+      "end_ms": 7140
+    },
+    {
+      "word": "today",
+      "start_ms": 7140,
+      "end_ms": 7514
+    },
+    {
+      "word": "we",
+      "start_ms": 7964,
+      "end_ms": 8222
+    },
+    {
+      "word": "were",
+      "start_ms": 8222,
+      "end_ms": 8503
+    },
+    {
+      "word": "planning",
+      "start_ms": 8503,
+      "end_ms": 8873
+    },
+    {
+      "word": "to",
+      "start_ms": 8873,
+      "end_ms": 9118
+    },
+    {
+      "word": "go",
+      "start_ms": 9118,
+      "end_ms": 9376
+    },
+    {
+      "word": "hiking",
+      "start_ms": 9376,
+      "end_ms": 9782
+    },
+    {
+      "word": "this",
+      "start_ms": 9782,
+      "end_ms": 10063
+    },
+    {
+      "word": "weekend",
+      "start_ms": 10063,
+      "end_ms": 10430
+    },
+    {
+      "word": "but",
+      "start_ms": 10430,
+      "end_ms": 10675
+    },
+    {
+      "word": "it",
+      "start_ms": 10675,
+      "end_ms": 10878
+    },
+    {
+      "word": "will",
+      "start_ms": 10878,
+      "end_ms": 11166
+    },
+    {
+      "word": "rain",
+      "start_ms": 11166,
+      "end_ms": 11496
+    },
+    {
+      "word": "the",
+      "start_ms": 11946,
+      "end_ms": 12170
+    },
+    {
+      "word": "restaurant",
+      "start_ms": 12170,
+      "end_ms": 12640
+    },
+    {
+      "word": "on",
+      "start_ms": 12640,
+      "end_ms": 12913
+    },
+    {
+      "word": "the",
+      "start_ms": 12913,
+      "end_ms": 13137
+    },
+    {
+      "word": "corner",
+      "start_ms": 13137,
+      "end_ms": 13462
+    },
+    {
+      "word": "has",
+      "start_ms": 13462,
+      "end_ms": 13803
+    },
+    {
+      "word": "really",
+      "start_ms": 13803,
+      "end_ms": 14110
+    },
+    {
+      "word": "good",
+      "start_ms": 14110,
+      "end_ms": 14340
+    },
+    {
+      "word": "noodles",
+      "start_ms": 14340,
+      "end_ms": 14705
+    },
+    {
+      "word": "i",
+      "start_ms": 15155,
+      "end_ms": 15384
+    },
+    {
+      "word": "have",
+      "start_ms": 15384,
+      "end_ms": 15686
+    },
+    {
+      "word": "been",
+      "start_ms": 15686,
+      "end_ms": 15959
+    },
+    {
+      "word": "learning",
+      "start_ms": 15959,
+      "end_ms": 16279
+    },
+    {
+      "word": "english",
+      "start_ms": 16279,
+      "end_ms": 16637
+    },
+    {
+      "word": "for",
+      "start_ms": 16637,
+      "end_ms": 16924
+    },
+    {
+      "word": "about",
+      "start_ms": 16924,
+      "end_ms": 17265
+    },
+    {
+      "word": "three",
+      "start_ms": 17265,
+      "end_ms": 17529
+    },
+    {
+      "word": "years",
+      "start_ms": 17529,
+      "end_ms": 17887
+    },
+    {
+      "word": "now",
+      "start_ms": 17887,
+      "end_ms": 18183
+    },
+    {
+      "word": "please",
+      "start_ms": 18633,
+      "end_ms": 19062
+    },
+    {
+      "word": "record",
+      "start_ms": 19062,
+      "end_ms": 19487
+    },
+    {
+      "word": "yourself",
+      "start_ms": 19487,
+      "end_ms": 19923
+    },
+    {
+      "word": "and",
+      "start_ms": 19923,
+      "end_ms": 20252
+    },
+    {
+      "word": "listen",
+      "start_ms": 20252,
+      "end_ms": 20627
+    },
+    {
+      "word": "to",
+      "start_ms": 20627,
+      "end_ms": 20917
+    },
+    {
+      "word": "it",
+      "start_ms": 20917,
+      "end_ms": 21157
+    },
+    {
+      "word": "again",
+      "start_ms": 21157,
+      "end_ms": 21575
+    },
+    {
+      "word": "tomorrow",
+      "start_ms": 21575,
+      "end_ms": 22011
+    }
+  ]
+}
