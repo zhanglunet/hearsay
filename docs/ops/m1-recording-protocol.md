@@ -175,14 +175,15 @@ docs/design/…-m1-human-rerecording.md   # 复测报告
 ## 8. 复测流程（录音之后）
 
 1. **实验 A 复测**  
-   - 将真人 wav 接到现有 `experiments/exp_a_grammar/run.py` 的 4 个配置（与合成音同一套判定）。  
-   - 产出真人 `results_*.csv`；用 `report.py` 或同等汇总，做 **真人 vs 合成** 保留率对比表。  
+   - 将真人 wav 接到现有 `experiments/exp_a_grammar/run.py` 的 4 个配置（与合成音同一套判定）：  
+     `python exp_a_grammar/run.py --audio-root /path/m1_human_audio/audio --out results_human.csv`  
+     （真人 CSV 的 `voice` 列是匿名说话人编号 `Sxx`；旧调用方式不变，仍跑合成音。）  
+   - 用 `python exp_a_grammar/report_human.py` 生成 **真人 vs 合成** 保留率对比表（含 ≥80% 达标判定、说话人 × 配置表、verbatim prompt 增益）。  
    - 确认 verbatim prompt 在真人上是否仍明显优于默认配置。
 
 2. **切句复测**  
-   - whisperX 转写 + align，取 `word_segments`；  
-   - 用原文首末词匹配得到假设句边界；  
-   - 与 Praat 等人工边界比误差；写明 &lt; 150 ms 比例与是否达标。
+   - `python exp_c_timestamps/retest_human.py --audio-root /path/m1_human_audio/audio --annot /path/m1_human_audio/annot`：whisperX 转写 + align 取 `word_segments`，用原文首末词匹配得到假设句边界，与 Praat 导出的人工边界 CSV（列：`clip,tmin,tmax,line`）比误差；  
+   - 产出 `results_human_boundaries.csv` 与 `results_human.json`，含 < 150 ms 比例、≥ 90% 是否达标与首末词未匹配句数。
 
 3. **报告**  
    - 每个阈值写「达到 / 未达到」和数字；  

@@ -32,4 +32,22 @@ python exp_d_phonemes/run.py   # 音素级；不跑 8 种扰动。模型加载�
 
 真人录音复测（[issue #4](https://github.com/zhanglunet/hearsay/issues/4)，尚未采集）只入库模板，不提交签署件或音频：[知情同意书](../docs/ops/m1-consent.md)、[采集规范](../docs/ops/m1-recording-protocol.md)。
 
+### 复测脚本（录音到齐后运行）
+
+目录约定见采集规范第 6 节：本地 `m1_human_audio/audio/Sxx/A_NN.wav`、`C_ll.wav` 与 `annot/Sxx_C_boundaries.csv`。`m1_human_audio/` 已在 `.gitignore` 中。
+
+```bash
+# 实验 A：真人 24 句走同一套 4 配置与判定，输出 results_human.csv（voice 列为 Sxx）
+python exp_a_grammar/run.py --audio-root /path/m1_human_audio/audio --out results_human.csv
+# 真人 vs 合成对比表（markdown，含 ≥80% 达标判定与 verbatim prompt 增益）
+python exp_a_grammar/report_human.py
+
+# 切句：原文首末词匹配 whisperX 词时间戳，对照 Praat 导出的人工句边界 CSV
+# 标注 CSV 列：clip,tmin,tmax,line；输出 results_human_boundaries.csv / results_human.json
+python exp_c_timestamps/retest_human.py --audio-root /path/m1_human_audio/audio --annot /path/m1_human_audio/annot
+
+# 核心逻辑单测（标准库，不加载模型）
+python -m unittest discover -s experiments/exp_c_timestamps -p "test_*.py"   # 在仓库根目录跑
+```
+
 GitHub Actions（[`.github/workflows/ci.yml`](../.github/workflows/ci.yml)）只做语法检查，不跑上面的 A/B/C/D，也不下载模型或数据集。

@@ -45,3 +45,8 @@ jobs:
 
       - name: Prototype unit tests
         run: python -m unittest discover -s prototype/tests -v
+
+      - name: Human-retest helper unit tests
+        # Standard-library tests for the issue #4 retest helpers. They do not
+        # import whisperX / torch and do not touch any recording.
+        run: python -m unittest discover -s experiments/exp_c_timestamps -p "test_*.py" -v
