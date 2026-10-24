@@ -1,4 +1,54 @@
 {
   "version": 1,
-  "tasks": []
+  "tasks": [
+    {
+      "id": "t_m1_shadow",
+      "title": "M1 shadow status checklist and prototype",
+      "intent": "ship m1 shadow prototype",
+      "level": "feature",
+      "owner": "",
+      "contract_version": "",
+      "max_loops": 5,
+      "budget": 1.0,
+      "loops": 1,
+      "spent": 0.0,
+      "state": "verify",
+      "executor": "agent",
+      "history": [
+        {
+          "ts": "2026-10-24T00:01:33+00:00",
+          "to": "clarify",
+          "by": "?",
+          "reason": "created"
+        },
+        {
+          "ts": "2026-10-24T00:06:41+00:00",
+          "from": "clarify",
+          "to": "spec",
+          "by": "agent",
+          "reason": "用户任务已给出验收：状态清单、README、M1 最小切片且不写 P 类 ErrorInstance；本体沿用 M0 设计文档，不另起 CRM 口径",
+          "evidence": "",
+          "cost": 0
+        },
+        {
+          "ts": "2026-10-24T00:36:36+00:00",
+          "from": "spec",
+          "to": "explore",
+          "by": "agent",
+          "reason": "M0 已有 Material/shadow 定义；原型只做句级播放和词级召回，不写音素错误",
+          "evidence": "",
+          "cost": 0
+        },
+        {
+          "ts": "2026-10-24T00:36:36+00:00",
+          "from": "explore",
+          "to": "verify",
+          "by": "agent",
+          "reason": "29 个单元测试和浏览器核对通过；#8 仍不关闭",
+          "evidence": "prototype/tests",
+          "cost": 0
+        }
+      ]
+    }
+  ]
 }

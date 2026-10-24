@@ -8,3 +8,6 @@ dist/
 experiments/.venv/
 experiments/data/
 experiments/exp_c_timestamps/audio/
+
+# M1 prototype: local reference uploads and any learner takes. Never commit.
+prototype/runtime/

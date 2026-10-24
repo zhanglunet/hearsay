@@ -1,6 +1,8 @@
-# Syntax check only. Do not install torch, whisperX, Kokoro, or OpenPronounce,
+# Light checks only. Do not install torch, whisperX, Kokoro, or OpenPronounce,
 # and do not run the experiment scripts: they download Hugging Face models or
 # datasets at import time, and none of them has a --help or dry-run mode.
+# Prototype unit tests use the standard library and the committed demo wav.
+# They must not import those models either.
 name: CI
 
 on:
@@ -33,10 +35,13 @@ jobs:
       - name: Install syntax checker
         run: python -m pip install --disable-pip-version-check ruff==0.17.2
 
-      - name: Byte-compile experiment scripts
-        run: python -m compileall -q -f experiments
+      - name: Byte-compile experiment and prototype scripts
+        run: python -m compileall -q -f experiments prototype
 
       - name: Ruff syntax check
         # E9/F63/F7/F82 are syntax and other fatal errors. Skip style rules so
         # this job does not require reformatting the experiment scripts.
-        run: python -m ruff check --select E9,F63,F7,F82 experiments
+        run: python -m ruff check --select E9,F63,F7,F82 experiments prototype
+
+      - name: Prototype unit tests
+        run: python -m unittest discover -s prototype/tests -v

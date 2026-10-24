@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>听说 · 跟读原型</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%230c5c5c'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="masthead">
+    <p class="eyebrow">Hearsay · M1 原型</p>
+    <h1>听说 · 跟读</h1>
+    <p class="lede">选一段参考音频，逐句听，自己录，再并排听回去。反馈只做到词级相似度。</p>
+  </header>
+
+  <aside id="product-rule" class="rule">正在加载说明…</aside>
+  <p id="status" class="status" role="status"></p>
+
+  <section class="panel">
+    <div class="row">
+      <button id="load-demo" class="primary" type="button">使用演示材料</button>
+      <button id="toggle-import" type="button">导入自己的音频</button>
+    </div>
+    <form id="import-form" hidden>
+      <label>参考音频
+        <input id="import-audio" type="file" accept="audio/*" required>
+      </label>
+      <label>原文（一行一句最稳妥；只有一段时按句号、问号、感叹号切开）
+        <textarea id="import-text" rows="5" required placeholder="I usually take the subway to work.&#10;Could you send me the report?"></textarea>
+      </label>
+      <label>词级时间戳 JSON（可选）。没有的话会按词数比例估计，并在页面上标明。
+        <input id="import-words" type="file" accept="application/json,.json">
+      </label>
+      <button type="submit" class="primary">切句并使用</button>
+    </form>
+    <p id="material-title" class="material-title"></p>
+    <p id="timing-note" class="note"></p>
+    <p id="warning" class="warning" hidden></p>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>句子</h2>
+      <p id="summary" class="note"></p>
+    </div>
+    <ol id="sentences" class="sentences"></ol>
+  </section>
+
+  <section class="transport" aria-label="当前句">
+    <h2 id="current-label">当前句</h2>
+    <p id="current-text" class="current-text" lang="en"></p>
+    <div class="row">
+      <button id="play-ref" type="button">播放原句</button>
+      <button id="record" class="primary" type="button">开始录音</button>
+      <button id="play-both" type="button">先后对照</button>
+      <button id="play-take" type="button">只听我的</button>
+    </div>
+    <label>跟读转写
+      <textarea id="hypothesis" lang="en" rows="3" autocomplete="off" spellcheck="false" placeholder="浏览器能识别时会填在这里。识别不了就自己把听到的英文粘贴进来。"></textarea>
+    </label>
+    <div class="row">
+      <button id="score" type="button">计算词级相似度</button>
+      <button id="transcribe" type="button">尝试本机 ASR</button>
+    </div>
+    <p id="asr-hint" class="note">本机 ASR 默认关闭，不会下载模型。浏览器语音识别也不是实验 A 里的 verbatim whisperX。</p>
+    <div id="feedback" class="feedback"></div>
+  </section>
+
+  <footer>
+    <p>跟读录音只留在这个页面的内存里，刷新就没有了，不会写进仓库。这不是每日计划，也不是学习者模型。</p>
+  </footer>
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 > 一个为非英语母语者量身定制的英语听说陪练 Agent。
 > 名字取自 **hear + say**，中文名「听说」——既是"听与说"两项核心技能，也是"道听途说"的双关：语言本来就是从别人嘴里听来、再从自己嘴里说出去的东西。
 
-状态：设计阶段（2026-10-22）。本仓库目前有产品设计思路、开源项目调研和 M0 学习者模型设计文档，尚无代码。
+状态：M0 设计文档和 M1 风险验证已经完成（2026-10-23）。跟读原型只有最小切片，产品功能还没交付。对照见 [2026-10-24 状态清单](docs/design/2026-10-24-status-checklist.md)。
 
 ---
 
@@ -96,11 +96,15 @@ Agent 维护一份持续更新的学习者画像，所有内容生成和练习�
 
 ## 六、路线图
 
+完成度、风险实验和还没做的产品能力见 [2026-10-24 状态清单](docs/design/2026-10-24-status-checklist.md)。
+
 - [x] M0 — 设计文档：[学习者模型](docs/design/2026-10-22-m0-learner-model.md)、[CEFR 听说 can-do 清单](docs/design/cefr-can-do-listening-speaking.md)（109 条）、[中文母语者错误清单](docs/design/l1-zh-error-taxonomy.md)（66 条）
-- [ ] M1 — 跟读原型：导入一段音频 → 逐句播放 → 录音 → 发音反馈
+- [ ] M1 — 跟读原型：导入一段音频 → 逐句播放 → 录音 → 发音反馈。风险实验见 [报告](docs/design/2026-10-23-m1-risk-validation.md)：A / B / C 已通过，D 未通过（OpenPronounce 音素级精确率 0.148，所以不要用它写 P 类错误）。真人录音复测仍是 [issue #4](https://github.com/zhanglunet/hearsay/issues/4)，还没采集。最小切片在 [prototype/](prototype/README.md)，还没满足 [issue #8](https://github.com/zhanglunet/hearsay/issues/8) 的全部验收，所以这里不勾选。
 - [ ] M2 — 对话原型：一个场景，实时语音对话，结束后复盘
 - [ ] M3 — 学习者模型 + FSRS：把 M1/M2 中的错误变成复习项，并在新场景中复现
 - [ ] M4 — 每日计划与 can-do 进度页
+
+本地跟读切片的运行方式见 [prototype/README.md](prototype/README.md)。它只覆盖「演示或导入音频 → 按句播放 → 录音 → 并排回放 → 词级相似度」。不写音素级错误，也不代替上面的 M1 勾选。
 
 ## 许可证
 
