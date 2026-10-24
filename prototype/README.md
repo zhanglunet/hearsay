@@ -16,7 +16,7 @@
 
 - 浏览器的语音识别（Chromium 系才有，而且会归一化，不是实验 A 的 verbatim whisperX）
 - 自己把跟读内容粘贴进去
-- 启动前设置 `HEARSAY_ASR=faster-whisper` 并安装 `faster-whisper`。没设这个值时，`/api/transcribe` 直接拒绝，不会加载模型
+- 本机 faster-whisper：安装了对应包就自动启用，不用手动配置；想强制关闭可把 `HEARSAY_ASR` 设为其他值，显式打开则设为 `faster-whisper`。只有首次转写才下载模型，启动不会下载。没安装时 `/api/transcribe` 直接拒绝并给出安装提示，不会加载模型
 
 ## 它故意不做什么
 
@@ -79,7 +79,7 @@ python -m unittest discover -s prototype/tests -v
 
 ## 相对 #8 还缺什么
 
-- 默认路径不会自动转写跟读录音。没有浏览器识别、没有粘贴、也没打开 faster-whisper 时，只能并排回放，算不出词级相似度。
+- 默认路径的自动转写依赖本机安装 faster-whisper（装了才启用）。没装、没有浏览器识别、也没有粘贴时，只能并排回放，算不出词级相似度。
 - 导入材料若没有词时间戳，切句是比例估计。
 - 演示声音是逐句 espeak-ng，句内词时间是按孤立词时长比例铺进去的，不是自然语流上的 whisperX 对齐。
 - 没有会话存储，没有学习者模型，没有音素反馈。

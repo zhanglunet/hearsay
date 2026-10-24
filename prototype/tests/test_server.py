@@ -6,6 +6,7 @@ import unittest
 import urllib.error
 import urllib.request
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -113,15 +114,17 @@ class ServerTests(unittest.TestCase):
 
     def test_transcribe_is_off_and_writes_no_temp_audio(self):
         before = set(Path("/tmp").glob("hearsay-m1-*"))
-        status, _content_type, body = self.request(
-            "/api/transcribe",
-            raw=b"not-audio",
-            content_type="audio/wav",
-        )
+        with mock.patch("m1_shadow.asr.find_spec", return_value=None):
+            status, _content_type, body = self.request(
+                "/api/transcribe",
+                raw=b"not-audio",
+                content_type="audio/wav",
+            )
         after = set(Path("/tmp").glob("hearsay-m1-*"))
         self.assertEqual(status, 409)
         payload = json.loads(body)
-        self.assertIn("未启用", payload["error"])
+        self.assertIn("pip install faster-whisper", payload["error"])
+        self.assertIn("粘贴", payload["error"])
         self.assertEqual(payload["error_instances"], [])
         self.assertFalse(payload["phoneme_feedback"])
         self.assertEqual(before, after)

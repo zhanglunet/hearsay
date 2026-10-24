@@ -14,7 +14,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
-from m1_shadow.asr import AsrDisabled, asr_enabled, transcribe_file
+from m1_shadow.asr import (
+    AsrDisabled,
+    asr_disabled_reason,
+    asr_enabled,
+    faster_whisper_installed,
+    transcribe_file,
+)
 from m1_shadow.demo import AUDIO_PATH, load_demo_payload
 from m1_shadow.feedback import FeedbackError, feedback_request, summarize_request
 from m1_shadow.limits import seal_no_phoneme_writes
@@ -89,16 +95,9 @@ class Handler(BaseHTTPRequestHandler):
         except ValueError as exc:
             self._json(400, {"error": str(exc)})
             return
-        if not asr_enabled():
-            self._json(
-                409,
-                {
-                    "error": (
-                        "未启用本机 ASR。只有把环境变量 HEARSAY_ASR 设为 faster-whisper"
-                        "并且安装了对应包才会转写。默认不下载模型。"
-                    )
-                },
-            )
+        reason = asr_disabled_reason()
+        if reason is not None:
+            self._json(409, {"error": reason})
             return
         suffix = ".webm" if "webm" in content_type else ".wav"
         fd, name = tempfile.mkstemp(prefix="hearsay-m1-", suffix=suffix)
@@ -186,8 +185,10 @@ def main() -> None:
     print(f"M1 跟读原型  http://127.0.0.1:{httpd.server_address[1]}/")
     if asr_enabled():
         print("本机 ASR：已启用 faster-whisper（首次转写会下载模型）")
+    elif faster_whisper_installed():
+        print("本机 ASR：faster-whisper 已安装，但被 HEARSAY_ASR 强制关闭")
     else:
-        print("本机 ASR：未启用（不会下载模型）")
+        print("本机 ASR：未安装 faster-whisper（安装后重启自动启用；也可粘贴转写）")
     print("页面只在本机打开。跟读录音留在浏览器里，不写入仓库。")
     try:
         httpd.serve_forever()

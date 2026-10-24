@@ -63,7 +63,7 @@
       <button id="score" type="button">计算词级相似度</button>
       <button id="transcribe" type="button">尝试本机 ASR</button>
     </div>
-    <p id="asr-hint" class="note">本机 ASR 默认关闭，不会下载模型。浏览器语音识别也不是实验 A 里的 verbatim whisperX。</p>
+    <p id="asr-hint" class="note">本机 ASR：安装了 faster-whisper 就自动启用，首次转写才下载模型；没装会提示安装方法。浏览器语音识别会归一化，不是实验 A 里的 verbatim whisperX。</p>
     <div id="feedback" class="feedback"></div>
   </section>
 
