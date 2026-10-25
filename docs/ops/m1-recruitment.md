@@ -22,6 +22,8 @@
 - [ ] 每人先签同意书（或电子确认），再分配匿名编号 S01、S02…
 - [ ] 说好两件事：**照读错误句不要纠正**；读错可以整句重录一条，不用追求完美
 - [ ] 手机开勿扰，导出 WAV 或 m4a 后转 16 kHz 单声道 WAV（规范 §2 有 ffmpeg 命令）
+- [ ] 一条命令建好目录与标注模板：
+  `python experiments/exp_c_timestamps/scaffold_human.py --root /path/m1_human_audio --speakers S01 S02 S03`
 
 ## 录制与整理
 

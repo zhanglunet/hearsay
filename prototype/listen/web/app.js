@@ -1,11 +1,18 @@
 "use strict";
 
 const $ = (id) => document.getElementById(id);
-const state = { sessionId: null, sentences: [], questions: [], answers: {} };
+const state = { sessionId: null, sentences: [], questions: [], materialId: "demo", useTts: false };
 
 function setStatus(text) { $("status").textContent = text; }
 
 function playSentence(sentence) {
+  if (state.useTts) {
+    const utterance = new SpeechSynthesisUtterance(sentence.text);
+    utterance.lang = "en-US";
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+    return;
+  }
   const audio = $("audio");
   audio.currentTime = sentence.start_ms / 1000;
   audio.play();
@@ -18,13 +25,17 @@ function playSentence(sentence) {
   }, 60);
 }
 
-async function loadMaterial() {
-  const response = await fetch("/api/material");
-  const material = await response.json();
-  $("material-title").textContent = material.title;
-  $("audio").src = material.audio_url;
+function renderMaterial(material) {
+  state.sessionId = null;
+  state.materialId = material.material_id;
+  state.useTts = material.use_tts;
   state.sentences = material.sentences;
   state.questions = material.questions;
+  $("material-title").textContent = material.title;
+  $("audio").src = material.audio_url || "";
+  $("sentences").textContent = "";
+  $("questions").textContent = "";
+  $("result").hidden = true;
   for (const s of material.sentences) {
     const div = document.createElement("div");
     div.className = "row";
@@ -38,6 +49,11 @@ async function loadMaterial() {
     $("sentences").appendChild(div);
   }
   for (const q of material.questions) renderQuestion(q);
+}
+
+async function loadMaterial() {
+  const response = await fetch("/api/material");
+  renderMaterial(await response.json());
 }
 
 function renderQuestion(q) {
@@ -82,12 +98,12 @@ function renderQuestion(q) {
     const response = await fetch("/api/answer", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ session_id: state.sessionId, question_id: q.id, answer }),
+      body: JSON.stringify({ session_id: state.sessionId, material_id: state.materialId,
+                             question_id: q.id, answer }),
     });
     const payload = await response.json();
     if (!response.ok) { setStatus(payload.error); return; }
     state.sessionId = payload.session_id;
-    state.answers[q.id] = true;
     outcome.className = payload.passed ? "pass" : "fail";
     outcome.textContent = ` ${payload.passed ? "✓" : "✗"} 得分 ${payload.score} ｜ 参考：${payload.expected}`;
     setStatus(`${q.id} 已判定（规则）`);
@@ -96,6 +112,23 @@ function renderQuestion(q) {
   div.appendChild(outcome);
   $("questions").appendChild(div);
 }
+
+$("generate").addEventListener("click", async () => {
+  const topic = $("gen-topic").value.trim();
+  if (!topic) { setStatus("先写一个话题"); return; }
+  setStatus("正在生成材料与题目（LLM，约十几秒）…");
+  try {
+    const response = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ level: $("gen-level").value, topic }),
+    });
+    const payload = await response.json();
+    if (!response.ok) { setStatus(payload.error); return; }
+    renderMaterial(payload);
+    setStatus("新材料已生成，逐句听（浏览器 TTS 朗读）。");
+  } catch (err) { setStatus(err.message); }
+});
 
 $("finish").addEventListener("click", async () => {
   if (!state.sessionId) { setStatus("先至少作答一题"); return; }

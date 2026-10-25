@@ -101,5 +101,22 @@ class ReadAnnotationsTests(unittest.TestCase):
         self.assertEqual(rows[1]["line"], 7)
 
 
+class ScaffoldTests(unittest.TestCase):
+    def test_scaffold_creates_templates(self):
+        from scaffold_human import scaffold
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d) / "m1_human_audio"
+            made = scaffold(root, ["S01", "S02"], [3, 7, 12])
+            self.assertEqual(len(made), 2)
+            text = made[0].read_text()
+            self.assertTrue(text.startswith("clip,tmin,tmax,line\n"))
+            self.assertIn("C_03,,,3", text)
+            self.assertIn("C_12,,,12", text)
+            self.assertTrue((root / "audio" / "S01").is_dir())
+            self.assertTrue((root / "consents").is_dir())
+            self.assertIn("speaker_id", (root / "manifests" / "speakers.csv").read_text())
+            self.assertIn("A_01.wav", (root / "README_LOCAL.md").read_text())
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -41,11 +41,21 @@ def build_session_plan(n):
 
 
 def post(base, path, payload):
+    import urllib.error
     import urllib.request
-    req = urllib.request.Request(base + path, data=json.dumps(payload).encode(),
-                                 headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=120) as resp:
-        return json.loads(resp.read())
+    last = None
+    for attempt in range(4):
+        try:
+            req = urllib.request.Request(base + path, data=json.dumps(payload).encode(),
+                                         headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                return json.loads(resp.read())
+        except (urllib.error.HTTPError, urllib.error.URLError) as exc:
+            last = exc
+            if isinstance(exc, urllib.error.HTTPError) and exc.code < 500:
+                raise
+            time.sleep(2 * (attempt + 1))
+    raise last
 
 
 def main():
@@ -66,12 +76,17 @@ def main():
     print(f"M2 服务：{base}（tutor={tutor.name}，模型 {tutor.model}）", flush=True)
     try:
         for i, item in enumerate(build_session_plan(args.sessions), 1):
-            session = post(base, "/api/session", {})
-            sid = session["session_id"]
-            post(base, "/api/turn", {"session_id": sid, "text": item["text"]})
-            time.sleep(0.3)
-            post(base, "/api/turn", {"session_id": sid, "text": FOLLOW_UP})
-            recap = post(base, "/api/end", {"session_id": sid})
+            try:
+                session = post(base, "/api/session", {})
+                sid = session["session_id"]
+                post(base, "/api/turn", {"session_id": sid, "text": item["text"]})
+                time.sleep(0.3)
+                post(base, "/api/turn", {"session_id": sid, "text": FOLLOW_UP})
+                recap = post(base, "/api/end", {"session_id": sid})
+            except Exception as exc:
+                # 单段失败（如上游 502）不拖垮整轮测量，记录后继续
+                print(f"[{i:02d}] {item['source']} 跳过：{exc}", flush=True)
+                continue
             recap["corpus"] = item
             (out / f"{i:02d}.json").write_text(json.dumps(recap, ensure_ascii=False, indent=1))
             batch = recap.get("batch", {})

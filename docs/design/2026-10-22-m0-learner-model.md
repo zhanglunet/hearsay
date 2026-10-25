@@ -434,7 +434,13 @@ DailyPlan:
 
 **对话会话（converse）里的实时与事后两条链路**（我的选择）：
 - 实时链路：pipecat 流式 ASR（带归一化）→ LLM 对话。Agent 在对话中按 `correction_style` 做 recast / explicit 纠错时，依据的是实时转写 + LLM 的即时判断；每次纠错写一条 `status: provisional`、`detected_by: asr_llm_realtime` 的 ErrorInstance。
-- 事后链路：会话结束后，对完整录音跑 whisperX 低归一化转写（权威 `transcript.text`）+ 音素评测 + LLM 错误检测。批处理发现的实例直接 `confirmed`；与 provisional 实例在同一话语、同一代码上重叠的，合并为一条 confirmed；批处理找不到对应的 provisional 实例标 `discarded`。
+- 事后链路：会话结束后，对完整录音跑 whisperX 低归一化转写（权威 `transcript.text`）+ 音素评测 + LLM 错误检测。批处理发现的实例直接 `confirmed`；provisional 与批处理实例满足下面任一条件即合并为一条 confirmed（**以批处理的代码与文本为准**）：
+  1. 同一话语、同一代码；
+  2. 实时侧为 `X00`（无法分类）且批处理在同一话语有发现；
+  3. 同一话语，且任一侧的 `observed` 归一化后包含另一侧（允许粒度差异与代码分歧）。
+  对账前实时实例先按「话语 + observed」去重（`asr_llm_realtime` 优先于规则），
+  避免同一句被实时与规则重复报告导致的多算 discarded。
+  除此之外找不到对应的 provisional 实例标 `discarded`。也就是说，**误报指「实时认为有错、批处理认为该话语没有对应错误」**；代码不同或拆分粒度不同本身不算误报（2026-10-25 修订，匹配规则 v3，v1/v2 数据与口径见 `experiments/exp_e_dialogue/`）。
 - `summary_zh` 等批处理完成后生成，目标延迟 < 60 秒；UI 在这期间显示"正在整理复盘"。
 - 统计（ErrorPattern、SkillEstimate）只读 confirmed 实例。
 

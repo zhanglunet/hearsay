@@ -57,3 +57,9 @@ def validate_llm_errors(raw_errors, transcripts):
         out.append(dict(utterance_id=uid, code=code, observed=observed, expected=expected,
                         confidence=round(float(confidence), 3), detected_by="asr_llm"))
     return out
+
+
+def observed_overlap(a, b):
+    """对账规则 v3 第 3 条：任一侧 observed 归一化后包含另一侧（允许粒度差/代码分歧）。"""
+    a, b = _norm_space(a), _norm_space(b)
+    return bool(a and b and (a in b or b in a))

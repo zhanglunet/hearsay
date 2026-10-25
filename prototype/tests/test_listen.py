@@ -125,11 +125,67 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(len(store.data["can_do_evidence"]), 2)
         self.assertEqual(store.data["error_patterns"]["H02"]["count_total"], 2)
 
+    def test_server_generate_and_answer(self):
+        from unittest import mock
+        body = {"content": [{"text": json.dumps(raw_material())}]}
+        with mock.patch("listen.generate.anthropic_request", return_value=body), \
+             mock.patch.dict(os.environ, {"HEARSAY_LLM_API_KEY": "test-key"}):
+            status, material = self.request("/api/generate", dict(level="A2", topic="commute"))
+        self.assertEqual(status, 200)
+        self.assertTrue(material["use_tts"])
+        self.assertNotIn("answer", material["questions"][0])
+        status, payload = self.request("/api/answer", dict(
+            material_id=material["material_id"], question_id="q1", answer=0))
+        self.assertEqual(status, 200)
+        self.assertTrue(payload["passed"])
+
     def test_answer_validation(self):
         status, payload = self.request("/api/answer", dict(question_id="q99", answer=1))
         self.assertEqual(status, 400)
         status, payload = self.request("/api/finish", dict(session_id="nope"))
         self.assertEqual(status, 400)
+
+
+def raw_material():
+    return dict(title="Commute", sentences=["I take the bus to work.",
+                                           "The bus is late today.", "I will call my boss."],
+                questions=[
+                    dict(type="gist", q_zh="主旨？", options=["A", "B"], answer=0,
+                         can_do_id="L-A2-01"),
+                    dict(type="detail", q_zh="为什么迟到？", sentence_idx=1,
+                         required_keywords=["late"], answer="bus late"),
+                    dict(type="dictation", q_zh="听写", sentence_idx=2),
+                    dict(type="discrimination", q_zh="听哪句？", sentence_idx=0,
+                         options=["bus", "boss"], answer=0, can_do_id="BAD-ID",
+                         error_codes=["H02", "G04"])])
+
+
+class GenerateValidationTests(unittest.TestCase):
+    def test_validate_normalizes(self):
+        from listen.generate import validate_material
+        material = validate_material(raw_material())
+        self.assertEqual(len(material["sentences"]), 3)
+        dictation = material["questions"][2]
+        self.assertEqual(dictation["answer"], "I will call my boss.")
+        self.assertEqual(material["questions"][0]["can_do_id"], "L-A2-01")
+        self.assertIsNone(material["questions"][3]["can_do_id"])
+        self.assertEqual(material["questions"][3]["error_codes"], ["H02"])
+        self.assertTrue(material["generated_by"] == "llm")
+
+    def test_reject_bad_inputs(self):
+        from listen.generate import validate_material
+        for mutate in (
+            lambda r: r.update(title=""),
+            lambda r: r.update(sentences=["only one"]),
+            lambda r: r["questions"][0].update(answer=9),
+            lambda r: r["questions"][1].update(required_keywords=[]),
+            lambda r: r["questions"][1].update(sentence_idx=99),
+            lambda r: r.update(questions=[]),
+        ):
+            raw = raw_material()
+            mutate(raw)
+            with self.assertRaises(ValueError):
+                validate_material(raw)
 
 
 if __name__ == "__main__":

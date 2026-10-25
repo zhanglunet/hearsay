@@ -63,6 +63,39 @@ class ReconcileTests(unittest.TestCase):
         self.assertEqual(len(kept), 1)
         self.assertEqual(kept[0]["code"], "X00")
 
+    def test_observed_containment_merges_despite_code_difference(self):
+        p = dict(prov(1, "G09"), observed="I am agree")
+        d = dict(prov(1, "L10"), observed="am agree")
+        result = reconcile([p], [d])
+        self.assertEqual(result["discarded"], [])
+        self.assertTrue(result["confirmed"][0]["merged_provisional"])
+        self.assertEqual(result["confirmed"][0]["code"], "L10")
+
+    def test_disjoint_observed_still_discarded(self):
+        p = dict(prov(1, "G04"), observed="and see")
+        d = dict(prov(1, "G02"), observed="two book")
+        result = reconcile([p], [d])
+        self.assertEqual(len(result["discarded"]), 1)
+
+    def test_duplicate_llm_and_rule_deduped_before_reconcile(self):
+        llm = dict(prov(1, "L10"), observed="very like", detected_by="asr_llm_realtime")
+        rule = dict(prov(1, "G09"), observed="very like", detected_by="rule")
+        batch = dict(prov(1, "L10"), observed="I very like this movie.")
+        result = reconcile([llm, rule], [batch])
+        self.assertEqual(result["discarded"], [])
+        self.assertEqual(result["false_positive_rate"], 0.0)
+        self.assertEqual(len(result["confirmed"]), 1)
+
+    def test_llm_error_retried_once_before_fallback(self):
+        import urllib.error as ue
+        good = fake_claude_response([dict(utterance_id=1, code="G04", observed="I go",
+                                          expected="I went", confidence=0.9)])
+        with mock.patch("m2_dialogue.tutor.urllib.request.urlopen",
+                        side_effect=[ue.URLError("down"), good]):
+            detected, name = detect_errors(TRANSCRIPTS)
+        self.assertEqual(name, "asr_llm")
+        self.assertEqual(len(detected), 1)
+
 
 class RunBatchTests(unittest.TestCase):
     def setUp(self):

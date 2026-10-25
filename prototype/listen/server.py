@@ -1,4 +1,5 @@
-"""听力理解题本地服务。规则判定；H 类错误与 can-do 证据写 M3 同一存储。"""
+"""听力理解题本地服务。规则判定；H 类错误与 can-do 证据写 M3 同一存储。
+自定义材料由 LLM 生成（validate_material 校验），浏览器 TTS 朗读，不需 TTS 模型。"""
 
 from __future__ import annotations
 
@@ -10,8 +11,10 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
+from listen.generate import generate_material
 from listen.questions import DEMO_QUESTIONS, can_do_verdicts, evaluate, public_question
 from m1_shadow.demo import AUDIO_PATH, load_demo_payload
+from m2_dialogue.tutor import TutorError
 from m3_learner.ingest import ingest_recap
 from m3_learner.store import LearnerStore
 from m4_plan.can_do import record_evidence
@@ -26,6 +29,7 @@ STATIC = {
 }
 
 SESSIONS = {}
+MATERIALS = {}
 
 
 def m3_store():
@@ -37,13 +41,20 @@ class ListenError(ValueError):
     pass
 
 
+def material_payload(material, use_tts, audio_url=None):
+    return dict(material_id=material.get("id", "demo"), title=material["title"],
+                use_tts=use_tts, audio_url=audio_url,
+                sentences=material["sentences"],
+                questions=[public_question(q) for q in material["questions"]])
+
+
 def finish_session(session):
     if session.get("recap"):
         return session["recap"]
     results = list(session["results"].values())
     if not results:
         raise ListenError("还没有作答任何题目")
-    by_id = {q["id"]: q for q in DEMO_QUESTIONS}
+    by_id = {q["id"]: q for q in session["questions"]}
     for r in results:
         r["question"] = by_id[r["question_id"]]
     verdicts = can_do_verdicts(results)
@@ -68,7 +79,7 @@ def finish_session(session):
         errors = []
     recap = dict(
         session_id=session["id"], session_type="listen",
-        answered=len(results), total=len(DEMO_QUESTIONS),
+        answered=len(results), total=len(session["questions"]),
         passed=sum(1 for r in results if r["passed"]),
         score=round(sum(r["score"] for r in results) / len(results), 3),
         results=[dict(question_id=r["question_id"], score=r["score"], passed=r["passed"]) for r in results],
@@ -87,11 +98,13 @@ class Handler(BaseHTTPRequestHandler):
         path = urlparse(self.path).path
         if path == "/api/material":
             demo = load_demo_payload()
-            self._json(200, dict(title=demo["title"], audio_url="/media/reference.wav",
-                                 sentences=[dict(idx=s["idx"], text=s["text"],
-                                                 start_ms=s["start_ms"], end_ms=s["end_ms"])
-                                            for s in demo["sentences"]],
-                                 questions=[public_question(q) for q in DEMO_QUESTIONS]))
+            material = dict(id="demo", title=demo["title"],
+                            sentences=[dict(idx=s["idx"], text=s["text"],
+                                            start_ms=s["start_ms"], end_ms=s["end_ms"])
+                                       for s in demo["sentences"]],
+                            questions=DEMO_QUESTIONS)
+            self._json(200, material_payload(material, use_tts=False,
+                                             audio_url="/media/reference.wav"))
             return
         static = STATIC.get(path)
         if static is None or not static[0].is_file():
@@ -109,6 +122,14 @@ class Handler(BaseHTTPRequestHandler):
             body = json.loads(self.rfile.read(length) or b"{}")
             if path == "/api/answer":
                 self._json(200, self._answer(body))
+            elif path == "/api/generate":
+                level = str(body.get("level", "A2"))
+                topic = str(body.get("topic", "")).strip()
+                if not topic:
+                    raise ListenError("话题不能为空")
+                material = generate_material(level, topic)
+                MATERIALS[material["id"]] = material
+                self._json(200, material_payload(material, use_tts=True))
             elif path == "/api/finish":
                 session = SESSIONS.get(str(body.get("session_id", "")))
                 if session is None:
@@ -118,20 +139,24 @@ class Handler(BaseHTTPRequestHandler):
                 self._json(404, {"error": "没有这个接口"})
         except (ValueError, TypeError, json.JSONDecodeError, KeyError) as exc:
             self._json(400, {"error": str(exc)})
+        except TutorError as exc:
+            self._json(502, {"error": str(exc)})
         except Exception:
             traceback.print_exc()
             self._json(500, {"error": "服务器内部错误"})
 
     def _answer(self, body):
         qid = str(body.get("question_id", ""))
-        question = next((q for q in DEMO_QUESTIONS if q["id"] == qid), None)
+        material_id = str(body.get("material_id", "demo"))
+        questions = MATERIALS[material_id]["questions"] if material_id in MATERIALS else DEMO_QUESTIONS
+        question = next((q for q in questions if q["id"] == qid), None)
         if question is None:
             raise ListenError(f"没有这道题：{qid}")
         answer = body.get("answer")
         if answer is None or str(answer).strip() == "":
             raise ListenError("答案是空的")
         sid = str(body.get("session_id") or uuid.uuid4().hex[:12])
-        session = SESSIONS.setdefault(sid, dict(id=sid, results={}, recap=None))
+        session = SESSIONS.setdefault(sid, dict(id=sid, results={}, recap=None, questions=questions))
         if session["recap"]:
             raise ListenError("本次练习已结束，请重新开始")
         verdict = evaluate(question, answer)

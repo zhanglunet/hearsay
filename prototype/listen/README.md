@@ -13,6 +13,18 @@ python -m listen
 浏览器打开 <http://127.0.0.1:8769/>（端口 `HEARSAY_LISTEN_PORT`）。
 材料复用 M1 演示（espeak 合成六句 + 词级时间戳），音频按句切片播放。
 
+## 自定义材料生成（LLM，2026-10-25 已实测）
+
+页面顶部选等级、写话题，点「生成新材料」：`/api/generate` 让 LLM 写 6 句材料和
+4 道题（主旨/细节/听写/听辨），经 `validate_material` 校验后才可用：
+题目结构、选项与答案下标、can-do ID 合法性、H 类代码过滤；`sentence_idx` 缺失时
+按关键词反查（detail）、按选项相似度推断（discrimination）、选最长句（dictation）。
+播放用浏览器 speechSynthesis，不需要 TTS 模型。生成调用需要
+`HEARSAY_LLM_API_KEY`（或 `HEARSAY_ANTHROPIC_API_KEY`），端点与模型同 M2 那套环境变量。
+
+实测（Kimi，话题「上班通勤」）：生成连贯 6 句通勤材料与 4 题，含 can/can't 对立和
+L-A2-01 / L-A2-02 / L-B1-04 映射，全部通过校验。inference 与 spoken_response 仍未接。
+
 ## 题型与判定（M0 §2.8 的离线子集）
 
 | 题型 | 判定 | 演示题 |

@@ -15,7 +15,7 @@ import os
 import re
 import time
 
-from m2_dialogue.recast import scan_recasts, validate_llm_errors
+from m2_dialogue.recast import observed_overlap, scan_recasts, validate_llm_errors
 from m2_dialogue.tutor import (DEFAULT_MODEL, TutorError, anthropic_request,
                                llm_api_key, llm_endpoint, response_text)
 
@@ -63,14 +63,25 @@ def whisperx_transcriber():
 
 def reconcile(provisional, detected):
     """provisional：实时 recast；detected：批处理发现。两者都带 utterance_id 与 code。
-    同一话语 + 同一代码合并；X00（实时无法分类）在同一话语上可与任意代码合并。
+    合并规则（M0 §4.1，v3）：同一话语且满足任一——同一代码；实时为 X00；
+    observed 归一化后互相包含。合并以批处理代码与文本为准，其余 provisional 标 discarded。
+    匹配前按「话语 + observed」去重，LLM 来源优先，避免一条批处理实例对账两次。
     返回 {confirmed, discarded, false_positive_rate}。"""
+    deduped = []
+    seen = set()
+    for p in sorted(provisional,
+                    key=lambda p: 0 if p.get("detected_by") == "asr_llm_realtime" else 1):
+        key = (p["utterance_id"], " ".join(str(p.get("observed", "")).lower().split()))
+        if key not in seen:
+            seen.add(key)
+            deduped.append(p)
     remaining = list(detected)
     confirmed, discarded = [], []
-    for p in provisional:
+    for p in deduped:
         hit = next((d for d in remaining
                     if d["utterance_id"] == p["utterance_id"]
-                    and (d["code"] == p["code"] or p["code"] == "X00")), None)
+                    and (d["code"] == p["code"] or p["code"] == "X00"
+                         or observed_overlap(p.get("observed", ""), d.get("observed", "")))), None)
         if hit is None:
             discarded.append(dict(p, status="discarded"))
         else:
@@ -169,8 +180,10 @@ def detect_errors(transcripts):
     mode = os.environ.get(DETECT_ENV, "auto")
     use_llm = mode == "llm" or (mode == "auto" and bool(llm_api_key()))
     if use_llm:
-        try:
-            return llm_detect(transcripts), "asr_llm"
-        except (TutorError, ValueError):
-            return rule_detect(transcripts), "rule_fallback_after_llm_error"
+        for _attempt in range(2):  # 上游偶发 5xx 时先试一次再回退，减少假性 discarded
+            try:
+                return llm_detect(transcripts), "asr_llm"
+            except (TutorError, ValueError):
+                pass
+        return rule_detect(transcripts), "rule_fallback_after_llm_error"
     return rule_detect(transcripts), "rule_on_batch_text"
