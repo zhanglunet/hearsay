@@ -102,7 +102,7 @@ Agent 维护一份持续更新的学习者画像，所有内容生成和练习�
 - [ ] M1 — 跟读原型：导入一段音频 → 逐句播放 → 录音 → 发音反馈。风险实验见 [报告](docs/design/2026-10-23-m1-risk-validation.md)：A / B / C 已通过，D 未通过（OpenPronounce 音素级精确率 0.148，所以不要用它写 P 类错误）。真人录音复测仍是 [issue #4](https://github.com/zhanglunet/hearsay/issues/4)，还没采集。最小切片在 [prototype/](prototype/README.md)，还没满足 [issue #8](https://github.com/zhanglunet/hearsay/issues/8) 的全部验收，所以这里不勾选。
 - [ ] M2 — 对话原型：一个场景，实时语音对话，结束后复盘。[设计草案](docs/design/2026-10-25-m2-dialogue.md)与最小切片 [prototype/m2_dialogue/](prototype/m2_dialogue/README.md) 已能本地跑（mock / 可选 Claude，浏览器语音；事后 whisperX 批处理与 Claude 错误检测可选启用）；pipecat 实时链路 `realtime.py` 与 [风险测量脚本](experiments/exp_e_dialogue/README.md)已写但均未实测，所以这里不勾选。
 - [ ] M3 — 学习者模型 + FSRS：把 M1/M2 中的错误变成复习项，并在新场景中复现。最小切片 [prototype/m3_learner/](prototype/m3_learner/README.md) 已能本地跑（confirmed 导入、FSRS-4.5 核心调度、复习场景 JSON 输出），但词项/机会数/趋势统计和在线回注通道未做，所以这里不勾选。
-- [ ] M4 — 每日计划与 can-do 进度页
+- [ ] M4 — 每日计划与 can-do 进度页。最小切片 [prototype/m4_plan/](prototype/m4_plan/README.md) 已能本地跑（按错误档案与到期卡编排 15 分钟计划、109 条 can-do 证据进度页），但材料生成与自动选材、can-do 自动判定未接，所以这里不勾选。
 
 本地跟读切片的运行方式见 [prototype/README.md](prototype/README.md)。它只覆盖「演示或导入音频 → 按句播放 → 录音 → 并排回放 → 词级相似度」。不写音素级错误，也不代替上面的 M1 勾选。对话切片的运行方式见 [prototype/m2_dialogue/README.md](prototype/m2_dialogue/README.md)。
 

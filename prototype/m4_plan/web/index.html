@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>听说 · 今日计划与进度</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="masthead">
+    <p class="eyebrow">Hearsay · M4 原型</p>
+    <h1>今天练什么，现在会什么</h1>
+    <p class="lede">计划从错误档案和复习卡长出来；进度是 can-do，不是宝石。</p>
+  </header>
+
+  <section class="panel">
+    <div class="row">
+      <h2>今日计划</h2>
+      <label class="note">分钟 <input id="minutes" type="number" value="15" min="5" max="120"></label>
+      <button id="reload" type="button">重新编排</button>
+    </div>
+    <p id="rationale" class="note"></p>
+    <div id="blocks"></div>
+    <p id="plan-notes" class="note"></p>
+  </section>
+
+  <section class="panel">
+    <h2>can-do 进度</h2>
+    <p id="progress-summary" class="note"></p>
+    <p class="note">证据只来自显式记录；本切片不自动判 can-do（LLM 判定一致性未验证）。C1/C2 仅保留 ID。</p>
+    <div class="row">
+      <input id="evidence-id" placeholder="如 SI-A2-01">
+      <select id="evidence-verdict">
+        <option value="partial">partial</option>
+        <option value="demonstrated">demonstrated</option>
+        <option value="failed">failed</option>
+      </select>
+      <button id="add-evidence" type="button">记录一条证据</button>
+      <span id="evidence-status" class="note"></span>
+    </div>
+    <div id="progress-items"></div>
+  </section>
+
+  <script src="/app.js"></script>
+</body>
+</html>

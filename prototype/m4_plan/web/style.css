@@ -1,0 +1,18 @@
+body { font-family: system-ui, sans-serif; max-width: 860px; margin: 0 auto; padding: 1rem; color: #1c2b2b; background: #f7f9f8; }
+.masthead .eyebrow { color: #0c5c5c; letter-spacing: .08em; text-transform: uppercase; font-size: .8rem; margin-bottom: 0; }
+.masthead h1 { margin: .2rem 0; }
+.lede, .note { color: #557; font-size: .92rem; }
+.panel { background: #fff; border: 1px solid #dde5e3; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+.row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin: .5rem 0; }
+button { padding: .4rem .8rem; border: 1px solid #0c5c5c; background: #fff; color: #0c5c5c; border-radius: 6px; cursor: pointer; }
+input, select { padding: .35rem .5rem; border: 1px solid #b9c7c4; border-radius: 6px; font: inherit; }
+input#minutes { width: 4.5rem; }
+.block { border-left: 3px solid #0c5c5c; padding: .4rem .7rem; margin: .5rem 0; background: #f2f7f6; }
+.block .kind { font-weight: 600; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+td, th { text-align: left; padding: .35rem .4rem; border-bottom: 1px solid #e6ecea; vertical-align: top; }
+.skill-head { background: #eef3f2; font-weight: 600; }
+.badge { display: inline-block; padding: .05rem .45rem; border-radius: 8px; font-size: .78rem; }
+.badge.demonstrated { background: #e0f2e5; color: #175c2a; }
+.badge.emerging { background: #fff3d6; color: #8a5a00; }
+.badge.not_started { background: #eceff1; color: #607d8b; }
