@@ -12,7 +12,13 @@
 
 补充：同日用 Kimi 实测了 M2 的 `detect_errors`（`detected_by=asr_llm`）：
 两句含 G04/G13 错误的文本，返回 3 条正确错误（go→went、see→saw、more better→better），
-全部通过 observed 原文校验。实时 LLM 对话（AnthropicTutor）尚未实测。
+全部通过 observed 原文校验。
+
+**实时导师也已实测（2026-10-25，Kimi / AnthropicTutor）**：复习场景（G04）三轮对话，
+回复自然贴角色，主动追问过去时信息（"When did the team send the report…?"），
+并对学习者的 "Yesterday I go to the park" 做出自然 recast（"Oh, you went to the park
+yesterday?"）。注意：规则 recast 没扫到这句（规则只覆盖少数模式），LLM 纠错的覆盖
+确实更广；实时 recast 的结构化抽取与误报率统计仍未做，pipecat 链路仍未实测。
 
 ## 环境
 

@@ -34,6 +34,10 @@ python -m m2_dialogue
 `HEARSAY_LLM_API_KEY` 优先于 `HEARSAY_ANTHROPIC_API_KEY`；端点、密钥、模型
 三个环境变量对批处理检测和 `exp_e_dialogue` 的测量脚本同样生效。
 
+实测记录（2026-10-25，Kimi）：复习场景三轮对话通过——导师贴角色、按 G04 目标
+追问过去时，并对 "Yesterday I go to the park" 自然 recast 成 "you went to the park"。
+规则 recast 未覆盖该句（规则只有少量模式），LLM 纠错覆盖更广。
+
 ## 实时语音链路（realtime.py，未实测）
 
 ```bash
