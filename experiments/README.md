@@ -8,6 +8,7 @@
 | `exp_b_pronounce/` | OpenPronounce 对中文口音英语评分的稳定性（speechocean762 test 切分，8 种扰动条件） | 同一录音扰动后分数标准差 < 0.1（0–1 归一） |
 | `exp_d_phonemes/` | OpenPronounce 音素级输出对照 speechocean762 音素标注（test 切分全部 2500 条；实验 B 的 39 条单独汇总） | 音素级精确率 ≥ 0.60 且召回率 ≥ 0.50；替换方向准确率 ≥ 0.70 |
 | `exp_c_timestamps/` | whisperX 词级时间戳精度（Kokoro 合成 50 句，token 时间戳为真值） | 边界误差 < 150 ms 的比例 ≥ 90% |
+| `exp_e_dialogue/` | M2 风险测量：recast 误报率、can-do 判定一致性、批处理延迟（脚本就绪，未实测） | ≤ 20% / ≥ 80% / < 60 s |
 
 ## 运行
 

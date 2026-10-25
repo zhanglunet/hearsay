@@ -26,6 +26,20 @@ HEARSAY_LLM=anthropic HEARSAY_ANTHROPIC_API_KEY=... python -m m2_dialogue
 
 密钥只从环境变量读，不写日志、不进响应。切到 Claude 不需要改前端。
 
+## 实时语音链路（realtime.py，未实测）
+
+```bash
+python -m pip install -r prototype/m2_dialogue/requirements-realtime.txt   # Python 3.11/3.12
+HEARSAY_ANTHROPIC_API_KEY=... python -m m2_dialogue.realtime --host 127.0.0.1 --port 7860
+```
+
+pipecat 流水线：transport → Silero VAD → faster-whisper STT → Claude → Piper TTS。
+STT 模型用 `HEARSAY_M2_STT_MODEL` 改（默认 base），LLM 模型用 `HEARSAY_LLM_MODEL`。
+断开时把实时转写与规则 recast 写到 `prototype/runtime/m2-realtime-*.json`（已忽略，勿提交）。
+
+**未实测**：本机没装依赖和模型，代码只过了编译检查。LLM 实时 recast 的结构化抽取
+还没做，实时链路误报率因此还测不了。
+
 ## 交互
 
 - 打字或点麦克风说话。麦克风同时做两件事：浏览器语音识别填文本（仅 Chromium 系，

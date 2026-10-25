@@ -50,3 +50,9 @@ jobs:
         # Standard-library tests for the issue #4 retest helpers. They do not
         # import whisperX / torch and do not touch any recording.
         run: python -m unittest discover -s experiments/exp_c_timestamps -p "test_*.py" -v
+
+      - name: Dialogue risk-measurement helper unit tests
+        # exp_e_dialogue: aggregation / agreement / timing logic only. No LLM
+        # calls, no model downloads; the measurement scripts themselves are
+        # not run here.
+        run: python -m unittest discover -s experiments/exp_e_dialogue -p "test_*.py" -v

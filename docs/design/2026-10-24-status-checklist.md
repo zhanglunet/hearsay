@@ -12,7 +12,7 @@
 |---|---|---|
 | M0 设计文档 | 完成 | [学习者模型](2026-10-22-m0-learner-model.md)、[CEFR 听说 can-do](cefr-can-do-listening-speaking.md)、[中文母语者错误清单](l1-zh-error-taxonomy.md) 都在仓库里。README 写 109 条 can-do、66 条错误，本清单不另数一遍 |
 | M1 跟读原型 | 未完成，最小切片已能本地跑 | 产品代码以前没有。这条分支的 `prototype/` 覆盖「演示或导入音频 → 逐句播放 → 录音 → 并排回放 → 词级相似度」。验收还没齐，路线图不勾选，跟踪 [issue #8](https://github.com/zhanglunet/hearsay/issues/8)。运行说明见 [prototype/README.md](../../prototype/README.md) |
-| M2 对话 | 未完成，最小切片已能本地跑 | [设计草案](2026-10-25-m2-dialogue.md)与 [prototype/m2_dialogue/](../../prototype/m2_dialogue/README.md)：单场景、mock / 可选 Claude、浏览器语音输入输出、复盘；事后 whisperX 批处理（verbatim 转写 + provisional 核对）与可选 Claude 事后错误检测（输出校验 + 失败回退规则）已接。pipecat 实时流水线未接，路线图不勾选 |
+| M2 对话 | 未完成，最小切片已能本地跑 | [设计草案](2026-10-25-m2-dialogue.md)与 [prototype/m2_dialogue/](../../prototype/m2_dialogue/README.md)：单场景、mock / 可选 Claude、浏览器语音输入输出、复盘；事后 whisperX 批处理（verbatim 转写 + provisional 核对）与可选 Claude 事后错误检测（输出校验 + 失败回退规则）已接；pipecat 实时链路 `realtime.py` 已写（依赖与模型未装，未实测）。实时链路未验证，路线图不勾选 |
 | M3 学习者模型 + FSRS | 未开始 | 没有 Learner 存储，没有复习调度 |
 | M4 每日计划 + can-do 进度 | 未开始 | 没有计划编排，没有进度页 |
 
@@ -27,9 +27,9 @@
 | C. 词级时间戳够不够切句 | **通过**。词边界误差 < 150ms 的比例 93.1%（起点 99.5%，终点 86.7%） | 原型按原文词序消耗时间戳，句尾最多再留 250ms，且不超过下一词起点。不用 whisperX `transcribe` 的分段 |
 | D. 音素级输出能不能支撑 PhonemeProfile / P 类 ErrorInstance | **没过**。精确率 0.148（原始 0.1481），召回率 0.759（原始 0.7592），替换方向 0.351（原始 0.3514）。门槛是精确率 ≥ 0.60、召回率 ≥ 0.50、方向 ≥ 0.70 | **产品规则：不要用 OpenPronounce 的音素标记写 P 类 ErrorInstance，不要填 `accuracy_mean` / `accuracy_mean_30d`，不要填 `common_substitution`。** 原型里的低分句只来自词召回 |
 | 真人复测 A 和句界 | **未做**。[issue #4](https://github.com/zhanglunet/hearsay/issues/4) 开着。模板在 [同意书](../ops/m1-consent.md) 和 [采集规范](../ops/m1-recording-protocol.md)。仓库里没有学习者录音，也没有签过名的同意书 | `experiments/exp_a_grammar/audio/` 是 macOS `say` 合成的，experiments README 写明了。不要把它当成真人复测 |
-| LLM 判 can-do 是否稳定 | **未验证** | 要等对话路径。报告没有这项实验 |
-| 实时 recast 误报 | **未验证** | M2 切片能测规则 recast 的 discarded 比例（实时文本 vs 批处理文本），但实时 LLM 纠错链路不存在，M0 §6 的 ≤20% 指标仍未测 |
-| 会话后批处理 < 60 秒 | **未验证** | M2 切片已接 whisperX verbatim 批处理并记录 `batch.duration_sec`，但还没用 5 分钟真实对话录音测过端到端预算 |
+| LLM 判 can-do 是否稳定 | **未验证** | 测量脚本 `experiments/exp_e_dialogue/can_do_consistency.py` 就绪（同一转写判 5 次，需 API key），未实测 |
+| 实时 recast 误报 | **未验证** | 汇总脚本 `experiments/exp_e_dialogue/aggregate.py` 就绪；M2 切片能测规则 recast 的 discarded 比例。实时 LLM 链路 `realtime.py` 已写未实测，且 LLM recast 的结构化抽取未做，M0 §6 的 ≤20% 指标仍未测 |
+| 会话后批处理 < 60 秒 | **未验证** | M2 切片已接 whisperX verbatim 批处理并记录 `batch.duration_sec`；`experiments/exp_e_dialogue/batch_latency.py` 就绪，未用 5 分钟真实对话实测 |
 
 A/B/C 的材料是合成语音或朗读语料，不是 Hearsay 的成人自由对话。这些限制写在报告 2.6、3.5、4.4、6.7，这里不改写。
 

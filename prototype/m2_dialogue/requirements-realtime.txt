@@ -1,0 +1,7 @@
+# M2 实时语音链路（python -m m2_dialogue.realtime）的可选依赖。
+# 未在本机实测：Python 请用 3.11/3.12；模型（faster-whisper、Silero VAD、Piper 语音）
+# 首次运行会下载，网络慢的环境先备好模型缓存。
+pipecat-ai[webrtc,silero,whisper,anthropic,piper]
+faster-whisper
+loguru
+python-dotenv
