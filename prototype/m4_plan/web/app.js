@@ -23,6 +23,40 @@ async function loadPlan() {
     div.appendChild(body);
     $("blocks").appendChild(div);
   }
+  renderDueCards(plan.due_items || []);
+}
+
+function renderDueCards(items) {
+  const container = $("due-cards");
+  container.textContent = "";
+  if (!items.length) return;
+  const title = document.createElement("p");
+  title.className = "note";
+  title.textContent = "到期复习卡：去 M2（127.0.0.1:8766）点「复习对话」用一遍，回来按表现评分（1 忘了 / 2 困难 / 3 记住了 / 4 轻松）";
+  container.appendChild(title);
+  for (const item of items) {
+    const row = document.createElement("div");
+    row.className = "row";
+    const label = document.createElement("span");
+    label.textContent = `${item.item_id}（stability ${item.stability} / difficulty ${item.difficulty}）`;
+    row.appendChild(label);
+    for (let rating = 1; rating <= 4; rating++) {
+      const button = document.createElement("button");
+      button.textContent = String(rating);
+      button.addEventListener("click", async () => {
+        const response = await fetch("/api/review", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ item_id: item.item_id, rating }),
+        });
+        const payload = await response.json();
+        if (!response.ok) { title.textContent = payload.error; return; }
+        loadPlan();
+      });
+      row.appendChild(button);
+    }
+    container.appendChild(row);
+  }
 }
 
 async function loadProgress() {

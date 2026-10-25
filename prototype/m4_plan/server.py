@@ -60,16 +60,32 @@ class Handler(BaseHTTPRequestHandler):
         self._bytes(200, file_path.read_bytes(), content_type)
 
     def do_POST(self) -> None:
-        if urlparse(self.path).path != "/api/evidence":
+        path = urlparse(self.path).path
+        if path not in ("/api/evidence", "/api/review"):
             self._json(404, {"error": "没有这个接口"})
             return
         try:
             length = int(self.headers.get("Content-Length", "0"))
             body = json.loads(self.rfile.read(length) or b"{}")
+            if path == "/api/review":
+                item_id = str(body.get("item_id", ""))
+                rating = int(body.get("rating", 0))
+                cards = {c.item_id: c for c in STORE.cards()}
+                if item_id not in cards:
+                    raise ValueError(f"没有这张复习卡：{item_id}")
+                card = cards[item_id]
+                days, retrievability = card.review(rating)
+                STORE.put_card(card)
+                STORE.save()
+                self._json(200, dict(item_id=item_id, due=card.due,
+                                     stability=card.stability, difficulty=card.difficulty,
+                                     interval_days=round(days, 3),
+                                     retrievability=round(retrievability, 3)))
+                return
             record_evidence(STORE, str(body.get("can_do_id", "")), str(body.get("verdict", "")),
                             session_id=str(body.get("session_id", "")), source="manual")
             self._json(200, dict(ok=True))
-        except (ValueError, json.JSONDecodeError) as exc:
+        except (ValueError, TypeError, json.JSONDecodeError) as exc:
             self._json(400, {"error": str(exc)})
         except Exception:
             traceback.print_exc()

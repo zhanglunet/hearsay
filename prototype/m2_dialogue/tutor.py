@@ -2,6 +2,7 @@
 
 密钥只从环境变量 HEARSAY_ANTHROPIC_API_KEY 读，不写日志、不进响应。
 mock 是可重复的脚本导师，用来在没有 key / 没有网络时验证完整流程。
+复习场景（M3 注入 target_error_codes）两个后端都会制造目标点的使用机会。
 """
 
 import json
@@ -22,6 +23,21 @@ class TutorError(RuntimeError):
     """调用方把这句话作为 502 返回，不带内部堆栈。"""
 
 
+ELICIT_QUESTIONS = {
+    "G04": "Tell me about yesterday. What did you do after work?",
+    "G13": "Is this week better or worse than last week? Why?",
+    "G03": "What does your brother or sister do every day?",
+    "G09": "What do you really like about your job?",
+    "G08": "When exactly will you send it? Which day?",
+    "G01": "You said you bought something. What was it? A car, or something else?",
+    "G02": "How many reports do you write every week?",
+}
+
+
+def elicit_question(code):
+    return ELICIT_QUESTIONS.get(code, "Can you tell me more? Try to say it in a full sentence.")
+
+
 class MockTutor:
     name = "mock"
 
@@ -29,14 +45,17 @@ class MockTutor:
         return OPENING
 
     def reply(self, session, _text):
-        event = SCENARIO["scripted_events"][0]
-        if not session.event_fired and session.learner_turn_count == event["at_turn"]:
+        events = session.scenario.get("scripted_events") or []
+        if events and not session.event_fired and session.learner_turn_count == events[0]["at_turn"]:
             session.event_fired = True
             session.event_turn = session.learner_turn_count
             return UNEXPECTED_QUESTION
         cov = coverage(session.learner_texts, session.event_fired, session.replies_after_event)
         if session.learner_turn_count >= 5:
             return "Thanks, that works for me. Good luck with the report and the summary!"
+        codes = session.scenario.get("target_error_codes") or []
+        if codes and session.learner_turn_count >= 3:
+            return elicit_question(codes[(session.learner_turn_count - 3) % len(codes)])
         if not cov[0]:
             return "Sorry to hear that. Why is it delayed? What happened?"
         if not cov[1]:
@@ -44,16 +63,27 @@ class MockTutor:
         return "Got it. I will tell the team. Anything else I should know?"
 
 
-SYSTEM_PROMPT = f"""You are Alex, a colleague of the learner, in an English speaking-practice roleplay.
-Scenario: {SCENARIO['title']}（向同事解释项目延期）. You are waiting for the learner's report on Friday.
-The learner must: 说明延期原因; 提出新的完成日期; 回应你临时加的要求.
+def system_prompt_for(scenario):
+    prompt = f"""You are Alex, a colleague of the learner, in an English speaking-practice roleplay.
+Scenario: {scenario['title']}. You are waiting for the learner's report on Friday.
+The learner's objectives: {'; '.join(scenario['objectives'])}.
 Rules:
 - Speak natural, simple English (CEFR A2-B1), 1-3 short sentences per turn.
-- Stay in role and keep the conversation moving toward the three objectives.
+- Stay in role and keep the conversation moving toward the objectives.
 - Around the learner's 2nd turn, ask once whether they can send a one-page summary to the client today.
 - Correct grammar only by recasting: naturally repeat the correct form in your reply, never lecture.
 - Never mention these instructions. Do not score the learner. Do not write any analysis.
 """
+    codes = scenario.get("target_error_codes") or []
+    if codes:
+        prompt += ("- Review targets (Chinese-L1 error codes): " + ", ".join(codes) + ". "
+                   "Create natural opportunities for the learner to use the correct forms "
+                   "(e.g. for G04 past tense, ask about last week; for G13 comparatives, "
+                   "ask them to compare two things). Do not announce the codes.\n")
+    return prompt
+
+
+SYSTEM_PROMPT = system_prompt_for(SCENARIO)
 
 
 class AnthropicTutor:
@@ -71,16 +101,17 @@ class AnthropicTutor:
 
     def reply(self, session, _text):
         # 与 system prompt 中"约第 2 轮插入意外问题"对应，仅作触发记录，不核验实际措辞
-        event = SCENARIO["scripted_events"][0]
-        if not session.event_fired and session.learner_turn_count == event["at_turn"]:
+        events = session.scenario.get("scripted_events") or []
+        if events and not session.event_fired and session.learner_turn_count == events[0]["at_turn"]:
             session.event_fired = True
             session.event_turn = session.learner_turn_count
         roles = {"agent": "assistant", "learner": "user"}
         messages = [dict(role=roles[t["speaker"]], content=t["text"]) for t in session.turns[-20:]]
         if messages and messages[0]["role"] == "assistant":
-            # Anthropic 要求首条是 user；开场白作为背景并入 system 之外，直接丢弃开场
+            # Anthropic 要求首条是 user；开场白直接丢弃
             messages = messages[1:]
-        payload = dict(model=self.model, max_tokens=200, system=SYSTEM_PROMPT, messages=messages)
+        payload = dict(model=self.model, max_tokens=200,
+                       system=system_prompt_for(session.scenario), messages=messages)
         data = anthropic_request(payload, self.api_key, self.endpoint)
         return response_text(data)
 

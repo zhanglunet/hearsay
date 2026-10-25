@@ -40,6 +40,15 @@ STT 模型用 `HEARSAY_M2_STT_MODEL` 改（默认 base），LLM 模型用 `HEARS
 **未实测**：本机没装依赖和模型，代码只过了编译检查。LLM 实时 recast 的结构化抽取
 还没做，实时链路误报率因此还测不了。
 
+## 一天的闭环（M2 ↔ M3 ↔ M4）
+
+- **M4/M3 → M2**：点「复习对话（M3 到期卡）」或 `POST /api/session {"mode":"review"}`，
+  直接用 M3 学习者存储生成复习场景，target_error_codes 会进入 mock 引导提问和
+  Claude system prompt。存储路径 `HEARSAY_M3_STORE`（默认 `prototype/runtime/m3-learner.json`）。
+- **M2 → M3**：`/api/end` 自动把复盘 ingest 进 M3（confirmed 才写入，幂等），
+  响应带 `ingest` 结果；设 `HEARSAY_M3_INGEST=0` 关闭。
+- **评分回流**：复习目标是否用对，到 M4 进度页给复习卡打 1–4 分，FSRS 推进到期时间。
+
 ## 交互
 
 - 打字或点麦克风说话。麦克风同时做两件事：浏览器语音识别填文本（仅 Chromium 系，

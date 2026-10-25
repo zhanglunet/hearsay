@@ -105,6 +105,7 @@ FAKE_BATCH = dict(confirmed=[], discarded=[], false_positive_rate=None,
 class ServerAudioTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        os.environ["HEARSAY_M3_INGEST"] = "0"
         cls.httpd = make_server(0, tutor=MockTutor())
         cls.thread = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
         cls.thread.start()
@@ -115,6 +116,7 @@ class ServerAudioTests(unittest.TestCase):
     def tearDownClass(cls):
         cls.httpd.shutdown()
         cls.httpd.server_close()
+        os.environ.pop("HEARSAY_M3_INGEST", None)
 
     def request(self, path, payload):
         req = urllib.request.Request(self.base + path, data=json.dumps(payload).encode(),

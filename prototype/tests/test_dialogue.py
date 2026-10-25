@@ -113,6 +113,7 @@ class TutorFactoryTests(unittest.TestCase):
 class ServerTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        os.environ["HEARSAY_M3_INGEST"] = "0"
         cls.httpd = make_server(0, tutor=MockTutor())
         cls.thread = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
         cls.thread.start()
@@ -123,6 +124,7 @@ class ServerTests(unittest.TestCase):
     def tearDownClass(cls):
         cls.httpd.shutdown()
         cls.httpd.server_close()
+        os.environ.pop("HEARSAY_M3_INGEST", None)
 
     def request(self, path, payload=None, method=None):
         data = None if payload is None else json.dumps(payload).encode()

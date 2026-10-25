@@ -17,6 +17,9 @@ from m2_dialogue.batch import batch_enabled, run_batch
 from m2_dialogue.scenario import PRODUCT_RULE_M2, SCENARIO
 from m2_dialogue.session import DialogueError, create_session, get_session
 from m2_dialogue.tutor import TutorError, make_tutor
+from m3_learner.ingest import ingest_recap
+from m3_learner.review import build_review_scenario
+from m3_learner.store import LearnerStore
 
 WEB_DIR = Path(__file__).resolve().parent / "web"
 JSON_LIMIT = 100_000
@@ -57,9 +60,12 @@ class Handler(BaseHTTPRequestHandler):
             return
         try:
             if path == "/api/session":
-                session = create_session(TUTOR, level=str(body.get("level", "A2")))
+                scenario = None
+                if body.get("mode") == "review":
+                    scenario = build_review_scenario(LearnerStore(_m3_store_path()))
+                session = create_session(TUTOR, level=str(body.get("level", "A2")), scenario=scenario)
                 self._json(200, dict(session_id=session.id, opening=session.turns[0]["text"],
-                                     scenario_id=SCENARIO["id"]))
+                                     scenario_id=session.scenario["id"], scenario=session.scenario))
                 return
             if path not in ("/api/turn", "/api/end"):
                 self._json(404, {"error": "没有这个接口"})
@@ -80,6 +86,9 @@ class Handler(BaseHTTPRequestHandler):
                 finally:
                     # 先清理再响应，调用方拿到复盘时音频已删除
                     _cleanup_audio(session)
+                if os.environ.get("HEARSAY_M3_INGEST", "1") != "0":
+                    # confirmed 进 M3 学习者存储（幂等；无 batch 时不产生写入）
+                    recap["ingest"] = ingest_recap(LearnerStore(_m3_store_path()), recap)
                 self._json(200, recap)
         except DialogueError as exc:
             self._json(400, {"error": str(exc)})
@@ -137,6 +146,11 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(data)
+
+
+def _m3_store_path():
+    return Path(os.environ.get("HEARSAY_M3_STORE",
+                               Path(__file__).resolve().parents[1] / "runtime" / "m3-learner.json"))
 
 
 def _cleanup_audio(session) -> None:

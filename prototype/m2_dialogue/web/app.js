@@ -38,13 +38,14 @@ function setConversationEnabled(enabled) {
   $("start").disabled = enabled;
 }
 
-async function startSession() {
+async function startSession(mode) {
   setStatus("正在开始…");
   $("chat").textContent = "";
   $("recap-panel").hidden = true;
   state.ended = false;
   try {
-    const payload = await api("/api/session");
+    const payload = await api("/api/session", mode ? { mode } : {});
+    if (payload.scenario) renderScenario(payload.scenario);
     state.sessionId = payload.session_id;
     addMessage("agent", payload.opening);
     setConversationEnabled(true);
@@ -212,7 +213,8 @@ function setupMic() {
   });
 }
 
-$("start").addEventListener("click", startSession);
+$("start").addEventListener("click", () => startSession());
+$("start-review").addEventListener("click", () => startSession("review"));
 $("send").addEventListener("click", sendTurn);
 $("end").addEventListener("click", endSession);
 $("input").addEventListener("keydown", (event) => {
@@ -220,15 +222,19 @@ $("input").addEventListener("keydown", (event) => {
 });
 setupMic();
 
-fetch("/api/scenario").then((r) => r.json()).then((payload) => {
-  const scenario = payload.scenario;
+function renderScenario(scenario) {
   $("scenario-title").textContent = scenario.title;
   $("scenario-roles").textContent =
     `你：${scenario.learner_role} ｜ Agent：${scenario.agent_role} ｜ 水平 ${scenario.target_cefr}`;
+  $("scenario-objectives").textContent = "";
   for (const text of scenario.objectives) {
     const li = document.createElement("li");
     li.textContent = text;
     $("scenario-objectives").appendChild(li);
   }
+}
+
+fetch("/api/scenario").then((r) => r.json()).then((payload) => {
+  renderScenario(payload.scenario);
   $("tutor-note").textContent = `tutor 后端：${payload.tutor}。${payload.notes}`;
 }).catch(() => setStatus("场景加载失败。确认是用 python -m m2_dialogue 打开的。"));

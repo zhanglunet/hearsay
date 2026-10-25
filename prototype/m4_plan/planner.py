@@ -23,7 +23,8 @@ def build_plan(store, now=None, minutes=15, level=None):
     scale = minutes / 15
     target_codes = select_target_codes(store, now)
     scenario = build_review_scenario(store, now)
-    due_n = len(due_cards(store.cards(), now))
+    due = due_cards(store.cards(), now)
+    due_n = len(due)
 
     blocks = []
     for kind, base_min in template:
@@ -59,6 +60,9 @@ def build_plan(store, now=None, minutes=15, level=None):
     return dict(
         date=now.date().isoformat(), minutes=minutes, level=level,
         blocks=blocks, total_minutes=sum(b["minutes"] for b in blocks),
+        due_items=[dict(item_id=c.item_id, due=c.due,
+                        stability=round(c.stability, 3), difficulty=round(c.difficulty, 3))
+                   for c in due],
         target_error_codes=target_codes,
         target_can_do_ids=[],
         rationale_zh="；".join(rationale) + "。",

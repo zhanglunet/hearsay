@@ -106,6 +106,8 @@ Agent 维护一份持续更新的学习者画像，所有内容生成和练习�
 
 本地跟读切片的运行方式见 [prototype/README.md](prototype/README.md)。它只覆盖「演示或导入音频 → 按句播放 → 录音 → 并排回放 → 词级相似度」。不写音素级错误，也不代替上面的 M1 勾选。对话切片的运行方式见 [prototype/m2_dialogue/README.md](prototype/m2_dialogue/README.md)。
 
+M2/M3/M4 已串成一天的闭环：M4 出计划与到期卡 → M2 点「复习对话」用 M3 场景 → `/api/end` 复盘自动回流 M3 → M4 给复习卡评分推进 FSRS。存储默认都在 `prototype/runtime/`（已忽略）。
+
 ## 许可证
 
 MIT
