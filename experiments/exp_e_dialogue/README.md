@@ -6,7 +6,7 @@
 
 | 脚本 | 测什么 | 阈值 | 实测 |
 |---|---|---|---|
-| `aggregate.py` | 实时 recast 被批处理 discarded 的比例 | ≤ 20% | 小样本演示 0.0（2026-10-25，Kimi，1 段会话；20 段正式测量未做） |
+| `aggregate.py` | 实时 recast 被批处理 discarded 的比例 | ≤ 20% | v1 0.778 → **v2 0.333，仍未达标**（2026-10-25，Kimi，各 20 段，`results_recast_fpr_v1.json` / `results_recast_fpr_v2.json`） |
 | `can_do_consistency.py` | 同一转写 LLM 判 can-do，5 次 verdict 一致率 | ≥ 80% | **demo 已测：1.0 达到**（2026-10-25，kimi-for-coding，5/5 pass，见 `results_cando.json`；真实学习者优先级待测） |
 | `batch_latency.py` | 5 分钟对话：转写 + 检测 + 复盘 | < 60 秒（不含一次性模型加载） | 未测 |
 
@@ -14,11 +14,29 @@
 两句含 G04/G13 错误的文本，返回 3 条正确错误（go→went、see→saw、more better→better），
 全部通过 observed 原文校验。
 
+**v1 测量分析（20 段，每段 2 轮，exp_a 错误句与 exp_c 干净句交替）**：
+provisional 9 条、discarded 7 条、批处理新增 10 条。 discarded 几乎全是
+**实时把各类语法错误错标成 G04（时态）**——G01 冠词、G02 单复数、G06 缺动词、
+G10 代词都被标成 G04，与批处理的正确代码对不上。也就是说主要问题不是「不该纠的乱纠」，
+而是**实时抽取的错误编码不可靠**。干净句 10 段没有产生实时 recast（无误报）。
+改进：实时 prompt 加代码指引和「拿不准用 X00」，X00 在同一话语上可与任意代码合并；
+X00 实例只留档，不进错误档案和复习卡。
+
+**v2 复测（同一语料与流程）**：provisional 12 条、discarded 4 条、fpr 0.333，比 v1 明显
+好转但仍高于 0.20。4 条 discarded 逐条看是三类口径问题，不是简单的乱纠错：
+1. **粒度差异**：批处理把一句里的两个错误合并报一条，实时拆开报，多出的一条被丢弃；
+2. **分类分歧**：实时 G09 vs 批处理 L10（am agree）、G09 vs G10（Is raining），
+   两边都有道理但编码不同；
+3. **规则与 LLM 编码不同**：同一句实时 L10 与规则 G09 并存，批处理只认 L10，
+   规则的 G09 被丢弃。
+下一步（不为了达标而改口径）：对账是否需要「同话语 + 代码族/observed 重叠」的
+更宽容匹配，要先在 M0 里写清楚再改，并保留 v1/v2 原始数据可复核。
+
 **实时导师也已实测（2026-10-25，Kimi / AnthropicTutor）**：复习场景（G04）三轮对话，
 回复自然贴角色，主动追问过去时信息（"When did the team send the report…?"），
 并对学习者的 "Yesterday I go to the park" 做出自然 recast（"Oh, you went to the park
 yesterday?"）。注意：规则 recast 没扫到这句（规则只覆盖少数模式），LLM 纠错的覆盖
-确实更广；实时 recast 的结构化抽取与误报率统计仍未做，pipecat 链路仍未实测。
+确实更广。实时 recast 的结构化抽取已上线（asr_llm_realtime），pipecat 链路仍未实测。
 
 ## 环境
 
@@ -36,6 +54,8 @@ yesterday?"）。注意：规则 recast 没扫到这句（规则只覆盖少数�
 # 1) 误报率：先跑若干次 M2 会话（HEARSAY_M2_BATCH=whisperx），把每次 /api/end
 #    的响应各存成一个 JSON 放进同一目录（如 recaps/01.json …），然后：
 python exp_e_dialogue/aggregate.py /path/recaps/
+# 或者一条命令端到端跑 20 段（错误句与干净句交替，无音频走 realtime_fallback）：
+python exp_e_dialogue/run_recast_sessions.py --sessions 20 --out /path/recaps
 # 注意：实时 LLM recast 的结构化抽取已上线（asr_llm_realtime，2026-10-25），
 # 20 段对话的正式误报率测量需带批处理的真实会话，尚未完成。
 

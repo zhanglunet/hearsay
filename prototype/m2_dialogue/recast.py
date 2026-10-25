@@ -6,7 +6,7 @@
 
 import re
 
-CODE_RE = re.compile(r"^[GLI]\d{2}$")
+CODE_RE = re.compile(r"^(?:[GLI]\d{2}|X00)$")
 
 # (错误代码, 匹配, 期望说法)。observed 取实际匹配到的原文。
 RULES = [

@@ -1,0 +1,174 @@
+{
+ "sessions": 20,
+ "provisional": 9,
+ "discarded": 7,
+ "batch_new": 10,
+ "detections": [
+  "asr_llm"
+ ],
+ "false_positive_rate": 0.778,
+ "threshold": 0.2,
+ "passed": false,
+ "sessions_detail": [
+  {
+   "file": "01.json",
+   "corpus": {
+    "text": "Yesterday I go to the park and see my friend.",
+    "source": "exp_a_grammar:1"
+   },
+   "recasts": 0
+  },
+  {
+   "file": "02.json",
+   "corpus": {
+    "text": "I usually take the subway to work because the traffic downtown is terrible in the morning.",
+    "source": "exp_c_timestamps:1"
+   },
+   "recasts": 0
+  },
+  {
+   "file": "03.json",
+   "corpus": {
+    "text": "She go to work by bus every day.",
+    "source": "exp_a_grammar:2"
+   },
+   "recasts": 2
+  },
+  {
+   "file": "04.json",
+   "corpus": {
+    "text": "My sister moved to Chicago last spring and she already found a job at a small design studio.",
+    "source": "exp_c_timestamps:2"
+   },
+   "recasts": 0
+  },
+  {
+   "file": "05.json",
+   "corpus": {
+    "text": "I bought car last week.",
+    "source": "exp_a_grammar:3"
+   },
+   "recasts": 1
+  },
+  {
+   "file": "06.json",
+   "corpus": {
+    "text": "Could you send me the report before the meeting so I have time to read it carefully?",
+    "source": "exp_c_timestamps:3"
+   },
+   "recasts": 0
+  },
+  {
+   "file": "07.json",
+   "corpus": {
+    "text": "I have two book and three pen.",
+    "source": "exp_a_grammar:4"
+   },
+   "recasts": 2
+  },
+  {
+   "file": "08.json",
+   "corpus": {
+    "text": "We were planning to go hiking this weekend but the forecast says it will rain all day.",
+    "source": "exp_c_timestamps:4"
+   },
+   "recasts": 0
+  },
+  {
+   "file": "09.json",
+   "corpus": {
+    "text": "He very tall and very handsome.",
+    "source": "exp_a_grammar:5"
+   },
+   "recasts": 0
+  },
+  {
+   "file": "10.json",
+   "corpus": {
+    "text": "The restaurant on the corner has really good noodles and the owner always remembers my name.",
+    "source": "exp_c_timestamps:5"
+   },
+   "recasts": 0
+  },
+  {
+   "file": "11.json",
+   "corpus": {
+    "text": "I am agree with you.",
+    "source": "exp_a_grammar:6"
+   },
+   "recasts": 1
+  },
+  {
+   "file": "12.json",
+   "corpus": {
+    "text": "I have been learning English for about three years but I still find listening the hardest part.",
+    "source": "exp_c_timestamps:6"
+   },
+   "recasts": 0
+  },
+  {
+   "file": "13.json",
+   "corpus": {
+    "text": "I very like this movie.",
+    "source": "exp_a_grammar:7"
+   },
+   "recasts": 1
+  },
+  {
+   "file": "14.json",
+   "corpus": {
+    "text": "He said he would call me back in ten minutes and that was almost two hours ago.",
+    "source": "exp_c_timestamps:7"
+   },
+   "recasts": 0
+  },
+  {
+   "file": "15.json",
+   "corpus": {
+    "text": "Why you say that to her?",
+    "source": "exp_a_grammar:8"
+   },
+   "recasts": 1
+  },
+  {
+   "file": "16.json",
+   "corpus": {
+    "text": "If you want to improve your pronunciation you should record yourself and listen to it.",
+    "source": "exp_c_timestamps:8"
+   },
+   "recasts": 0
+  },
+  {
+   "file": "17.json",
+   "corpus": {
+    "text": "My mother is a teacher. He is very kind.",
+    "source": "exp_a_grammar:9"
+   },
+   "recasts": 1
+  },
+  {
+   "file": "18.json",
+   "corpus": {
+    "text": "The flight was delayed for four hours so we missed our connection in Frankfurt.",
+    "source": "exp_c_timestamps:9"
+   },
+   "recasts": 0
+  },
+  {
+   "file": "19.json",
+   "corpus": {
+    "text": "Is raining outside now.",
+    "source": "exp_a_grammar:10"
+   },
+   "recasts": 0
+  },
+  {
+   "file": "20.json",
+   "corpus": {
+    "text": "She asked me whether I had ever been to Japan and I told her about my trip last year.",
+    "source": "exp_c_timestamps:10"
+   },
+   "recasts": 0
+  }
+ ]
+}

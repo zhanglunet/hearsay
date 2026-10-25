@@ -47,6 +47,22 @@ class ReconcileTests(unittest.TestCase):
         self.assertEqual(len(result["discarded"]), 1)
         self.assertFalse(result["confirmed"][0]["merged_provisional"])
 
+    def test_x00_merges_with_any_code_same_utterance(self):
+        result = reconcile([prov(1, "X00")], [prov(1, "G01")])
+        self.assertEqual(result["discarded"], [])
+        self.assertTrue(result["confirmed"][0]["merged_provisional"])
+        self.assertEqual(result["confirmed"][0]["code"], "G01")
+        # 但 X00 不跨话语合并
+        result = reconcile([prov(1, "X00")], [prov(2, "G01")])
+        self.assertEqual(len(result["discarded"]), 1)
+
+    def test_x00_passes_validation(self):
+        kept = validate_llm_errors(
+            [dict(utterance_id=1, code="X00", observed="I go", expected="I went", confidence=0.7)],
+            TRANSCRIPTS)
+        self.assertEqual(len(kept), 1)
+        self.assertEqual(kept[0]["code"], "X00")
+
 
 class RunBatchTests(unittest.TestCase):
     def setUp(self):

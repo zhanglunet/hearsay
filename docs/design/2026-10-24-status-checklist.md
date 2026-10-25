@@ -28,7 +28,7 @@
 | D. 音素级输出能不能支撑 PhonemeProfile / P 类 ErrorInstance | **没过**。精确率 0.148（原始 0.1481），召回率 0.759（原始 0.7592），替换方向 0.351（原始 0.3514）。门槛是精确率 ≥ 0.60、召回率 ≥ 0.50、方向 ≥ 0.70 | **产品规则：不要用 OpenPronounce 的音素标记写 P 类 ErrorInstance，不要填 `accuracy_mean` / `accuracy_mean_30d`，不要填 `common_substitution`。** 原型里的低分句只来自词召回 |
 | 真人复测 A 和句界 | **未做**。[issue #4](https://github.com/zhanglunet/hearsay/issues/4) 开着。模板在 [同意书](../ops/m1-consent.md) 和 [采集规范](../ops/m1-recording-protocol.md)。仓库里没有学习者录音，也没有签过名的同意书 | `experiments/exp_a_grammar/audio/` 是 macOS `say` 合成的，experiments README 写明了。不要把它当成真人复测 |
 | LLM 判 can-do 是否稳定 | **demo 初步通过，真实对话未验证** | 2026-10-25 用 Kimi（kimi-for-coding，Anthropic 兼容端点）跑 `can_do_consistency.py --demo`：5/5 pass，一致率 1.0 ≥ 0.8（`experiments/exp_e_dialogue/results_cando.json`）。这只是演示转写；真实对话与不同 can-do 条目仍需复测 |
-| 实时 recast 误报 | **小样本演示通过，20 段正式测量未做** | 结构化抽取已上线：导师返回 reply+recasts JSON，校验后形成 `asr_llm_realtime` provisional，与批处理对账。2026-10-25 Kimi 实测 1 段：合并 1 条 + 新增 1 条、discarded 0、fpr 0.0。M0 §6 的 20 段 ≤20% 指标仍未测；pipecat `realtime.py` 仍未实测 |
+| 实时 recast 误报 | **未达标：v1 0.778 → v2 0.333（阈值 ≤0.20）** | 2026-10-25 用 Kimi 各跑 20 段（`run_recast_sessions.py`，exp_a 错误句与 exp_c 干净句交替，批处理 asr_llm）。v1 主要因实时错标代码；v2 加代码指引与 X00 后好转，剩余是粒度/分类分歧。数据：`experiments/exp_e_dialogue/results_recast_fpr_v1.json`、`results_recast_fpr_v2.json`；pipecat `realtime.py` 仍未实测 |
 | 会话后批处理 < 60 秒 | **未验证** | M2 切片已接 whisperX verbatim 批处理并记录 `batch.duration_sec`；`experiments/exp_e_dialogue/batch_latency.py` 就绪，未用 5 分钟真实对话实测 |
 
 A/B/C 的材料是合成语音或朗读语料，不是 Hearsay 的成人自由对话。这些限制写在报告 2.6、3.5、4.4、6.7，这里不改写。

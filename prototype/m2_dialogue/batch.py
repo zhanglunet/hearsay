@@ -63,12 +63,14 @@ def whisperx_transcriber():
 
 def reconcile(provisional, detected):
     """provisional：实时 recast；detected：批处理发现。两者都带 utterance_id 与 code。
+    同一话语 + 同一代码合并；X00（实时无法分类）在同一话语上可与任意代码合并。
     返回 {confirmed, discarded, false_positive_rate}。"""
     remaining = list(detected)
     confirmed, discarded = [], []
     for p in provisional:
         hit = next((d for d in remaining
-                    if d["utterance_id"] == p["utterance_id"] and d["code"] == p["code"]), None)
+                    if d["utterance_id"] == p["utterance_id"]
+                    and (d["code"] == p["code"] or p["code"] == "X00")), None)
         if hit is None:
             discarded.append(dict(p, status="discarded"))
         else:

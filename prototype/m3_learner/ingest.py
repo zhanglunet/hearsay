@@ -43,6 +43,9 @@ def ingest_recap(store, recap, now=None):
             code=code, observed=item.get("observed", ""), expected=item.get("expected", ""),
             detected_by=item.get("detected_by", "unknown"), status="confirmed",
             confidence=item.get("confidence"), created_at=now_iso))
+        if code == "X00":
+            # 保留码：实时无法分类的实例只留档，不进错误档案和复习卡
+            continue
         pattern = _pattern(store, code, now_iso)
         pattern["count_total"] += 1
         pattern["count_30d"] += 1

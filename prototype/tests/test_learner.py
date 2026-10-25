@@ -128,6 +128,15 @@ class IngestTests(unittest.TestCase):
         self.assertFalse(result["ingested"])
         self.assertEqual(self.store.data["error_patterns"], {})
 
+    def test_x00_only_archived_not_patterned(self):
+        result = ingest_recap(self.store, recap_with(["X00", "G04"]), now=T0)
+        patterns = self.store.data["error_patterns"]
+        self.assertNotIn("X00", patterns)
+        self.assertFalse(self.store.has_card("error:X00"))
+        self.assertIn("G04", patterns)
+        codes = [i["code"] for i in self.store.data["error_instances"]]
+        self.assertEqual(codes, ["X00", "G04"])
+
     def test_window_counts_recompute(self):
         old = T0 - timedelta(days=40)
         self.store.data["error_patterns"]["G04"] = dict(

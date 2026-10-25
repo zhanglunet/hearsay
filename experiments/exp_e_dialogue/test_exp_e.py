@@ -7,6 +7,7 @@ import unittest
 from aggregate import aggregate, session_counts
 from batch_latency import summarize_timings
 from can_do_consistency import agreement
+from run_recast_sessions import build_session_plan
 
 
 def recap(merged, discarded, new):
@@ -52,6 +53,18 @@ class LatencyTests(unittest.TestCase):
         self.assertTrue(report["passed"])
         report = summarize_timings({"transcribe": 55.0, "detect": 10.0, "summary": 5.0})
         self.assertFalse(report["passed"])
+
+
+class SessionPlanTests(unittest.TestCase):
+    def test_plan_alternates_and_wraps(self):
+        plan = build_session_plan(20)
+        self.assertEqual(len(plan), 20)
+        self.assertTrue(all(p["source"].startswith("exp_a_grammar:") for p in plan[::2]))
+        self.assertTrue(all(p["source"].startswith("exp_c_timestamps:") for p in plan[1::2]))
+        self.assertEqual(plan[0]["source"], "exp_a_grammar:1")
+        self.assertEqual(plan[1]["source"], "exp_c_timestamps:1")
+        self.assertEqual(build_session_plan(4), build_session_plan(4))
+        self.assertEqual(len(build_session_plan(60)), 60)
 
 
 if __name__ == "__main__":
