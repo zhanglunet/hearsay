@@ -108,7 +108,7 @@ def make_server(port: int, store=None) -> ThreadingHTTPServer:
     global STORE
     STORE = store or LearnerStore(os.environ.get("HEARSAY_M3_STORE", default_store_path()))
     ThreadingHTTPServer.allow_reuse_address = True
-    return ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    return ThreadingHTTPServer((os.environ.get("HEARSAY_HOST", "127.0.0.1"), port), Handler)
 
 
 def main() -> None:
