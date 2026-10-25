@@ -47,6 +47,11 @@ python -m m2_dialogue
 （1 段会话，不是 M0 要求的 20 段正式测量），M3 入库 2 条。
 批处理转写器改为惰性加载：无音频的会话不再要求安装 whisperX。
 
+**20 段正式测量（2026-10-25，Kimi）**：v1 0.778（实时错标代码）→ v2 0.333
+（代码指引 + X00）→ v3b 0.286（observed 重叠口径）→ **v3c 0.0 达到阈值**
+（对账前去重 + 批处理失败先试一次再回退）。v3 改了匹配口径，M0 §4.1 已写明；
+数据在 `experiments/exp_e_dialogue/results_recast_fpr_v1/v2/v3.json`。
+
 ## 实时语音链路（realtime.py，未实测）
 
 ```bash

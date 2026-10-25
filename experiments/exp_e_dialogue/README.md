@@ -6,7 +6,7 @@
 
 | 脚本 | 测什么 | 阈值 | 实测 |
 |---|---|---|---|
-| `aggregate.py` | 实时 recast 被批处理 discarded 的比例 | ≤ 20% | v1 0.778 → **v2 0.333，仍未达标**（2026-10-25，Kimi，各 20 段，`results_recast_fpr_v1.json` / `results_recast_fpr_v2.json`） |
+| `aggregate.py` | 实时 recast 被批处理 discarded 的比例 | ≤ 20% | **v3c 达到 0.0**（2026-10-25，Kimi，20 段，v3 对账口径。演进：v1 0.778 → v2 0.333 → v3b 0.286 → v3c 0.0；`results_recast_fpr_v1/v2/v3.json`） |
 | `can_do_consistency.py` | 同一转写 LLM 判 can-do，5 次 verdict 一致率 | ≥ 80% | **demo 已测：1.0 达到**（2026-10-25，kimi-for-coding，5/5 pass，见 `results_cando.json`；真实学习者优先级待测） |
 | `batch_latency.py` | 5 分钟对话：转写 + 检测 + 复盘 | < 60 秒（不含一次性模型加载） | 未测 |
 
@@ -35,7 +35,9 @@ X00 实例只留档，不进错误档案和复习卡。
    于是实时正确的 G04 也被丢弃。已改为**先试一次再回退**。
 2. **一条批处理实例被对账两次**：实时 L10 与规则 G09 同指一处错误，批处理只有一条，
    先合并的占掉后另一条被误丢。已改为**对账前按「话语 + observed」去重，LLM 优先**。
-v3c（含这两项修复）复测结果见下。
+**v3c（含去重与重试修复）**：20 段、provisional 9、**discarded 0、fpr 0.0，达到 ≤20% 阈值**
+（`results_recast_fpr_v3.json`）。注意 v3 改了匹配口径（observed 重叠 + 去重），
+与 v1/v2 不是同一标尺；M0 §4.1 已写明规则与「误报」定义。
 
 **实时 recast 结构化抽取已上线（asr_llm_realtime）**，pipecat 链路仍未实测。
 
