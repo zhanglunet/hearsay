@@ -90,7 +90,8 @@ class ReconcileTests(unittest.TestCase):
         import urllib.error as ue
         good = fake_claude_response([dict(utterance_id=1, code="G04", observed="I go",
                                           expected="I went", confidence=0.9)])
-        with mock.patch("m2_dialogue.tutor.urllib.request.urlopen",
+        with mock.patch.dict(os.environ, {"HEARSAY_LLM_API_KEY": "test-key"}), \
+             mock.patch("m2_dialogue.tutor.urllib.request.urlopen",
                         side_effect=[ue.URLError("down"), good]):
             detected, name = detect_errors(TRANSCRIPTS)
         self.assertEqual(name, "asr_llm")
