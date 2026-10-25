@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>听说 · 对话原型</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%230c5c5c'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="masthead">
+    <p class="eyebrow">Hearsay · M2 原型</p>
+    <h1>听说 · 对话</h1>
+    <p class="lede">一个场景，几轮对话，结束后复盘。复盘里的纠错只是待核对提示，不写学习者模型。</p>
+  </header>
+
+  <section class="panel">
+    <h2 id="scenario-title">载入场景中…</h2>
+    <p id="scenario-roles" class="note"></p>
+    <ul id="scenario-objectives"></ul>
+    <p id="tutor-note" class="note"></p>
+    <div class="row">
+      <button id="start" class="primary" type="button">开始对话</button>
+      <button id="end" type="button" disabled>结束并复盘</button>
+      <label class="note"><input id="speak-agent" type="checkbox" checked> 朗读 Agent 发言</label>
+    </div>
+    <p id="status" class="status" role="status"></p>
+  </section>
+
+  <section>
+    <div id="chat" class="chat" aria-live="polite"></div>
+    <div class="row">
+      <textarea id="input" lang="en" rows="2" placeholder="说英语，或在这里打字。麦克风只在 Chromium 系浏览器可用。" disabled></textarea>
+      <button id="mic" type="button" disabled>🎤 说话</button>
+      <button id="send" class="primary" type="button" disabled>发送</button>
+    </div>
+  </section>
+
+  <section id="recap-panel" hidden>
+    <h2>复盘</h2>
+    <p id="recap-summary"></p>
+    <div id="recap-metrics" class="note"></div>
+    <h3>目标覆盖</h3>
+    <ul id="recap-objectives"></ul>
+    <h3>待核对 recast 提示</h3>
+    <div id="recap-recasts"></div>
+    <p id="recap-notes" class="note"></p>
+  </section>
+
+  <script src="/app.js"></script>
+</body>
+</html>

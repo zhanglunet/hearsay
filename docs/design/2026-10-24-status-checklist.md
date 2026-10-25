@@ -12,7 +12,7 @@
 |---|---|---|
 | M0 设计文档 | 完成 | [学习者模型](2026-10-22-m0-learner-model.md)、[CEFR 听说 can-do](cefr-can-do-listening-speaking.md)、[中文母语者错误清单](l1-zh-error-taxonomy.md) 都在仓库里。README 写 109 条 can-do、66 条错误，本清单不另数一遍 |
 | M1 跟读原型 | 未完成，最小切片已能本地跑 | 产品代码以前没有。这条分支的 `prototype/` 覆盖「演示或导入音频 → 逐句播放 → 录音 → 并排回放 → 词级相似度」。验收还没齐，路线图不勾选，跟踪 [issue #8](https://github.com/zhanglunet/hearsay/issues/8)。运行说明见 [prototype/README.md](../../prototype/README.md) |
-| M2 对话 | 未开始 | 没有对话运行时、没有 pipecat / LiveKit 接线 |
+| M2 对话 | 未完成，最小切片已能本地跑 | [设计草案](2026-10-25-m2-dialogue.md)与 [prototype/m2_dialogue/](../../prototype/m2_dialogue/README.md)：单场景、mock / 可选 Claude、浏览器语音输入输出、复盘。pipecat 实时流水线与事后 whisperX 批处理未接，路线图不勾选 |
 | M3 学习者模型 + FSRS | 未开始 | 没有 Learner 存储，没有复习调度 |
 | M4 每日计划 + can-do 进度 | 未开始 | 没有计划编排，没有进度页 |
 
@@ -28,7 +28,7 @@
 | D. 音素级输出能不能支撑 PhonemeProfile / P 类 ErrorInstance | **没过**。精确率 0.148（原始 0.1481），召回率 0.759（原始 0.7592），替换方向 0.351（原始 0.3514）。门槛是精确率 ≥ 0.60、召回率 ≥ 0.50、方向 ≥ 0.70 | **产品规则：不要用 OpenPronounce 的音素标记写 P 类 ErrorInstance，不要填 `accuracy_mean` / `accuracy_mean_30d`，不要填 `common_substitution`。** 原型里的低分句只来自词召回 |
 | 真人复测 A 和句界 | **未做**。[issue #4](https://github.com/zhanglunet/hearsay/issues/4) 开着。模板在 [同意书](../ops/m1-consent.md) 和 [采集规范](../ops/m1-recording-protocol.md)。仓库里没有学习者录音，也没有签过名的同意书 | `experiments/exp_a_grammar/audio/` 是 macOS `say` 合成的，experiments README 写明了。不要把它当成真人复测 |
 | LLM 判 can-do 是否稳定 | **未验证** | 要等对话路径。报告没有这项实验 |
-| 实时 recast 误报 | **未验证** | 同上。M2 还没开始 |
+| 实时 recast 误报 | **未验证** | M2 切片只有规则 recast（provisional 占位），没有实时 LLM 纠错与事后核对，误报率谈不上 |
 | 会话后批处理 < 60 秒 | **未验证** | 同上。实验 A/B 的 CPU 耗时写在报告第 1 节，那不是 5 分钟对话的端到端预算 |
 
 A/B/C 的材料是合成语音或朗读语料，不是 Hearsay 的成人自由对话。这些限制写在报告 2.6、3.5、4.4、6.7，这里不改写。
@@ -51,7 +51,7 @@ README 第二节里的能力，没有一件作为产品交付。
 | 能力 | 状态 |
 |---|---|
 | 个性化学习者模型（分技能、词项、错误档案、兴趣、时间预算） | 只有设计，没有运行时的 Learner |
-| 听 → 跟读 → 复述 → 对话 | 跟读有最小切片。听的理解题、复述、对话都没有 |
+| 听 → 跟读 → 复述 → 对话 | 跟读、对话各有最小切片。听的理解题、复述没有；对话切片不是实时语音流水线 |
 | 从自己的话里长出 FSRS，在新场景里再用 | 没有 |
 | 面向中文母语者的发音和语法处理 | 错误清单在设计里。原型不标音素，也不做 L1 纠错 |
 | can-do 进度，而不是宝石 | 清单在设计里。没有进度页，也没有 CanDoEvidence |

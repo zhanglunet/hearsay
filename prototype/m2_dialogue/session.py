@@ -1,0 +1,114 @@
+"""对话会话状态机与复盘。内存保存，不落盘，不写学习者模型。"""
+
+import time
+import uuid
+
+from m2_dialogue.coverage import coverage
+from m2_dialogue.recast import scan_recasts
+from m2_dialogue.scenario import PRODUCT_RULE_M2, SCENARIO
+
+
+class DialogueError(ValueError):
+    """调用方把这句话作为 400 返回。"""
+
+
+def count_words(text):
+    return len(text.split())
+
+
+class DialogueSession:
+    def __init__(self, tutor, level="A2"):
+        self.id = uuid.uuid4().hex[:12]
+        self.tutor = tutor
+        self.level = level
+        self.started_at = time.time()
+        self.ended_at = None
+        self.turns = [dict(speaker="agent", text=tutor.opening())]
+        self.recasts = []
+        self.event_fired = False
+        self.event_turn = None
+
+    @property
+    def learner_texts(self):
+        return [t["text"] for t in self.turns if t["speaker"] == "learner"]
+
+    @property
+    def learner_turn_count(self):
+        return len(self.learner_texts)
+
+    @property
+    def replies_after_event(self):
+        return 0 if self.event_turn is None else self.learner_turn_count - self.event_turn
+
+    def add_learner_turn(self, text):
+        if self.ended_at is not None:
+            raise DialogueError("会话已结束，不能继续发言。请重新开始。")
+        text = " ".join(text.split())
+        if not text:
+            raise DialogueError("发言是空的。说点什么，或打字输入。")
+        if len(text) > 4000:
+            raise DialogueError("单轮发言过长（>4000 字符）。")
+        self.turns.append(dict(speaker="learner", text=text))
+        self.recasts.extend(scan_recasts(text))
+        agent_text = self.tutor.reply(self, text)
+        self.turns.append(dict(speaker="agent", text=agent_text))
+        return agent_text
+
+    def end(self):
+        if self.ended_at is None:
+            self.ended_at = time.time()
+        return self.recap()
+
+    def recap(self):
+        learner_words = sum(count_words(t) for t in self.learner_texts)
+        agent_words = sum(count_words(t["text"]) for t in self.turns if t["speaker"] == "agent")
+        cov = coverage(self.learner_texts, self.event_fired, self.replies_after_event)
+        objectives = [dict(text=text, covered=hit)
+                      for text, hit in zip(SCENARIO["objectives"], cov)]
+        covered_n = sum(cov)
+        share = round(learner_words / (learner_words + agent_words), 3) if learner_words + agent_words else 0.0
+        summary = (
+            f"本次对话你说了 {self.learner_turn_count} 轮、约 {learner_words} 词，"
+            f"输出词数占比 {share:.0%}（目标：说的时间占一半以上）。"
+            f"三个目标覆盖了 {covered_n} 个。"
+        )
+        if covered_n < len(objectives):
+            missing = "、".join(o["text"] for o in objectives if not o["covered"])
+            summary += f"还没覆盖：{missing}。"
+        if self.recasts:
+            summary += (f"有 {len(self.recasts)} 条待核对的 recast 提示，"
+                        "它们还没经过事后批处理确认，不计入错误统计。")
+        else:
+            summary += "规则没有扫到典型迁移错误；这不等于没有错误，完整检测要等事后批处理。"
+        return dict(
+            session_id=self.id,
+            scenario_id=SCENARIO["id"],
+            session_type="converse",
+            duration_sec=int((self.ended_at or time.time()) - self.started_at),
+            n_learner_turns=self.learner_turn_count,
+            n_agent_turns=len(self.turns) - self.learner_turn_count,
+            learner_words=learner_words,
+            agent_words=agent_words,
+            learner_word_share=share,
+            scripted_event_fired=self.event_fired,
+            objectives=objectives,
+            recasts=self.recasts,
+            summary_zh=summary,
+            notes=PRODUCT_RULE_M2,
+        )
+
+
+SESSIONS = {}
+
+
+def create_session(tutor, level="A2"):
+    session = DialogueSession(tutor, level)
+    SESSIONS[session.id] = session
+    return session
+
+
+def get_session(session_id):
+    session = SESSIONS.get(session_id or "")
+    if session is None:
+        raise DialogueError("没有这个会话，或它已随服务重启消失。请重新开始。")
+    return session
