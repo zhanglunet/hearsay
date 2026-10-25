@@ -16,6 +16,7 @@ recast 规则扫描（provisional 占位；LLM 实时 recast 的结构化抽取�
 
 import json
 import os
+import re
 import time
 from pathlib import Path
 
@@ -25,7 +26,7 @@ from m2_dialogue.tutor import KEY_ENV, SYSTEM_PROMPT
 try:
     from loguru import logger
     from pipecat.audio.vad.silero import SileroVADAnalyzer
-    from pipecat.frames.frames import Frame, LLMRunFrame, LLMTextFrame, TranscriptionFrame
+    from pipecat.frames.frames import Frame, LLMFullResponseEndFrame, LLMRunFrame, LLMTextFrame, TextFrame, TranscriptionFrame
     from pipecat.pipeline.pipeline import Pipeline
     from pipecat.pipeline.worker import PipelineParams, PipelineWorker, ProcessorUnusablePolicy
     from pipecat.processors.aggregators.llm_context import LLMContext
@@ -51,11 +52,45 @@ except ImportError as exc:
 RUNTIME_DIR = Path(__file__).resolve().parents[1] / "runtime"
 
 
-class TranscriptRecorder(FrameProcessor):
-    """记录实时用户转写与 Agent 文本，断开时落盘（本地私有目录）。"""
+def extract_reply(text):
+    """导师约定输出 {"reply","recasts"}，只取 reply 给 TTS 和记录；非 JSON 原样返回。"""
+    m = re.search(r"\{.*\}", text, re.S)
+    if m:
+        try:
+            reply = json.loads(m.group(0)).get("reply")
+            if isinstance(reply, str) and reply.strip():
+                return reply.strip()
+        except (json.JSONDecodeError, AttributeError):
+            pass
+    return text
+
+
+class JsonReplyProcessor(FrameProcessor):
+    """LLM → TTS 之间：攒完整一轮，提取 reply 再合成，避免把 recasts JSON 读出来。"""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.buffer = ""
+
+    async def process_frame(self, frame: Frame, direction: FrameDirection):
+        if isinstance(frame, LLMTextFrame):
+            self.buffer += frame.text
+            return
+        reply = extract_reply(self.buffer)
+        self.buffer = ""
+        if reply:
+            await self.push_frame(TextFrame(reply), direction)
+        await self.push_frame(frame, direction)
+
+
+class TranscriptRecorder(FrameProcessor):
+    """记录实时用户转写与 Agent 文本，断开时落盘（本地私有目录）。
+    放在 STT 之后，因为 user_aggregator 会消费 TranscriptionFrame；
+    Agent 文本从 LLMContext 取。"""
+
+    def __init__(self, context=None, **kwargs):
+        super().__init__(**kwargs)
+        self.context = context
         self.utterances = []
         self.recasts = []
 
@@ -72,6 +107,16 @@ class TranscriptRecorder(FrameProcessor):
         await self.push_frame(frame, direction)
 
     def dump(self):
+        if self.context is not None:
+            get_messages = getattr(self.context, "get_messages", None)
+            messages = get_messages() if get_messages else getattr(self.context, "messages", [])
+            for message in messages:
+                if isinstance(message, dict):
+                    role, content = message.get("role"), message.get("content", "")
+                else:
+                    role, content = getattr(message, "role", None), getattr(message, "content", "")
+                if role == "assistant":
+                    self.utterances.append(dict(speaker="agent", text=extract_reply(content)))
         RUNTIME_DIR.mkdir(exist_ok=True)
         path = RUNTIME_DIR / f"m2-realtime-{time.strftime('%Y%m%d-%H%M%S')}.json"
         path.write_text(json.dumps(dict(utterances=self.utterances, recasts=self.recasts),
@@ -90,29 +135,44 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         device="cpu",
         compute_type="int8",
     )
-    llm_settings = {"system_instruction": SYSTEM_PROMPT}
+    llm_settings = {"system_instruction": SYSTEM_PROMPT,
+                    "thinking": AnthropicLLMService.ThinkingConfig(type="disabled")}
     if os.environ.get("HEARSAY_LLM_MODEL"):
         llm_settings["model"] = os.environ["HEARSAY_LLM_MODEL"]
     llm = AnthropicLLMService(
         api_key=os.environ.get(KEY_ENV, ""),
         settings=AnthropicLLMService.Settings(**llm_settings),
     )
+    _orig_push_llm_text = llm._push_llm_text
+    _orig_push_frame = llm.push_frame
+
+    async def _push_llm_text_logged(text):
+        logger.debug(f"LLM 产出文本块：{text[:60]!r}")
+        await _orig_push_llm_text(text)
+
+    llm._push_llm_text = _push_llm_text_logged
+
+    async def _push_frame_logged(frame, direction=FrameDirection.DOWNSTREAM):
+        logger.debug(f"LLM push_frame: {type(frame).__name__}")
+        await _orig_push_frame(frame, direction)
+
+    llm.push_frame = _push_frame_logged
     tts = PiperTTSService(settings=PiperTTSService.Settings(voice="en_US-ryan-high"))
 
     context = LLMContext()
     user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
         context, user_params=LLMUserAggregatorParams(vad_analyzer=SileroVADAnalyzer()))
-    recorder = TranscriptRecorder()
+    recorder = TranscriptRecorder(context)
 
     pipeline = Pipeline([
         transport.input(),
         stt,
+        recorder,
         user_aggregator,
         llm,
         tts,
         transport.output(),
         assistant_aggregator,
-        recorder,
     ])
     worker = PipelineWorker(
         pipeline,

@@ -45,7 +45,8 @@ X00 实例只留档，不进错误档案和复习卡。
 回复自然贴角色，主动追问过去时信息（"When did the team send the report…?"），
 并对学习者的 "Yesterday I go to the park" 做出自然 recast（"Oh, you went to the park
 yesterday?"）。注意：规则 recast 没扫到这句（规则只覆盖少数模式），LLM 纠错的覆盖
-确实更广。实时 recast 的结构化抽取已上线（asr_llm_realtime），pipecat 链路仍未实测。
+**实时 recast 的结构化抽取已上线（asr_llm_realtime），pipecat 链路也已实测**
+（2026-10-26：WebRTC 注入演示音频，STT/LLM/TTS 全链路通过，TTS 只读 reply）。
 
 ## 环境
 

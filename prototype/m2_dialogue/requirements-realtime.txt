@@ -5,3 +5,6 @@ pipecat-ai[webrtc,silero,whisper,anthropic,piper]
 faster-whisper
 loguru
 python-dotenv
+fastapi
+uvicorn
+python-multipart

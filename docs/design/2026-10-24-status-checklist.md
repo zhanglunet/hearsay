@@ -12,7 +12,7 @@
 |---|---|---|
 | M0 设计文档 | 完成 | [学习者模型](2026-10-22-m0-learner-model.md)、[CEFR 听说 can-do](cefr-can-do-listening-speaking.md)、[中文母语者错误清单](l1-zh-error-taxonomy.md) 都在仓库里。README 写 109 条 can-do、66 条错误，本清单不另数一遍 |
 | M1 跟读原型 | 未完成，最小切片已能本地跑 | 产品代码以前没有。这条分支的 `prototype/` 覆盖「演示或导入音频 → 逐句播放 → 录音 → 并排回放 → 词级相似度」。验收还没齐，路线图不勾选，跟踪 [issue #8](https://github.com/zhanglunet/hearsay/issues/8)。运行说明见 [prototype/README.md](../../prototype/README.md) |
-| M2 对话 | 未完成，最小切片已能本地跑 | [设计草案](2026-10-25-m2-dialogue.md)与 [prototype/m2_dialogue/](../../prototype/m2_dialogue/README.md)：单场景、mock / 可选 Claude、浏览器语音输入输出、复盘；事后 whisperX 批处理（verbatim 转写 + provisional 核对）与可选 Claude 事后错误检测（输出校验 + 失败回退规则）已接；pipecat 实时链路 `realtime.py` 已写（依赖与模型未装，未实测）。实时链路未验证，路线图不勾选 |
+| M2 对话 | 未完成，最小切片已能本地跑 | [设计草案](2026-10-25-m2-dialogue.md)与 [prototype/m2_dialogue/](../../prototype/m2_dialogue/README.md)：单场景、mock / 可选 Claude、浏览器语音输入输出、复盘；事后 whisperX 批处理（verbatim 转写 + provisional 核对）与可选 Claude 事后错误检测（输出校验 + 失败回退规则）已接；pipecat 实时链路 `realtime.py` **已实测通过**（2026-10-26：WebRTC 注入音频，STT → LLM → Piper TTS 全链路，TTS 只读 reply）。M2 路线图仍不勾选（浏览器语音与实时链路是两条实现，真实麦克风对话未验证） |
 | M3 学习者模型 + FSRS | 未完成，最小切片已能本地跑 | [prototype/m3_learner/](../../prototype/m3_learner/README.md)：本地 JSON Learner 存储（导出/删除）、M2 confirmed → ErrorPattern + FSRS 卡、到期代码注入复习场景。词项、opportunities、趋势与在线回注未做，路线图不勾选 |
 | M4 每日计划 + can-do 进度 | 未完成，最小切片已能本地跑 | [prototype/m4_plan/](../../prototype/m4_plan/README.md)：M0 §5.3 模板离线编排（到期卡注入、rationale）、109 条 can-do 解析与证据进度页。材料生成、自动选材、can-do 自动判定未接，路线图不勾选 |
 

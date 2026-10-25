@@ -52,7 +52,7 @@ python -m m2_dialogue
 （对账前去重 + 批处理失败先试一次再回退）。v3 改了匹配口径，M0 §4.1 已写明；
 数据在 `experiments/exp_e_dialogue/results_recast_fpr_v1/v2/v3.json`。
 
-## 实时语音链路（realtime.py，未实测）
+## 实时语音链路（realtime.py，已实测）
 
 ```bash
 python -m pip install -r prototype/m2_dialogue/requirements-realtime.txt   # Python 3.11/3.12
@@ -61,7 +61,15 @@ HEARSAY_ANTHROPIC_API_KEY=... python -m m2_dialogue.realtime --host 127.0.0.1 --
 
 pipecat 流水线：transport → Silero VAD → faster-whisper STT → Claude → Piper TTS。
 STT 模型用 `HEARSAY_M2_STT_MODEL` 改（默认 base），LLM 模型用 `HEARSAY_LLM_MODEL`。
+Kimi 接入：`ANTHROPIC_BASE_URL=https://api.kimi.com/coding/` +
+`ANTHROPIC_API_KEY`（Anthropic 协议；令牌过期时用 `docs` 里的刷新接口更新）。
 断开时把实时转写与规则 recast 写到 `prototype/runtime/m2-realtime-*.json`（已忽略，勿提交）。
+
+**实测记录（2026-10-26）**：aiortc 客户端向 `/api/offer` 注入演示音频，
+STT 正确转写（tiny.en 偶有小模型误听），Claude/Kimi 生成回复，
+Piper 本地 TTS 正常播报（只读 reply，不读 recasts JSON），
+`runtime/m2-realtime-*.json` 同时记下学习者与 Agent 文本。
+runner 需另装 fastapi/uvicorn/python-multipart（已写入 requirements-realtime.txt）。
 
 **未实测**：本机没装依赖和模型，代码只过了编译检查。LLM 实时 recast 的结构化抽取
 还没做，实时链路误报率因此还测不了。
