@@ -76,9 +76,11 @@ class Handler(BaseHTTPRequestHandler):
             elif path == "/api/end":
                 try:
                     batch_result = run_batch(session) if batch_enabled() else None
-                    self._json(200, session.end(batch_result))
+                    recap = session.end(batch_result)
                 finally:
+                    # 先清理再响应，调用方拿到复盘时音频已删除
                     _cleanup_audio(session)
+                self._json(200, recap)
         except DialogueError as exc:
             self._json(400, {"error": str(exc)})
         except TutorError as exc:

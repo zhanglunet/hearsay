@@ -10,13 +10,17 @@ confirmed。本切片的批处理检测仍是规则扫描（不是 LLM 检测）
 衡量的是规则 recast，不是 M0 §6 的 LLM 实时链路误报率；指标结构先跑通。
 """
 
+import json
 import os
+import re
 import time
 
 from m2_dialogue.recast import scan_recasts
+from m2_dialogue.tutor import DEFAULT_MODEL, KEY_ENV, TutorError, anthropic_request, response_text
 
 BATCH_ENV = "HEARSAY_M2_BATCH"
 MODEL_ENV = "HEARSAY_M2_ASR_MODEL"
+DETECT_ENV = "HEARSAY_M2_DETECT"
 
 VERBATIM_PROMPT = ("Transcribe exactly what the speaker says, word for word, keeping all grammar mistakes "
                    "such as 'he go', 'two book', 'I very like', 'in Monday'. Do not correct anything.")
@@ -75,7 +79,7 @@ def reconcile(provisional, detected):
     return dict(confirmed=confirmed, discarded=discarded, false_positive_rate=rate)
 
 
-def run_batch(session, transcribe=None):
+def run_batch(session, transcribe=None, detect=None):
     """对会话的学习者话语做事后转写与核对。transcribe 可注入，测试不加载模型。
     没有音频的话语退回实时文本，并在 transcripts 里标 source=realtime_fallback。"""
     t0 = time.time()
@@ -95,11 +99,101 @@ def run_batch(session, transcribe=None):
         turn["batch_text"] = text
         transcripts.append(dict(utterance_id=uid, realtime_text=turn["text"],
                                 batch_text=text, source=source))
-        for hit in scan_recasts(text):
-            detected.append(dict(hit, utterance_id=uid))
+    if detect is None:
+        detected, detection = detect_errors(transcripts)
+    else:
+        detected, detection = detect(transcripts), "injected"
     result = reconcile(session.recasts, detected)
     result.update(asr="whisperx_verbatim",
-                  detection="rule_on_batch_text",
+                  detection=detection,
                   duration_sec=round(time.time() - t0, 2),
                   transcripts=transcripts)
     return result
+
+
+CODE_RE = re.compile(r"^[GLI]\d{2}$")
+
+DETECT_SYSTEM_PROMPT = """你是英语错误检测器，分析中文母语学习者的逐字（verbatim）英语口语转写。
+规则：
+- 只标 G（语法）、L（用词）、I（互动/表达）类错误，代码用中文母语者错误清单编号，
+  如 G01 冠词、G02 单复数、G03 主谓一致、G04 时态、G05 完成时误用、G06 缺动词、
+  G07 名词数、G08 介词、G09 句式、G10 代词、G11 关联词、G12 there be、G13 比较级、
+  G16 虚拟语气、L10 词性误用。不要标发音（P 类），不要评发音好坏。
+- 转写里的语法错误是学习者真实说的，先原样接受，不要在心里改正后再分析。
+- observed 必须是该话语原文里的连续片段（大小写可不同），expected 是更自然的说法。
+- 只输出 JSON：{"errors":[{"utterance_id":1,"code":"G04","observed":"...","expected":"...","confidence":0.9}]}
+- 没把握就不输出；没有错误就输出 {"errors":[]}。不要输出任何解释。"""
+
+
+def rule_detect(transcripts):
+    detected = []
+    for t in transcripts:
+        for hit in scan_recasts(t["batch_text"]):
+            detected.append(dict(hit, utterance_id=t["utterance_id"]))
+    return detected
+
+
+def _norm_space(text):
+    return " ".join(str(text).lower().split())
+
+
+def validate_llm_errors(raw_errors, transcripts):
+    """逐条校验 LLM 输出：代码只许 G/L/I、话语编号必须存在、observed 必须是原文
+    连续片段、confidence >= 0.6（M0 §2.4 以下不进统计）。不合格的静默丢弃。"""
+    by_uid = {t["utterance_id"]: t["batch_text"] for t in transcripts}
+    out = []
+    for e in raw_errors:
+        if not isinstance(e, dict):
+            continue
+        uid, code = e.get("utterance_id"), e.get("code", "")
+        observed, expected = e.get("observed", ""), e.get("expected", "")
+        confidence = e.get("confidence", 0)
+        if uid not in by_uid or not CODE_RE.match(str(code)):
+            continue
+        if not isinstance(observed, str) or not observed.strip() or not isinstance(expected, str):
+            continue
+        if not isinstance(confidence, (int, float)) or confidence < 0.6:
+            continue
+        if _norm_space(observed) not in _norm_space(by_uid[uid]):
+            continue
+        out.append(dict(utterance_id=uid, code=code, observed=observed, expected=expected,
+                        confidence=round(float(confidence), 3), detected_by="asr_llm"))
+    return out
+
+
+def llm_detect(transcripts):
+    """调 Claude 做批处理错误检测。转写文本会发给 Anthropic，仅在启用批处理
+    且有 API key 时发生。返回校验后的错误列表。"""
+    api_key = os.environ.get(KEY_ENV, "")
+    if not api_key:
+        raise TutorError(f"LLM 检测需要 {KEY_ENV}，或设 HEARSAY_M2_DETECT=rule 用规则。")
+    utterances = [dict(utterance_id=t["utterance_id"], text=t["batch_text"]) for t in transcripts]
+    payload = dict(model=os.environ.get("HEARSAY_LLM_MODEL") or DEFAULT_MODEL,
+                   max_tokens=1500, system=DETECT_SYSTEM_PROMPT,
+                   messages=[dict(role="user", content=json.dumps(utterances, ensure_ascii=False))])
+    data = anthropic_request(payload, api_key)
+    text = response_text(data)
+    m = re.search(r"\{.*\}", text, re.S)
+    if not m:
+        raise TutorError("LLM 检测没有返回 JSON。")
+    try:
+        parsed = json.loads(m.group(0))
+        raw_errors = parsed["errors"]
+        if not isinstance(raw_errors, list):
+            raise ValueError("errors 不是数组")
+    except (json.JSONDecodeError, KeyError, ValueError) as exc:
+        raise TutorError("LLM 检测返回的 JSON 结构不合法。") from exc
+    return validate_llm_errors(raw_errors, transcripts)
+
+
+def detect_errors(transcripts):
+    """选择检测器并返回 (detected, 名称)。HEARSAY_M2_DETECT=llm/rule 可强制；
+    缺省有 key 用 LLM，没 key 用规则。LLM 失败回退规则并在名称里注明。"""
+    mode = os.environ.get(DETECT_ENV, "auto")
+    use_llm = mode == "llm" or (mode == "auto" and bool(os.environ.get(KEY_ENV)))
+    if use_llm:
+        try:
+            return llm_detect(transcripts), "asr_llm"
+        except (TutorError, ValueError):
+            return rule_detect(transcripts), "rule_fallback_after_llm_error"
+    return rule_detect(transcripts), "rule_on_batch_text"

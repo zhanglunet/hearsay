@@ -81,23 +81,32 @@ class AnthropicTutor:
             # Anthropic 要求首条是 user；开场白作为背景并入 system 之外，直接丢弃开场
             messages = messages[1:]
         payload = dict(model=self.model, max_tokens=200, system=SYSTEM_PROMPT, messages=messages)
-        req = urllib.request.Request(
-            self.endpoint,
-            data=json.dumps(payload).encode("utf-8"),
-            headers={"content-type": "application/json", "x-api-key": self.api_key,
-                     "anthropic-version": "2023-06-01"},
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-        except urllib.error.HTTPError as exc:
-            raise TutorError(f"Claude 接口返回 HTTP {exc.code}。检查模型名与额度，或改用 mock 后端。") from exc
-        except (urllib.error.URLError, TimeoutError) as exc:
-            raise TutorError("连不上 Claude 接口。检查网络，或改用 mock 后端。") from exc
-        try:
-            return " ".join(b.get("text", "") for b in data["content"]).strip()
-        except (KeyError, TypeError) as exc:
-            raise TutorError("Claude 响应结构不符合预期。") from exc
+        data = anthropic_request(payload, self.api_key, self.endpoint)
+        return response_text(data)
+
+
+def anthropic_request(payload, api_key, endpoint="https://api.anthropic.com/v1/messages"):
+    """共享的 Claude Messages 调用。api_key 只进请求头，不写日志、不进异常消息。"""
+    req = urllib.request.Request(
+        endpoint,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"content-type": "application/json", "x-api-key": api_key,
+                 "anthropic-version": "2023-06-01"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        raise TutorError(f"Claude 接口返回 HTTP {exc.code}。检查模型名与额度，或改用 mock 后端。") from exc
+    except (urllib.error.URLError, TimeoutError) as exc:
+        raise TutorError("连不上 Claude 接口。检查网络，或改用 mock 后端。") from exc
+
+
+def response_text(data):
+    try:
+        return " ".join(b.get("text", "") for b in data["content"]).strip()
+    except (KeyError, TypeError) as exc:
+        raise TutorError("Claude 响应结构不符合预期。") from exc
 
 
 def make_tutor():

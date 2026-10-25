@@ -11,7 +11,8 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from m2_dialogue.batch import batch_enabled, reconcile, run_batch
+from m2_dialogue.batch import (batch_enabled, detect_errors, llm_detect, reconcile,
+                               run_batch, validate_llm_errors)
 from m2_dialogue.server import make_server
 from m2_dialogue.session import DialogueSession
 from m2_dialogue.tutor import MockTutor
@@ -48,6 +49,11 @@ class ReconcileTests(unittest.TestCase):
 
 
 class RunBatchTests(unittest.TestCase):
+    def setUp(self):
+        # 默认检测路径应是规则：清掉会让它走 LLM 的环境变量
+        for key in ("HEARSAY_ANTHROPIC_API_KEY", "HEARSAY_M2_DETECT"):
+            os.environ.pop(key, None)
+
     def make_session(self):
         s = DialogueSession(MockTutor())
         s.add_learner_turn("It is more better to wait.")
@@ -161,6 +167,75 @@ class ServerAudioTests(unittest.TestCase):
                 "session_id": sid, "text": "hello", "audio_b64": "!!not-base64!!"})
         self.assertEqual(status, 400)
         self.assertIn("base64", payload["error"])
+
+
+TRANSCRIPTS = [dict(utterance_id=1, realtime_text="x", source="test",
+                    batch_text="Yesterday I go to the park and it is more better.")]
+
+
+def fake_claude_response(errors):
+    body = {"content": [{"type": "text", "text": json.dumps({"errors": errors})}]}
+    response = mock.MagicMock()
+    response.read.return_value = json.dumps(body).encode()
+    response.__enter__.return_value = response
+    return response
+
+
+class LlmDetectTests(unittest.TestCase):
+    def setUp(self):
+        os.environ["HEARSAY_ANTHROPIC_API_KEY"] = "test-key"
+        os.environ.pop("HEARSAY_M2_DETECT", None)
+
+    def tearDown(self):
+        os.environ.pop("HEARSAY_ANTHROPIC_API_KEY", None)
+        os.environ.pop("HEARSAY_M2_DETECT", None)
+
+    def test_validate_drops_bad_entries(self):
+        raw = [
+            dict(utterance_id=1, code="G04", observed="I go", expected="I went", confidence=0.9),
+            dict(utterance_id=1, code="P01", observed="I go", expected="x", confidence=0.9),
+            dict(utterance_id=99, code="G04", observed="I go", expected="x", confidence=0.9),
+            dict(utterance_id=1, code="G04", observed="I go", expected="x", confidence=0.5),
+            dict(utterance_id=1, code="G13", observed="never said this", expected="x", confidence=0.9),
+            dict(utterance_id=1, code="G13", observed="more better", expected="better", confidence=0.8),
+        ]
+        kept = validate_llm_errors(raw, TRANSCRIPTS)
+        self.assertEqual([(e["code"], e["observed"]) for e in kept],
+                         [("G04", "I go"), ("G13", "more better")])
+        self.assertTrue(all(e["detected_by"] == "asr_llm" for e in kept))
+
+    def test_llm_detect_with_fake_http(self):
+        with mock.patch("m2_dialogue.tutor.urllib.request.urlopen",
+                        return_value=fake_claude_response([
+                            dict(utterance_id=1, code="G04", observed="I go",
+                                 expected="I went", confidence=0.92)])):
+            detected = llm_detect(TRANSCRIPTS)
+        self.assertEqual(len(detected), 1)
+        self.assertEqual(detected[0]["code"], "G04")
+        self.assertEqual(detected[0]["confidence"], 0.92)
+
+    def test_detect_errors_falls_back_on_http_error(self):
+        import urllib.error as ue
+        with mock.patch("m2_dialogue.tutor.urllib.request.urlopen",
+                        side_effect=ue.URLError("down")):
+            detected, name = detect_errors(TRANSCRIPTS)
+        self.assertEqual(name, "rule_fallback_after_llm_error")
+        self.assertEqual([d["code"] for d in detected], ["G13"])
+
+    def test_detect_errors_rule_without_key(self):
+        os.environ.pop("HEARSAY_ANTHROPIC_API_KEY", None)
+        detected, name = detect_errors(TRANSCRIPTS)
+        self.assertEqual(name, "rule_on_batch_text")
+        self.assertEqual([d["code"] for d in detected], ["G13"])
+
+    def test_llm_malformed_json_falls_back(self):
+        response = mock.MagicMock()
+        response.read.return_value = json.dumps({"content": [{"text": "not json at all"}]}).encode()
+        response.__enter__.return_value = response
+        with mock.patch("m2_dialogue.tutor.urllib.request.urlopen", return_value=response):
+            detected, name = detect_errors(TRANSCRIPTS)
+        self.assertEqual(name, "rule_fallback_after_llm_error")
+        self.assertEqual([d["code"] for d in detected], ["G13"])
 
 
 if __name__ == "__main__":

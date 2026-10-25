@@ -50,16 +50,21 @@ HEARSAY_M2_BATCH=whisperx python -m m2_dialogue
   合并为 confirmed，对不上的 provisional 标 discarded，批处理新发现的直接 confirmed。
   复盘给出 confirmed / discarded 清单、误报率（discarded / provisional）和
   `batch.duration_sec` 计时。
-- **注意**：批处理检测目前也是规则扫描，不是 LLM 检测；这个误报率衡量的是规则
-  recast，不是 M0 §6 的 LLM 实时链路误报率。60 秒预算也还没用真实长对话测过。
+- **错误检测分两层**：批处理发现默认在有 `HEARSAY_ANTHROPIC_API_KEY` 时走 **Claude LLM 检测**
+  （`detected_by=asr_llm`），没 key 时用规则扫描；`HEARSAY_M2_DETECT=llm/rule` 可强制。
+  LLM 输出逐条校验：只收 G/L/I 类代码（P 类拒收）、话语编号必须存在、observed 必须是
+  原文连续片段、confidence ≥ 0.6；不合格静默丢弃。LLM 调用失败自动回退规则，
+  复盘 `detection` 字段会写明实际用的检测器。启用 LLM 检测时转写文本会发给 Anthropic。
+- **注意**：误报率衡量的是「实时规则 recast vs 批处理发现」；实时 LLM 纠错链路仍不存在，
+  M0 §6 的 LLM 实时链路误报率还没测。60 秒预算也没用过真实长对话测过。
 - 音频生命周期：仅在批处理启用时，每轮录音随 `/api/turn` 上传并写到系统临时目录，
-  `/api/end` 后整目录删除；批处理关闭时音频直接忽略，不落盘。不进仓库。
+  `/api/end` 先删除再返回复盘；批处理关闭时音频直接忽略，不落盘。不进仓库。
 
 ## 它故意不做什么
 
 - 不是 pipecat 实时流水线；没有 VAD / 流式 ASR / 打断。
-- 实时纠错只是 `detected_by=rule` 的 provisional 提示；没有 LLM 实时纠错与
-  LLM 事后检测。没有批处理时复盘里没有任何 confirmed 实例。
+- 实时纠错只是 `detected_by=rule` 的 provisional 提示；没有 LLM 实时纠错。
+  没有批处理时复盘里没有任何 confirmed 实例。
 - 不写学习者模型、FSRS、CanDoEvidence；接口层强制 `error_instances: []`、音素字段为空。
 - 会话只在内存，重启即丢。
 - mock 的 objectives 覆盖判断是关键词启发式，只表示「说没说到」，不代表「说得好不好」。
