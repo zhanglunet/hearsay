@@ -73,7 +73,10 @@ STT 模型用 `HEARSAY_M2_STT_MODEL` 改（默认 base），LLM 模型用 `HEARS
   Claude system prompt。存储路径 `HEARSAY_M3_STORE`（默认 `prototype/runtime/m3-learner.json`）。
 - **M2 → M3**：`/api/end` 自动把复盘 ingest 进 M3（confirmed 才写入，幂等），
   响应带 `ingest` 结果；设 `HEARSAY_M3_INGEST=0` 关闭。
-- **评分回流**：复习目标是否用对，到 M4 进度页给复习卡打 1–4 分，FSRS 推进到期时间。
+- **评分回流**：复习场景结束时按 M0 §4.3 自动评分（again/hard/good），
+  LLM 输出校验后应用到 FSRS 卡（`HEARSAY_M2_REVIEW_SCORE=0` 关闭，
+  失败退回 M4 手动评分）；也可到 M4 进度页手动打 1–4 分。词项评分未接。
+  实测（Kimi）：`went` → good、`go` → again，均自动应用到复习卡。
 
 ## 交互
 

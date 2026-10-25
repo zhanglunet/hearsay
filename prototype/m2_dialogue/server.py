@@ -16,6 +16,7 @@ from m1_shadow.limits import seal_no_phoneme_writes
 from m2_dialogue.batch import batch_enabled, run_batch
 from m2_dialogue.scenario import PRODUCT_RULE_M2, SCENARIO
 from m2_dialogue.session import DialogueError, create_session, get_session
+from m2_dialogue.review_score import apply_scores, score_review
 from m2_dialogue.tutor import TutorError, make_tutor
 from m3_learner.ingest import ingest_recap
 from m3_learner.review import build_review_scenario
@@ -89,6 +90,16 @@ class Handler(BaseHTTPRequestHandler):
                 if os.environ.get("HEARSAY_M3_INGEST", "1") != "0":
                     # confirmed 进 M3 学习者存储（幂等；无 batch 时不产生写入）
                     recap["ingest"] = ingest_recap(LearnerStore(_m3_store_path()), recap)
+                if (session.scenario.get("target_error_codes")
+                        and os.environ.get("HEARSAY_M2_REVIEW_SCORE", "1") != "0"):
+                    try:
+                        scores = score_review(session)
+                    except TutorError:
+                        scores = None  # 评分失败不阻断复盘，退回 M4 手动评分
+                    if scores:
+                        recap["review_scores"] = scores
+                        recap["review_applied"] = apply_scores(
+                            LearnerStore(_m3_store_path()), scores)
                 self._json(200, recap)
         except DialogueError as exc:
             self._json(400, {"error": str(exc)})

@@ -123,6 +123,14 @@ function renderRecap(recap) {
     div.textContent = `${r.code}（${r.status} / ${r.detected_by}）：你说 “${r.observed}”，更自然的说法：“${r.expected}”`;
     $("recap-recasts").appendChild(div);
   }
+  if (recap.review_scores) {
+    for (const s of recap.review_scores) {
+      const div = document.createElement("div");
+      div.className = "recast";
+      div.textContent = `复习评分 ${s.code}：${s.outcome}（已应用到复习卡）｜ 证据：${s.evidence}`;
+      $("recap-recasts").appendChild(div);
+    }
+  }
   $("recap-notes").textContent = recap.notes;
   renderBatch(recap.batch);
   $("recap-panel").scrollIntoView({ block: "start" });

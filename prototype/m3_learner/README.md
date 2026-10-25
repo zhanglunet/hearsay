@@ -40,8 +40,9 @@ M2 /api/end 复盘（batch.confirmed）
   不含短期学习态和参数自定义；单学习者、单 JSON 文件、原子写入。
 - `ErrorPattern` 没有 opportunities / error_rate / tier_weight / stubbornness，
   `trend` 一律 `insufficient_data`；场景选取是简化版 M0 §5.2。
-- 没有 LexicalItem / 词项卡、SkillEstimate 更新、CanDoEvidence、DailyPlan 编排（M4），
-  也没有 LLM 自动判「这次用对了吗」（评分由 M4 页面手动给出）。
+- 没有 LexicalItem / 词项卡、SkillEstimate 更新、CanDoEvidence、DailyPlan 编排（M4）。
+  **复习自动评分已接**（M0 §4.3，M2 `/api/end` 自动判定 again/hard/good 并应用；
+  M4 手动评分兜底）。
 - **在线回注通道已通**（2026-10-25）：M2 `POST /api/session {"mode":"review"}` 直接
   使用本存储生成复习场景；M2 `/api/end` 自动 ingest 回来（`HEARSAY_M3_INGEST=0` 关闭）；
   M4 页面给复习卡评分推进 FSRS。`--recap` 是手动导入的备选路径。
