@@ -8,7 +8,7 @@
 |---|---|---|---|
 | `aggregate.py` | 实时 recast 被批处理 discarded 的比例 | ≤ 20% | **v3c 达到 0.0**（2026-10-25，Kimi，20 段，v3 对账口径。演进：v1 0.778 → v2 0.333 → v3b 0.286 → v3c 0.0；`results_recast_fpr_v1/v2/v3.json`） |
 | `can_do_consistency.py` | 同一转写 LLM 判 can-do，5 次 verdict 一致率 | ≥ 80% | **demo 已测：1.0 达到**（2026-10-25，kimi-for-coding，5/5 pass，见 `results_cando.json`；真实学习者优先级待测） |
-| `batch_latency.py` | 5 分钟对话：转写 + 检测 + 复盘 | < 60 秒（不含一次性模型加载） | 未测 |
+| `batch_latency.py` | 5 分钟对话：转写 + 检测 + 复盘 | < 60 秒（不含一次性模型加载） | **tiny.en 达到 53.6s**（2026-10-25，5.2 分钟音频，转写 39.9s + 检测 13.7s，`results_latency_tiny.json`）；large-v3 复测见下 |
 
 补充：同日用 Kimi 实测了 M2 的 `detect_errors`（`detected_by=asr_llm`）：
 两句含 G04/G13 错误的文本，返回 3 条正确错误（go→went、see→saw、more better→better），

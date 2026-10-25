@@ -1,0 +1,16 @@
+{
+ "model": "tiny.en（非协议 large-v3，仅作管线验证）",
+ "audio_sec": 314.4,
+ "steps_sec": {
+  "model_load": 0.47,
+  "transcribe": 39.86,
+  "detect": 13.71,
+  "summary": 0.0
+ },
+ "total_sec": 53.57,
+ "threshold_sec": 60,
+ "passed": true,
+ "detection": "asr_llm",
+ "errors": 0,
+ "summary_zh": "转写 868 词，检出 0 条候选错误（asr_llm）。"
+}

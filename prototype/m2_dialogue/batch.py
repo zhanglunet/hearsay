@@ -46,6 +46,15 @@ def whisperx_transcriber():
             return _orig_torch_load(*a, **k)
 
         torch.load = _torch_load_compat
+        # av>=19 移除了 faster-whisper 还在传的 metadata_errors 参数，垫片兼容
+        import av
+        _orig_av_open = av.open
+
+        def _av_open_compat(*a, **k):
+            k.pop("metadata_errors", None)
+            return _orig_av_open(*a, **k)
+
+        av.open = _av_open_compat
         import whisperx
         name = os.environ.get(MODEL_ENV, "large-v3")
         _model = whisperx.load_model(name, device="cpu", compute_type="int8", language="en",
