@@ -31,7 +31,7 @@ def build_plan(store, now=None, minutes=15, level=None):
         block_min = max(1, round(base_min * scale))
         block = dict(type=kind, minutes=block_min)
         if kind == "listen":
-            block["content_zh"] = "一段新材料 + 理解题（生成器未接：先用 M1 导入材料，题目人工/后续自动生成）"
+            block["content_zh"] = "用 listen 切片（8769）听材料做理解题：主旨/细节/听写/听辨，规则判定并回流 can-do 与 H 类错误"
         elif kind == "shadow":
             block["content_zh"] = "用 M1 切片跟读 4–6 句；优先含近期错误代码的句子（自动选材未接）"
         elif kind == "retell":
