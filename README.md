@@ -108,6 +108,8 @@ Agent 维护一份持续更新的学习者画像，所有内容生成和练习�
 
 M2/M3/M4 已串成一天的闭环：M4 出计划与到期卡 → M2 点「复习对话」用 M3 场景 → `/api/end` 复盘自动回流 M3 → M4 给复习卡评分推进 FSRS。存储默认都在 `prototype/runtime/`（已忽略）。复述环节另有 [prototype/retell/](prototype/retell/README.md) 切片（覆盖度/WPM/语法反馈并回流 M3），听力理解题见 [prototype/listen/](prototype/listen/README.md)（规则判定，can-do 与 H 类错误回流）。
 
+**统一入口**：`cd prototype && python start_all.py` 一键启动全部切片，统一首页在 `127.0.0.1:8764`（见 [prototype/home/README.md](prototype/home/README.md)）。
+
 ## 许可证
 
 MIT
