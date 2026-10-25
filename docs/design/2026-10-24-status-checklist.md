@@ -29,7 +29,7 @@
 | 真人复测 A 和句界 | **未做**。[issue #4](https://github.com/zhanglunet/hearsay/issues/4) 开着。模板在 [同意书](../ops/m1-consent.md) 和 [采集规范](../ops/m1-recording-protocol.md)。仓库里没有学习者录音，也没有签过名的同意书 | `experiments/exp_a_grammar/audio/` 是 macOS `say` 合成的，experiments README 写明了。不要把它当成真人复测 |
 | LLM 判 can-do 是否稳定 | **demo 初步通过，真实对话未验证** | 2026-10-25 用 Kimi（kimi-for-coding，Anthropic 兼容端点）跑 `can_do_consistency.py --demo`：5/5 pass，一致率 1.0 ≥ 0.8（`experiments/exp_e_dialogue/results_cando.json`）。这只是演示转写；真实对话与不同 can-do 条目仍需复测 |
 | 实时 recast 误报 | **v3c 达到 0.0（阈值 ≤0.20）** | 演进：v1 0.778 → v2 0.333 → v3b 0.286 → v3c 0.0（2026-10-25，Kimi，各 20 段）。v3 改了匹配口径（observed 重叠 + 去重 + 重试，M0 §4.1 已写明），与 v1/v2 不是同一标尺。数据：`experiments/exp_e_dialogue/results_recast_fpr_v1/v2/v3.json`；pipecat `realtime.py` 仍未实测 |
-| 会话后批处理 < 60 秒 | **tiny.en 达标 53.6s，large-v3 未达标 1263.3s** | 2026-10-25 同一 5.2 分钟音频：tiny.en 转写 39.9s + 检测 13.7s；large-v3 转写 1258.7s（约 4 倍实时，4 vCPU）+ 检测 4.6s。结论：60 秒预算在本机 CPU 上对 large-v3 不成立，需要更小模型（如 large-v3-turbo）、更快硬件或离线批处理。数据：`experiments/exp_e_dialogue/results_latency_tiny.json`、`results_latency_large_v3.json` |
+| 会话后批处理 < 60 秒 | **tiny.en 达标 53.6s；turbo 未达标 579.7s；large-v3 未达标 1263.3s** | 2026-10-25 同一 5.2 分钟音频：large-v3 转写 1258.7s（≈4 倍实时）、turbo 579.4s（≈1.8 倍）、tiny.en 39.9s。结论：60 秒预算在本机 4 vCPU 上只有小模型成立，large 系列需要更快硬件或离线批处理。数据：`experiments/exp_e_dialogue/results_latency_tiny.json`、`results_latency_turbo.json`、`results_latency_large_v3.json`。whisperX 环境已装好（torch/torchvision 钉 CPU 版）并通过 M2 `run_batch` 真实转写验证 |
 
 A/B/C 的材料是合成语音或朗读语料，不是 Hearsay 的成人自由对话。这些限制写在报告 2.6、3.5、4.4、6.7，这里不改写。
 

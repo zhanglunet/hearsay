@@ -1,0 +1,16 @@
+{
+ "model": "large-v3-turbo（deepdml ct2，faster-whisper 后端）",
+ "audio_sec": 314.4,
+ "steps_sec": {
+  "model_load": 7.54,
+  "transcribe": 579.41,
+  "detect": 0.3,
+  "summary": 0.0
+ },
+ "total_sec": 579.71,
+ "threshold_sec": 60,
+ "passed": false,
+ "detection": "rule_fallback_after_llm_error",
+ "errors": 0,
+ "summary_zh": "转写 887 词，检出 0 条候选错误（rule_fallback_after_llm_error）。"
+}
