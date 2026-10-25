@@ -48,18 +48,28 @@ class DialogueSession:
             raise DialogueError("发言是空的。说点什么，或打字输入。")
         if len(text) > 4000:
             raise DialogueError("单轮发言过长（>4000 字符）。")
-        self.turns.append(dict(speaker="learner", text=text))
-        self.recasts.extend(scan_recasts(text))
+        uid = self.learner_turn_count + 1
+        self.turns.append(dict(speaker="learner", text=text, utterance_id=uid, audio_ref=None))
+        for hit in scan_recasts(text):
+            self.recasts.append(dict(hit, utterance_id=uid))
         agent_text = self.tutor.reply(self, text)
         self.turns.append(dict(speaker="agent", text=agent_text))
         return agent_text
 
-    def end(self):
+    def attach_audio(self, path):
+        """把刚上传的音频挂到最后一轮学习者话语上（批处理用）。"""
+        for turn in reversed(self.turns):
+            if turn["speaker"] == "learner":
+                turn["audio_ref"] = path
+                return
+        raise DialogueError("还没有学习者发言，无法挂音频。")
+
+    def end(self, batch_result=None):
         if self.ended_at is None:
             self.ended_at = time.time()
-        return self.recap()
+        return self.recap(batch_result)
 
-    def recap(self):
+    def recap(self, batch_result=None):
         learner_words = sum(count_words(t) for t in self.learner_texts)
         agent_words = sum(count_words(t["text"]) for t in self.turns if t["speaker"] == "agent")
         cov = coverage(self.learner_texts, self.event_fired, self.replies_after_event)
@@ -80,7 +90,16 @@ class DialogueSession:
                         "它们还没经过事后批处理确认，不计入错误统计。")
         else:
             summary += "规则没有扫到典型迁移错误；这不等于没有错误，完整检测要等事后批处理。"
-        return dict(
+        if batch_result is not None:
+            n_confirmed = len(batch_result["confirmed"])
+            n_discarded = len(batch_result["discarded"])
+            summary += (f"事后批处理用时 {batch_result['duration_sec']} 秒："
+                        f"confirmed {n_confirmed} 条、discarded {n_discarded} 条")
+            rate = batch_result["false_positive_rate"]
+            if rate is not None:
+                summary += f"，实时提示误报率 {rate:.1%}（规则口径，非 LLM 实时链路）"
+            summary += "。"
+        recap = dict(
             session_id=self.id,
             scenario_id=SCENARIO["id"],
             session_type="converse",
@@ -96,6 +115,9 @@ class DialogueSession:
             summary_zh=summary,
             notes=PRODUCT_RULE_M2,
         )
+        if batch_result is not None:
+            recap["batch"] = batch_result
+        return recap
 
 
 SESSIONS = {}

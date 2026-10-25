@@ -1,7 +1,7 @@
 "use strict";
 
 const $ = (id) => document.getElementById(id);
-const state = { sessionId: null, ended: false, recognizing: false };
+const state = { sessionId: null, ended: false, recognizing: false, audioBlob: null, recorder: null };
 
 function setStatus(text) { $("status").textContent = text; }
 
@@ -58,7 +58,13 @@ async function sendTurn() {
   if (!text || !state.sessionId || state.ended) return;
   $("send").disabled = true;
   try {
-    const payload = await api("/api/turn", { session_id: state.sessionId, text });
+    const body = { session_id: state.sessionId, text };
+    if (state.audioBlob) {
+      body.audio_b64 = await blobToBase64(state.audioBlob);
+      body.audio_type = state.audioBlob.type;
+    }
+    const payload = await api("/api/turn", body);
+    state.audioBlob = null;
     addMessage("learner", text);
     $("input").value = "";
     addMessage("agent", payload.agent_text);
@@ -68,6 +74,15 @@ async function sendTurn() {
   } catch (err) { setStatus(err.message); }
   $("send").disabled = false;
   $("input").focus();
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 }
 
 async function endSession() {
@@ -108,29 +123,92 @@ function renderRecap(recap) {
     $("recap-recasts").appendChild(div);
   }
   $("recap-notes").textContent = recap.notes;
+  renderBatch(recap.batch);
   $("recap-panel").scrollIntoView({ block: "start" });
+}
+
+function renderBatch(batch) {
+  const container = $("recap-batch");
+  container.textContent = "";
+  if (!batch) return;
+  const title = document.createElement("h3");
+  title.textContent = "事后批处理（权威转写与核对）";
+  container.appendChild(title);
+  const line = document.createElement("p");
+  line.className = "note";
+  line.textContent = `用时 ${batch.duration_sec}s ｜ confirmed ${batch.confirmed.length} 条 ｜ ` +
+    `discarded ${batch.discarded.length} 条 ｜ 实时提示误报率 ` +
+    (batch.false_positive_rate === null ? "—（无实时提示）" : `${Math.round(batch.false_positive_rate * 100)}%（规则口径）`);
+  container.appendChild(line);
+  for (const item of batch.discarded) {
+    const div = document.createElement("div");
+    div.className = "recast";
+    div.textContent = `已丢弃：第 ${item.utterance_id} 轮 ${item.code} “${item.observed}”——批处理未找到对应错误`;
+    container.appendChild(div);
+  }
+  for (const t of batch.transcripts) {
+    const div = document.createElement("div");
+    div.className = "note";
+    div.textContent = `第 ${t.utterance_id} 轮（${t.source}）：${t.batch_text}` +
+      (t.batch_text !== t.realtime_text ? ` ｜ 实时文本曾是：${t.realtime_text}` : "");
+    container.appendChild(div);
+  }
 }
 
 function setupMic() {
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!Recognition) {
-    $("mic").textContent = "无语音识别，请打字";
+  const canRecord = Boolean(navigator.mediaDevices && navigator.mediaDevices.getUserMedia &&
+                            window.MediaRecorder);
+  if (!Recognition && !canRecord) {
+    $("mic").textContent = "无语音输入，请打字";
     return;
   }
-  const recognition = new Recognition();
-  recognition.lang = "en-US";
-  recognition.interimResults = false;
-  recognition.onresult = (event) => {
-    $("input").value = event.results[0][0].transcript;
-    setStatus("识别完成，可修改后发送。识别会归一化，不是权威转写。");
-  };
-  recognition.onerror = () => setStatus("语音识别失败，请打字。");
-  recognition.onend = () => { state.recognizing = false; $("mic").textContent = "🎤 说话"; };
-  $("mic").addEventListener("click", () => {
-    if (state.recognizing) { recognition.stop(); return; }
+  let recognition = null;
+  if (Recognition) {
+    recognition = new Recognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.onresult = (event) => {
+      $("input").value = event.results[0][0].transcript;
+      setStatus("识别完成，可修改后发送。识别会归一化，不是权威转写。");
+    };
+    recognition.onerror = () => setStatus("语音识别失败。录音仍在，可打字补转写后发送。");
+  }
+
+  async function start() {
+    state.audioBlob = null;
+    if (canRecord) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const chunks = [];
+        state.recorder = new MediaRecorder(stream);
+        state.recorder.ondataavailable = (event) => { if (event.data.size) chunks.push(event.data); };
+        state.recorder.onstop = () => {
+          state.audioBlob = new Blob(chunks, { type: state.recorder.mimeType || "audio/webm" });
+          stream.getTracks().forEach((track) => track.stop());
+          setStatus("录音完成。发送时随本轮一起上传（仅批处理启用时才落盘，复盘后删除）。");
+        };
+        state.recorder.start();
+      } catch (err) {
+        setStatus("麦克风不可用：" + err.message);
+        return;
+      }
+    }
+    if (recognition) recognition.start();
     state.recognizing = true;
     $("mic").textContent = "正在听…再点停止";
-    recognition.start();
+  }
+
+  function stop() {
+    if (state.recorder && state.recorder.state !== "inactive") state.recorder.stop();
+    if (recognition) recognition.stop();
+    state.recognizing = false;
+    $("mic").textContent = "🎤 说话";
+  }
+
+  $("mic").addEventListener("click", () => {
+    if (state.recognizing) stop();
+    else start();
   });
 }
 

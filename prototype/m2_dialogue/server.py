@@ -2,20 +2,26 @@
 
 from __future__ import annotations
 
+import base64
 import json
 import os
+import shutil
+import tempfile
 import traceback
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
 from m1_shadow.limits import seal_no_phoneme_writes
+from m2_dialogue.batch import batch_enabled, run_batch
 from m2_dialogue.scenario import PRODUCT_RULE_M2, SCENARIO
 from m2_dialogue.session import DialogueError, create_session, get_session
 from m2_dialogue.tutor import TutorError, make_tutor
 
 WEB_DIR = Path(__file__).resolve().parent / "web"
 JSON_LIMIT = 100_000
+TURN_JSON_LIMIT = 12_000_000
+AUDIO_BYTES_LIMIT = 8_000_000
 
 STATIC = {
     "/": (WEB_DIR / "index.html", "text/html; charset=utf-8"),
@@ -45,7 +51,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         path = urlparse(self.path).path
         try:
-            body = self._read_json()
+            body = self._read_json(TURN_JSON_LIMIT if path == "/api/turn" else JSON_LIMIT)
         except ValueError as exc:
             self._json(400, {"error": str(exc)})
             return
@@ -62,12 +68,17 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/turn":
                 before = len(session.recasts)
                 agent_text = session.add_learner_turn(str(body.get("text", "")))
+                self._store_audio(session, body)
                 self._json(200, dict(agent_text=agent_text,
                                      new_recasts=session.recasts[before:],
                                      n_learner_turns=session.learner_turn_count,
                                      scripted_event_fired=session.event_fired))
             elif path == "/api/end":
-                self._json(200, session.end())
+                try:
+                    batch_result = run_batch(session) if batch_enabled() else None
+                    self._json(200, session.end(batch_result))
+                finally:
+                    _cleanup_audio(session)
         except DialogueError as exc:
             self._json(400, {"error": str(exc)})
         except TutorError as exc:
@@ -76,12 +87,29 @@ class Handler(BaseHTTPRequestHandler):
             traceback.print_exc()
             self._json(500, {"error": "服务器内部错误"})
 
-    def _read_json(self) -> dict:
+    def _store_audio(self, session, body) -> None:
+        """批处理启用时才把本轮录音写到系统临时目录；否则直接忽略，不落盘。"""
+        if not batch_enabled() or not body.get("audio_b64"):
+            return
+        try:
+            raw = base64.b64decode(body["audio_b64"], validate=True)
+        except (ValueError, TypeError) as exc:
+            raise DialogueError("audio_b64 不是合法的 base64。") from exc
+        if not raw or len(raw) > AUDIO_BYTES_LIMIT:
+            raise DialogueError("音频为空或超过 8MB 上限。")
+        suffix = ".webm" if "webm" in str(body.get("audio_type", "")) else ".wav"
+        if not getattr(session, "audio_dir", None):
+            session.audio_dir = Path(tempfile.mkdtemp(prefix="hearsay-m2-"))
+        path = session.audio_dir / f"turn_{session.learner_turn_count}{suffix}"
+        path.write_bytes(raw)
+        session.attach_audio(path)
+
+    def _read_json(self, limit) -> dict:
         try:
             length = int(self.headers.get("Content-Length", "0"))
         except ValueError as exc:
             raise ValueError("Content-Length 不合法") from exc
-        if length < 0 or length > JSON_LIMIT:
+        if length < 0 or length > limit:
             raise ValueError("请求体大小不合法")
         data = self.rfile.read(length) if length else b""
         if not data:
@@ -109,6 +137,13 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
 
+def _cleanup_audio(session) -> None:
+    audio_dir = getattr(session, "audio_dir", None)
+    if audio_dir:
+        shutil.rmtree(audio_dir, ignore_errors=True)
+        session.audio_dir = None
+
+
 def make_server(port: int, tutor=None) -> ThreadingHTTPServer:
     global TUTOR
     TUTOR = tutor or make_tutor()
@@ -133,6 +168,10 @@ def main() -> None:
     print(f"M2 对话原型  http://127.0.0.1:{httpd.server_address[1]}/")
     print(f"tutor 后端：{TUTOR.name}（mock 为离线脚本；anthropic 需要 HEARSAY_ANTHROPIC_API_KEY）")
     print("会话只在内存。复盘里的 recast 是待核对提示，不写学习者模型。")
+    if batch_enabled():
+        print("事后批处理：已启用 whisperX（verbatim，首次转写加载模型；解码需 ffmpeg）")
+    else:
+        print("事后批处理：未启用（设 HEARSAY_M2_BATCH=whisperx 开启；录音不上传落盘）")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
