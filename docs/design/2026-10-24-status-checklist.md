@@ -13,7 +13,7 @@
 | M0 设计文档 | 完成 | [学习者模型](2026-10-22-m0-learner-model.md)、[CEFR 听说 can-do](cefr-can-do-listening-speaking.md)、[中文母语者错误清单](l1-zh-error-taxonomy.md) 都在仓库里。README 写 109 条 can-do、66 条错误，本清单不另数一遍 |
 | M1 跟读原型 | 未完成，最小切片已能本地跑 | 产品代码以前没有。这条分支的 `prototype/` 覆盖「演示或导入音频 → 逐句播放 → 录音 → 并排回放 → 词级相似度」。验收还没齐，路线图不勾选，跟踪 [issue #8](https://github.com/zhanglunet/hearsay/issues/8)。运行说明见 [prototype/README.md](../../prototype/README.md) |
 | M2 对话 | 未完成，最小切片已能本地跑 | [设计草案](2026-10-25-m2-dialogue.md)与 [prototype/m2_dialogue/](../../prototype/m2_dialogue/README.md)：单场景、mock / 可选 Claude、浏览器语音输入输出、复盘；事后 whisperX 批处理（verbatim 转写 + provisional 核对）与可选 Claude 事后错误检测（输出校验 + 失败回退规则）已接；pipecat 实时链路 `realtime.py` 已写（依赖与模型未装，未实测）。实时链路未验证，路线图不勾选 |
-| M3 学习者模型 + FSRS | 未开始 | 没有 Learner 存储，没有复习调度 |
+| M3 学习者模型 + FSRS | 未完成，最小切片已能本地跑 | [prototype/m3_learner/](../../prototype/m3_learner/README.md)：本地 JSON Learner 存储（导出/删除）、M2 confirmed → ErrorPattern + FSRS 卡、到期代码注入复习场景。词项、opportunities、趋势与在线回注未做，路线图不勾选 |
 | M4 每日计划 + can-do 进度 | 未开始 | 没有计划编排，没有进度页 |
 
 ## 2. M0 §6 风险
@@ -50,9 +50,9 @@ README 第二节里的能力，没有一件作为产品交付。
 
 | 能力 | 状态 |
 |---|---|
-| 个性化学习者模型（分技能、词项、错误档案、兴趣、时间预算） | 只有设计，没有运行时的 Learner |
+| 个性化学习者模型（分技能、词项、错误档案、兴趣、时间预算） | 错误档案与 FSRS 卡有本地运行时（M3 切片）；分技能、词项、兴趣、时间预算仍只有设计 |
 | 听 → 跟读 → 复述 → 对话 | 跟读、对话各有最小切片。听的理解题、复述没有；对话切片不是实时语音流水线 |
-| 从自己的话里长出 FSRS，在新场景里再用 | 没有 |
+| 从自己的话里长出 FSRS，在新场景里再用 | M2 confirmed → FSRS 卡 → 复习场景 JSON 已通（M3 切片）；自动回注导师与词项复习未做 |
 | 面向中文母语者的发音和语法处理 | 错误清单在设计里。原型不标音素，也不做 L1 纠错 |
 | can-do 进度，而不是宝石 | 清单在设计里。没有进度页，也没有 CanDoEvidence |
 | 每天约 15 分钟的计划 | 设计在 M0 §5.3（跟读块 4 分钟、4–6 句）。没有编排器。演示材料是 6 句，只是为了让切片有东西可跟 |
