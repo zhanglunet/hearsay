@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>听说 · 复述</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="masthead">
+    <p class="eyebrow">Hearsay · 复述原型</p>
+    <h1>用自己的话讲一遍</h1>
+    <p class="lede">读一段材料，不看原文复述。反馈：内容覆盖、流利度、语法。不是语义判分。</p>
+  </header>
+
+  <section class="panel">
+    <div class="row">
+      <button id="load-demo" type="button">用演示材料</button>
+      <span class="note">或粘贴自己的材料原文（英文）</span>
+    </div>
+    <textarea id="material" lang="en" rows="5" placeholder="Material text goes here..."></textarea>
+    <div class="row">
+      <button id="mic" type="button">🎤 开始复述</button>
+      <span id="timer" class="note"></span>
+    </div>
+    <textarea id="retell" lang="en" rows="4" placeholder="复述内容：语音识别会填进来（Chromium），也可以直接打字"></textarea>
+    <div class="row">
+      <button id="evaluate" class="primary" type="button">评估复述</button>
+      <span id="status" class="status" role="status"></span>
+    </div>
+  </section>
+
+  <section id="result" class="panel" hidden>
+    <h2>反馈</h2>
+    <p id="summary"></p>
+    <p id="coverage-detail" class="note"></p>
+    <div id="errors"></div>
+    <p id="ingest-note" class="note"></p>
+  </section>
+
+  <script src="/app.js"></script>
+</body>
+</html>

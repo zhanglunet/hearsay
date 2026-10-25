@@ -35,7 +35,7 @@ def build_plan(store, now=None, minutes=15, level=None):
         elif kind == "shadow":
             block["content_zh"] = "用 M1 切片跟读 4–6 句；优先含近期错误代码的句子（自动选材未接）"
         elif kind == "retell":
-            block["content_zh"] = "用自己的话复述刚听的材料；暂用 M2 对话页自由表达，自动覆盖度评测未接"
+            block["content_zh"] = "用 retell 切片（8768）复述刚听的材料：词级覆盖度、WPM、语法反馈并回流 M3"
         else:
             block["content_zh"] = f"对话场景：{scenario['title']}，注入复习代码 {target_codes or '无'}"
             block["scenario"] = scenario
