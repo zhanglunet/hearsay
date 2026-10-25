@@ -16,7 +16,20 @@ from m2_dialogue.scenario import OPENING, SCENARIO, UNEXPECTED_QUESTION
 LLM_ENV = "HEARSAY_LLM"
 KEY_ENV = "HEARSAY_ANTHROPIC_API_KEY"
 MODEL_ENV = "HEARSAY_LLM_MODEL"
+BASE_URL_ENV = "HEARSAY_LLM_BASE_URL"
+UNIFIED_KEY_ENV = "HEARSAY_LLM_API_KEY"
 DEFAULT_MODEL = "claude-haiku-4-5-20251001"
+DEFAULT_ENDPOINT = "https://api.anthropic.com/v1/messages"
+
+
+def llm_api_key():
+    """统一的 LLM 密钥：HEARSAY_LLM_API_KEY 优先，兼容 HEARSAY_ANTHROPIC_API_KEY。"""
+    return os.environ.get(UNIFIED_KEY_ENV) or os.environ.get(KEY_ENV, "")
+
+
+def llm_endpoint():
+    """Anthropic Messages 兼容端点。Kimi 用 https://api.kimi.com/coding/v1/messages。"""
+    return os.environ.get(BASE_URL_ENV, DEFAULT_ENDPOINT)
 
 
 class TutorError(RuntimeError):
@@ -89,12 +102,12 @@ SYSTEM_PROMPT = system_prompt_for(SCENARIO)
 class AnthropicTutor:
     name = "anthropic"
 
-    def __init__(self, api_key=None, model=None, endpoint="https://api.anthropic.com/v1/messages"):
-        self.api_key = api_key if api_key is not None else os.environ.get(KEY_ENV, "")
+    def __init__(self, api_key=None, model=None, endpoint=None):
+        self.api_key = api_key if api_key is not None else llm_api_key()
         if not self.api_key:
-            raise TutorError(f"选择了 anthropic 后端但没有设置 {KEY_ENV}。")
+            raise TutorError(f"选择了 anthropic 后端但没有设置 {UNIFIED_KEY_ENV} 或 {KEY_ENV}。")
         self.model = model or os.environ.get(MODEL_ENV) or DEFAULT_MODEL
-        self.endpoint = endpoint
+        self.endpoint = endpoint or llm_endpoint()
 
     def opening(self):
         return OPENING

@@ -1,0 +1,16 @@
+{
+ "can_do_id": "SI-A2-demo",
+ "statement": "能解释延期原因并提出新的完成日期",
+ "runs": 5,
+ "verdicts": [
+  "pass",
+  "pass",
+  "pass",
+  "pass",
+  "pass"
+ ],
+ "agreement": 1.0,
+ "threshold": 0.8,
+ "passed": true,
+ "note": "同一转写重复判定；不写 CanDoEvidence。"
+}

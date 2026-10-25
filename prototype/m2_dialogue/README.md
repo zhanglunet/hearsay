@@ -17,14 +17,22 @@ python -m m2_dialogue
 浏览器打开 <http://127.0.0.1:8766/>（端口用 `HEARSAY_M2_PORT` 改）。
 默认 tutor 后端是 **mock**：离线脚本，不需要 key 和网络，用来验证完整流程。
 
-用 Claude 当导师：
+用 Claude 当导师（也兼容 Kimi 的 Anthropic 协议端点）：
 
 ```bash
 HEARSAY_LLM=anthropic HEARSAY_ANTHROPIC_API_KEY=... python -m m2_dialogue
 # 模型默认 claude-haiku-4-5-20251001，用 HEARSAY_LLM_MODEL 覆盖
+
+# 或用 Kimi（https://www.kimi.com/code/docs/en/ 的 Anthropic 兼容地址）：
+HEARSAY_LLM=anthropic \
+HEARSAY_LLM_BASE_URL=https://api.kimi.com/coding/v1/messages \
+HEARSAY_LLM_API_KEY=... HEARSAY_LLM_MODEL=kimi-for-coding \
+python -m m2_dialogue
 ```
 
 密钥只从环境变量读，不写日志、不进响应。切到 Claude 不需要改前端。
+`HEARSAY_LLM_API_KEY` 优先于 `HEARSAY_ANTHROPIC_API_KEY`；端点、密钥、模型
+三个环境变量对批处理检测和 `exp_e_dialogue` 的测量脚本同样生效。
 
 ## 实时语音链路（realtime.py，未实测）
 

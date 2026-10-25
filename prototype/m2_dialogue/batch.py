@@ -16,7 +16,8 @@ import re
 import time
 
 from m2_dialogue.recast import scan_recasts
-from m2_dialogue.tutor import DEFAULT_MODEL, KEY_ENV, TutorError, anthropic_request, response_text
+from m2_dialogue.tutor import (DEFAULT_MODEL, TutorError, anthropic_request,
+                               llm_api_key, llm_endpoint, response_text)
 
 BATCH_ENV = "HEARSAY_M2_BATCH"
 MODEL_ENV = "HEARSAY_M2_ASR_MODEL"
@@ -162,16 +163,17 @@ def validate_llm_errors(raw_errors, transcripts):
 
 
 def llm_detect(transcripts):
-    """调 Claude 做批处理错误检测。转写文本会发给 Anthropic，仅在启用批处理
-    且有 API key 时发生。返回校验后的错误列表。"""
-    api_key = os.environ.get(KEY_ENV, "")
+    """调 Anthropic 兼容的 LLM（Claude / Kimi）做批处理错误检测。转写文本会发给
+    对应服务方，仅在启用批处理且有 API key 时发生。返回校验后的错误列表。"""
+    api_key = llm_api_key()
     if not api_key:
-        raise TutorError(f"LLM 检测需要 {KEY_ENV}，或设 HEARSAY_M2_DETECT=rule 用规则。")
+        raise TutorError("LLM 检测需要 HEARSAY_LLM_API_KEY（或 HEARSAY_ANTHROPIC_API_KEY），"
+                         "或设 HEARSAY_M2_DETECT=rule 用规则。")
     utterances = [dict(utterance_id=t["utterance_id"], text=t["batch_text"]) for t in transcripts]
     payload = dict(model=os.environ.get("HEARSAY_LLM_MODEL") or DEFAULT_MODEL,
                    max_tokens=1500, system=DETECT_SYSTEM_PROMPT,
                    messages=[dict(role="user", content=json.dumps(utterances, ensure_ascii=False))])
-    data = anthropic_request(payload, api_key)
+    data = anthropic_request(payload, api_key, llm_endpoint())
     text = response_text(data)
     m = re.search(r"\{.*\}", text, re.S)
     if not m:
@@ -190,7 +192,7 @@ def detect_errors(transcripts):
     """选择检测器并返回 (detected, 名称)。HEARSAY_M2_DETECT=llm/rule 可强制；
     缺省有 key 用 LLM，没 key 用规则。LLM 失败回退规则并在名称里注明。"""
     mode = os.environ.get(DETECT_ENV, "auto")
-    use_llm = mode == "llm" or (mode == "auto" and bool(os.environ.get(KEY_ENV)))
+    use_llm = mode == "llm" or (mode == "auto" and bool(llm_api_key()))
     if use_llm:
         try:
             return llm_detect(transcripts), "asr_llm"

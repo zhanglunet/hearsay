@@ -16,7 +16,8 @@ from pathlib import Path
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE.parent.parent / "prototype"))
 
-from m2_dialogue.tutor import DEFAULT_MODEL, KEY_ENV, anthropic_request, response_text
+from m2_dialogue.tutor import (DEFAULT_MODEL, anthropic_request, llm_api_key,
+                               llm_endpoint, response_text)
 
 THRESHOLD = 0.80
 
@@ -29,7 +30,7 @@ DEMO_TRANSCRIPT = [
 
 PROMPT = """你在评估英语学习者的口语互动能力。给定一段对话转写和一条 CEFR can-do 描述，
 只根据转写里的证据判断学习者是否做到了。证据不足就判 insufficient，不要脑补。
-只输出 JSON：{"verdict":"pass"|"fail"|"insufficient","reason":"一句话中文理由"}。
+只输出 JSON：{{"verdict":"pass"|"fail"|"insufficient","reason":"一句话中文理由"}}。
 
 can-do（{cid}）：{statement}
 对话转写：
@@ -54,7 +55,7 @@ def judge(transcript_text, cid, statement, model):
                    system="你是严格的 CEFR 评估器，只输出 JSON。",
                    messages=[dict(role="user", content=PROMPT.format(
                        cid=cid, statement=statement, transcript=transcript_text))])
-    data = anthropic_request(payload, os.environ.get(KEY_ENV, ""))
+    data = anthropic_request(payload, llm_api_key(), llm_endpoint())
     text = response_text(data)
     import re
     m = re.search(r"\{.*\}", text, re.S)
@@ -74,8 +75,8 @@ def main():
     p.add_argument("--statement", default="能解释延期原因并提出新的完成日期")
     p.add_argument("--runs", type=int, default=5)
     args = p.parse_args()
-    if not os.environ.get(KEY_ENV):
-        raise SystemExit(f"需要 {KEY_ENV}。没有 key 时本实验无法运行。")
+    if not llm_api_key():
+        raise SystemExit("需要 HEARSAY_LLM_API_KEY（或 HEARSAY_ANTHROPIC_API_KEY）。没有 key 时本实验无法运行。")
     if args.demo:
         transcript_text = "\n".join(f"{t['speaker']}: {t['text']}" for t in DEMO_TRANSCRIPT)
     elif args.transcript:

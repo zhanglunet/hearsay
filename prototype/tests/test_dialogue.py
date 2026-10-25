@@ -91,8 +91,23 @@ class SessionTests(unittest.TestCase):
 
 class TutorFactoryTests(unittest.TestCase):
     def tearDown(self):
-        os.environ.pop("HEARSAY_LLM", None)
-        os.environ.pop("HEARSAY_ANTHROPIC_API_KEY", None)
+        for key in ("HEARSAY_LLM", "HEARSAY_ANTHROPIC_API_KEY",
+                    "HEARSAY_LLM_API_KEY", "HEARSAY_LLM_BASE_URL"):
+            os.environ.pop(key, None)
+
+    def test_kimi_compatible_endpoint_and_key(self):
+        from m2_dialogue.tutor import llm_api_key, llm_endpoint
+        os.environ["HEARSAY_LLM"] = "anthropic"
+        os.environ["HEARSAY_LLM_API_KEY"] = "kimi-key"
+        os.environ["HEARSAY_LLM_BASE_URL"] = "https://api.kimi.com/coding/v1/messages"
+        tutor = make_tutor()
+        self.assertEqual(llm_api_key(), "kimi-key")
+        self.assertEqual(tutor.endpoint, "https://api.kimi.com/coding/v1/messages")
+        self.assertEqual(tutor.api_key, "kimi-key")
+
+    def test_default_endpoint(self):
+        from m2_dialogue.tutor import llm_endpoint
+        self.assertEqual(llm_endpoint(), "https://api.anthropic.com/v1/messages")
 
     def test_default_is_mock(self):
         os.environ.pop("HEARSAY_LLM", None)

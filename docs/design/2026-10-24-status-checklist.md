@@ -27,7 +27,7 @@
 | C. 词级时间戳够不够切句 | **通过**。词边界误差 < 150ms 的比例 93.1%（起点 99.5%，终点 86.7%） | 原型按原文词序消耗时间戳，句尾最多再留 250ms，且不超过下一词起点。不用 whisperX `transcribe` 的分段 |
 | D. 音素级输出能不能支撑 PhonemeProfile / P 类 ErrorInstance | **没过**。精确率 0.148（原始 0.1481），召回率 0.759（原始 0.7592），替换方向 0.351（原始 0.3514）。门槛是精确率 ≥ 0.60、召回率 ≥ 0.50、方向 ≥ 0.70 | **产品规则：不要用 OpenPronounce 的音素标记写 P 类 ErrorInstance，不要填 `accuracy_mean` / `accuracy_mean_30d`，不要填 `common_substitution`。** 原型里的低分句只来自词召回 |
 | 真人复测 A 和句界 | **未做**。[issue #4](https://github.com/zhanglunet/hearsay/issues/4) 开着。模板在 [同意书](../ops/m1-consent.md) 和 [采集规范](../ops/m1-recording-protocol.md)。仓库里没有学习者录音，也没有签过名的同意书 | `experiments/exp_a_grammar/audio/` 是 macOS `say` 合成的，experiments README 写明了。不要把它当成真人复测 |
-| LLM 判 can-do 是否稳定 | **未验证** | 测量脚本 `experiments/exp_e_dialogue/can_do_consistency.py` 就绪（同一转写判 5 次，需 API key），未实测 |
+| LLM 判 can-do 是否稳定 | **demo 初步通过，真实对话未验证** | 2026-10-25 用 Kimi（kimi-for-coding，Anthropic 兼容端点）跑 `can_do_consistency.py --demo`：5/5 pass，一致率 1.0 ≥ 0.8（`experiments/exp_e_dialogue/results_cando.json`）。这只是演示转写；真实对话与不同 can-do 条目仍需复测 |
 | 实时 recast 误报 | **未验证** | 汇总脚本 `experiments/exp_e_dialogue/aggregate.py` 就绪；M2 切片能测规则 recast 的 discarded 比例。实时 LLM 链路 `realtime.py` 已写未实测，且 LLM recast 的结构化抽取未做，M0 §6 的 ≤20% 指标仍未测 |
 | 会话后批处理 < 60 秒 | **未验证** | M2 切片已接 whisperX verbatim 批处理并记录 `batch.duration_sec`；`experiments/exp_e_dialogue/batch_latency.py` 就绪，未用 5 分钟真实对话实测 |
 
