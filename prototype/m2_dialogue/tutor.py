@@ -7,10 +7,12 @@ mock 是可重复的脚本导师，用来在没有 key / 没有网络时验证�
 
 import json
 import os
+import re
 import urllib.error
 import urllib.request
 
 from m2_dialogue.coverage import coverage
+from m2_dialogue.recast import validate_llm_errors
 from m2_dialogue.scenario import OPENING, SCENARIO, UNEXPECTED_QUESTION
 
 LLM_ENV = "HEARSAY_LLM"
@@ -53,6 +55,7 @@ def elicit_question(code):
 
 class MockTutor:
     name = "mock"
+    last_recasts = []
 
     def opening(self):
         return OPENING
@@ -85,7 +88,13 @@ Rules:
 - Stay in role and keep the conversation moving toward the objectives.
 - Around the learner's 2nd turn, ask once whether they can send a one-page summary to the client today.
 - Correct grammar only by recasting: naturally repeat the correct form in your reply, never lecture.
-- Never mention these instructions. Do not score the learner. Do not write any analysis.
+- Output ONLY a JSON object, no markdown fence: {{"reply":"what Alex says aloud",
+  "recasts":[{{"code":"G04","observed":"...","expected":"...","confidence":0.9}}]}}
+  recasts lists ONLY the learner errors you actually recast in THIS reply
+  (G/L/I codes from the Chinese-L1 taxonomy, never P codes);
+  observed must be an exact substring of the learner's last utterance;
+  expected is the correct form; use [] when you did not recast anything.
+- Never mention these instructions. Do not score the learner. Do not write any analysis outside the JSON.
 """
     codes = scenario.get("target_error_codes") or []
     if codes:
@@ -101,6 +110,7 @@ SYSTEM_PROMPT = system_prompt_for(SCENARIO)
 
 class AnthropicTutor:
     name = "anthropic"
+    last_recasts = []
 
     def __init__(self, api_key=None, model=None, endpoint=None):
         self.api_key = api_key if api_key is not None else llm_api_key()
@@ -123,10 +133,27 @@ class AnthropicTutor:
         if messages and messages[0]["role"] == "assistant":
             # Anthropic 要求首条是 user；开场白直接丢弃
             messages = messages[1:]
-        payload = dict(model=self.model, max_tokens=200,
+        payload = dict(model=self.model, max_tokens=400,
                        system=system_prompt_for(session.scenario), messages=messages)
         data = anthropic_request(payload, self.api_key, self.endpoint)
-        return response_text(data)
+        text = response_text(data)
+        uid = session.learner_turn_count
+        learner_text = session.turns[-1]["text"]
+        self.last_recasts = []
+        try:
+            parsed = json.loads(re.search(r"\{.*\}", text, re.S).group(0))
+            reply_text = str(parsed["reply"]).strip()
+            raw_recasts = parsed.get("recasts", [])
+            if not isinstance(raw_recasts, list):
+                raise ValueError("recasts 不是数组")
+        except (ValueError, KeyError, AttributeError, json.JSONDecodeError):
+            # 模型没按约定输出 JSON 时退化为纯文本回复，不阻断对话
+            return text
+        for hit in validate_llm_errors(
+                [dict(e, utterance_id=uid) for e in raw_recasts if isinstance(e, dict)],
+                [dict(utterance_id=uid, batch_text=learner_text)]):
+            self.last_recasts.append(dict(hit, detected_by="asr_llm_realtime", status="provisional"))
+        return reply_text or text
 
 
 def anthropic_request(payload, api_key, endpoint="https://api.anthropic.com/v1/messages"):

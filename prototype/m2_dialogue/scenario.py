@@ -24,8 +24,8 @@ UNEXPECTED_QUESTION = ("I see. One more thing — the client just asked for a on
                        "summary today. Can you send it to them?")
 
 PRODUCT_RULE_M2 = (
-    "本切片不写学习者模型：没有 confirmed ErrorInstance、没有 FSRS、没有 CanDoEvidence。"
-    "recast 只是 status=provisional 的待核对提示（detected_by=rule，实时链路的占位），"
-    "不计入错误统计。浏览器语音识别会归一化文本，只用于驱动对话，不是权威转写。"
+    "recast 是 status=provisional 的待核对提示（rule 或 asr_llm_realtime），"
+    "批处理核对后才 confirmed，并经 M3 入库；不写 CanDoEvidence。"
+    "浏览器语音识别会归一化文本，只用于驱动对话，不是权威转写。"
     "音素边界同 M1：实验 D 未通过，不产生 P 类错误。"
 )

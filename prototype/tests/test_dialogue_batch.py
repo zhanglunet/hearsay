@@ -87,6 +87,16 @@ class RunBatchTests(unittest.TestCase):
         self.assertIn("confirmed 2 条", recap["summary_zh"])
         self.assertIn("误报率 50.0%", recap["summary_zh"])
 
+    def test_text_only_session_does_not_load_whisperx(self):
+        s = DialogueSession(MockTutor())
+        s.add_learner_turn("It is more better now.")
+        with mock.patch("m2_dialogue.batch.whisperx_transcriber",
+                        side_effect=AssertionError("不应加载模型")):
+            result = run_batch(s)
+        self.assertEqual(result["transcripts"][0]["source"], "realtime_fallback")
+        self.assertEqual(result["transcripts"][0]["batch_text"], "It is more better now.")
+        self.assertEqual(len(result["confirmed"]), 1)
+
     def test_batch_env_gate(self):
         os.environ.pop("HEARSAY_M2_BATCH", None)
         self.assertFalse(batch_enabled())

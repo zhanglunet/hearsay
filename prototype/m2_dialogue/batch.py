@@ -15,7 +15,7 @@ import os
 import re
 import time
 
-from m2_dialogue.recast import scan_recasts
+from m2_dialogue.recast import scan_recasts, validate_llm_errors
 from m2_dialogue.tutor import (DEFAULT_MODEL, TutorError, anthropic_request,
                                llm_api_key, llm_endpoint, response_text)
 
@@ -84,15 +84,18 @@ def run_batch(session, transcribe=None, detect=None):
     """对会话的学习者话语做事后转写与核对。transcribe 可注入，测试不加载模型。
     没有音频的话语退回实时文本，并在 transcripts 里标 source=realtime_fallback。"""
     t0 = time.time()
-    if transcribe is None:
-        transcribe = whisperx_transcriber()
+    # 模型只在真正遇到带音频的话语时才加载；纯文本回退的会话不需要 whisperX
+    factory = (lambda: transcribe) if transcribe is not None else whisperx_transcriber
+    transcriber = None
     transcripts, detected = [], []
     for turn in session.turns:
         if turn["speaker"] != "learner":
             continue
         uid = turn["utterance_id"]
         if turn.get("audio_ref"):
-            text = transcribe(turn["audio_ref"])
+            if transcriber is None:
+                transcriber = factory()
+            text = transcriber(turn["audio_ref"])
             source = "whisperx_verbatim"
         else:
             text = turn["text"]
@@ -112,8 +115,6 @@ def run_batch(session, transcribe=None, detect=None):
     return result
 
 
-CODE_RE = re.compile(r"^[GLI]\d{2}$")
-
 DETECT_SYSTEM_PROMPT = """你是英语错误检测器，分析中文母语学习者的逐字（verbatim）英语口语转写。
 规则：
 - 只标 G（语法）、L（用词）、I（互动/表达）类错误，代码用中文母语者错误清单编号，
@@ -132,34 +133,6 @@ def rule_detect(transcripts):
         for hit in scan_recasts(t["batch_text"]):
             detected.append(dict(hit, utterance_id=t["utterance_id"]))
     return detected
-
-
-def _norm_space(text):
-    return " ".join(str(text).lower().split())
-
-
-def validate_llm_errors(raw_errors, transcripts):
-    """逐条校验 LLM 输出：代码只许 G/L/I、话语编号必须存在、observed 必须是原文
-    连续片段、confidence >= 0.6（M0 §2.4 以下不进统计）。不合格的静默丢弃。"""
-    by_uid = {t["utterance_id"]: t["batch_text"] for t in transcripts}
-    out = []
-    for e in raw_errors:
-        if not isinstance(e, dict):
-            continue
-        uid, code = e.get("utterance_id"), e.get("code", "")
-        observed, expected = e.get("observed", ""), e.get("expected", "")
-        confidence = e.get("confidence", 0)
-        if uid not in by_uid or not CODE_RE.match(str(code)):
-            continue
-        if not isinstance(observed, str) or not observed.strip() or not isinstance(expected, str):
-            continue
-        if not isinstance(confidence, (int, float)) or confidence < 0.6:
-            continue
-        if _norm_space(observed) not in _norm_space(by_uid[uid]):
-            continue
-        out.append(dict(utterance_id=uid, code=code, observed=observed, expected=expected,
-                        confidence=round(float(confidence), 3), detected_by="asr_llm"))
-    return out
 
 
 def llm_detect(transcripts):

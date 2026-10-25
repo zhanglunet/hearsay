@@ -51,9 +51,14 @@ class DialogueSession:
             raise DialogueError("单轮发言过长（>4000 字符）。")
         uid = self.learner_turn_count + 1
         self.turns.append(dict(speaker="learner", text=text, utterance_id=uid, audio_ref=None))
-        for hit in scan_recasts(text):
-            self.recasts.append(dict(hit, utterance_id=uid))
         agent_text = self.tutor.reply(self, text)
+        # 实时 LLM recast（asr_llm_realtime）优先；同一代码不再重复记规则命中
+        llm_hits = [dict(h, utterance_id=uid) for h in getattr(self.tutor, "last_recasts", [])]
+        llm_codes = {h["code"] for h in llm_hits}
+        self.recasts.extend(llm_hits)
+        for hit in scan_recasts(text):
+            if hit["code"] not in llm_codes:
+                self.recasts.append(dict(hit, utterance_id=uid))
         self.turns.append(dict(speaker="agent", text=agent_text))
         return agent_text
 

@@ -6,7 +6,7 @@
 
 | 脚本 | 测什么 | 阈值 | 实测 |
 |---|---|---|---|
-| `aggregate.py` | 实时 recast 被批处理 discarded 的比例 | ≤ 20% | 未测 |
+| `aggregate.py` | 实时 recast 被批处理 discarded 的比例 | ≤ 20% | 小样本演示 0.0（2026-10-25，Kimi，1 段会话；20 段正式测量未做） |
 | `can_do_consistency.py` | 同一转写 LLM 判 can-do，5 次 verdict 一致率 | ≥ 80% | **demo 已测：1.0 达到**（2026-10-25，kimi-for-coding，5/5 pass，见 `results_cando.json`；真实学习者优先级待测） |
 | `batch_latency.py` | 5 分钟对话：转写 + 检测 + 复盘 | < 60 秒（不含一次性模型加载） | 未测 |
 
@@ -36,8 +36,8 @@ yesterday?"）。注意：规则 recast 没扫到这句（规则只覆盖少数�
 # 1) 误报率：先跑若干次 M2 会话（HEARSAY_M2_BATCH=whisperx），把每次 /api/end
 #    的响应各存成一个 JSON 放进同一目录（如 recaps/01.json …），然后：
 python exp_e_dialogue/aggregate.py /path/recaps/
-# 注意：实时 LLM recast 链路（realtime.py）目前只有规则 recast，
-# 所以这里先得到规则口径的误报率；LLM 实时链路误报率仍待结构化抽取。
+# 注意：实时 LLM recast 的结构化抽取已上线（asr_llm_realtime，2026-10-25），
+# 20 段对话的正式误报率测量需带批处理的真实会话，尚未完成。
 
 # 2) can-do 一致性（同一转写判 5 次）：
 python exp_e_dialogue/can_do_consistency.py --demo

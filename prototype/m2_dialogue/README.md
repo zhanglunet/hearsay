@@ -38,6 +38,15 @@ python -m m2_dialogue
 追问过去时，并对 "Yesterday I go to the park" 自然 recast 成 "you went to the park"。
 规则 recast 未覆盖该句（规则只有少量模式），LLM 纠错覆盖更广。
 
+**实时 recast 结构化抽取已上线**：Anthropic 导师直接返回 `{"reply", "recasts"}` JSON，
+经校验（G/L/I、observed 必须在学习者原文、confidence ≥ 0.6）形成
+`detected_by=asr_llm_realtime` 的 provisional 实例，与规则命中按代码去重；
+非 JSON 回复退化为纯文本不阻断对话。同日复测：学习者一句
+"Yesterday I go to the park and see my friend" → 实时 G04 provisional →
+批处理 confirmed 合并 1 条 + 新增 1 条、discarded 0、**小样本误报率 0.0**
+（1 段会话，不是 M0 要求的 20 段正式测量），M3 入库 2 条。
+批处理转写器改为惰性加载：无音频的会话不再要求安装 whisperX。
+
 ## 实时语音链路（realtime.py，未实测）
 
 ```bash

@@ -6,6 +6,7 @@ import unittest
 import urllib.error
 import urllib.request
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -123,6 +124,42 @@ class TutorFactoryTests(unittest.TestCase):
         os.environ.pop("HEARSAY_ANTHROPIC_API_KEY", None)
         with self.assertRaises(TutorError):
             make_tutor()
+
+
+class StructuredRecastTests(unittest.TestCase):
+    def make_tutor(self, recasts, reply="Oh, you went to the park?"):
+        from m2_dialogue.tutor import AnthropicTutor
+        tutor = AnthropicTutor(api_key="test", model="m", endpoint="http://x")
+        body = {"content": [{"text": json.dumps({"reply": reply, "recasts": recasts})}]}
+        self._response = body
+        return tutor
+
+    def test_structured_recast_validated_and_deduped(self):
+        tutor = self.make_tutor([
+            dict(code="G04", observed="I go", expected="I went", confidence=0.9),
+            dict(code="P01", observed="I go", expected="x", confidence=0.9),
+            dict(code="G13", observed="not in text", expected="x", confidence=0.9),
+            dict(code="G13", observed="more better", expected="better", confidence=0.95),
+        ])
+        with mock.patch("m2_dialogue.tutor.anthropic_request", return_value=self._response):
+            session = DialogueSession(tutor)
+            reply = session.add_learner_turn("Yesterday I go to the park and it is more better.")
+        self.assertEqual(reply, "Oh, you went to the park?")
+        self.assertEqual(len(tutor.last_recasts), 2)
+        self.assertEqual(len(session.recasts), 2)  # 规则 G13 与 LLM G13 不重复
+        by_code = {r["code"]: r for r in session.recasts}
+        self.assertEqual(by_code["G04"]["detected_by"], "asr_llm_realtime")
+        self.assertEqual(by_code["G13"]["detected_by"], "asr_llm_realtime")
+        self.assertTrue(all(r["status"] == "provisional" for r in session.recasts))
+
+    def test_non_json_reply_falls_back(self):
+        tutor = self.make_tutor([])
+        with mock.patch("m2_dialogue.tutor.anthropic_request",
+                        return_value={"content": [{"text": "Just a plain reply."}]}):
+            session = DialogueSession(tutor)
+            reply = session.add_learner_turn("hello there")
+        self.assertEqual(reply, "Just a plain reply.")
+        self.assertEqual(tutor.last_recasts, [])
 
 
 class ServerTests(unittest.TestCase):
