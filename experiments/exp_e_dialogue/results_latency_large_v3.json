@@ -1,0 +1,16 @@
+{
+ "model": "large-v3（faster-whisper 后端，与 whisperX 同引擎）",
+ "audio_sec": 314.4,
+ "steps_sec": {
+  "model_load": 41.84,
+  "transcribe": 1258.69,
+  "detect": 4.63,
+  "summary": 0.0
+ },
+ "total_sec": 1263.32,
+ "threshold_sec": 60,
+ "passed": false,
+ "detection": "rule_fallback_after_llm_error",
+ "errors": 0,
+ "summary_zh": "转写 880 词，检出 0 条候选错误（rule_fallback_after_llm_error）。"
+}
