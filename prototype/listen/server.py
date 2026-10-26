@@ -104,7 +104,7 @@ class Handler(BaseHTTPRequestHandler):
                                        for s in demo["sentences"]],
                             questions=DEMO_QUESTIONS)
             self._json(200, material_payload(material, use_tts=False,
-                                             audio_url="/media/reference.wav"))
+                                             audio_url="media/reference.wav"))
             return
         static = STATIC.get(path)
         if static is None or not static[0].is_file():
@@ -177,9 +177,9 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
 
-def make_server(port: int) -> ThreadingHTTPServer:
+def make_server(port: int, host=None) -> ThreadingHTTPServer:
     ThreadingHTTPServer.allow_reuse_address = True
-    return ThreadingHTTPServer((os.environ.get("HEARSAY_HOST", "127.0.0.1"), port), Handler)
+    return ThreadingHTTPServer((host or os.environ.get("HEARSAY_HOST", "127.0.0.1"), port), Handler)
 
 
 def main() -> None:

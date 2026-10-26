@@ -1,6 +1,6 @@
 # 从 GitHub 部署到 Cloudflare
 
-本应用是 **Python 后端 + 多端口服务**，不是静态网页。因此：
+本应用是 **Python 后端**，不是静态网页。对外只有一个端口（统一首页 8764），各切片走路径前缀 `/listen/`、`/shadow/`、`/retell/`、`/converse/`、`/plan/`，由首页反向代理到容器内只监听 127.0.0.1 的切片。因此：
 
 - **Cloudflare Pages 不适用**（只托管静态文件，不能跑 Python）。
 - 选 **Cloudflare Containers**（若你的账号已开放该能力）或一台 VPS。
@@ -20,7 +20,7 @@
    （第一次用先连接 GitHub 账号并授权 `zhanglunet/hearsay`）。
 2. 构建方式选 **Dockerfile**（仓库根目录）。
 3. 环境变量按下面配置，服务监听 `0.0.0.0`（`HEARSAY_HOST` 已内置）。
-4. 暴露 **8764**（统一首页），其余端口按需开放（M1 8765、M2 8766、M4 8767、retell 8768、listen 8769）。
+4. 只暴露 **8764**（统一首页）。各切片不单独开端口，也不需要开。
 5. 学习者数据在容器内 `prototype/runtime/m3-learner.json`，**重建会丢失**；
    要保留就挂持久卷到 `/app/prototype/runtime`。
 
@@ -28,7 +28,7 @@
 
 | 变量 | 作用 | 默认 |
 |---|---|---|
-| `HEARSAY_HOST` | 监听地址 | 容器内已设 `0.0.0.0`（本地默认 127.0.0.1） |
+| `HEARSAY_HOST` | 首页（网关）监听地址；切片始终只监听 127.0.0.1 | 容器内已设 `0.0.0.0`（本地默认 127.0.0.1） |
 | `HEARSAY_HOME_PORT` | 统一首页端口 | 8764 |
 | `HEARSAY_LLM` | mock / anthropic | mock（离线） |
 | `HEARSAY_LLM_API_KEY` | LLM key（优先） | 无 |
@@ -48,6 +48,6 @@
 
 ```bash
 docker build -t hearsay .
-docker run --rm -p 8764:8764 -p 8765:8765 -p 8766:8766 -p 8767:8767 -p 8768:8768 -p 8769:8769 hearsay
-# 打开 http://127.0.0.1:8764/
+docker run --rm -p 8764:8764 hearsay
+# 打开 http://127.0.0.1:8764/ ，各练习在 /listen/、/shadow/、/retell/、/converse/、/plan/
 ```

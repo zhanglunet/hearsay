@@ -2,10 +2,13 @@
 
     cd prototype && python start_all.py
 
-统一首页在 8764；其余端口：M1 8765、M2 8766、M4 8767、retell 8768、listen 8769。
+对外只有一个端口：统一首页（HEARSAY_HOME_PORT，默认 8764，监听 HEARSAY_HOST）。
+各切片挂在路径前缀下：/listen/、/shadow/、/retell/、/converse/、/plan/。
+切片本身只监听 127.0.0.1 的临时端口，由首页反向代理，不对外暴露。
 各服务独立线程，Ctrl-C 全部停止。LLM 与存储配置仍走各服务原有的环境变量。
 """
 
+import os
 import threading
 
 from home.server import make_server as make_home
@@ -15,30 +18,31 @@ from m2_dialogue.server import make_server as make_dialogue
 from m4_plan.server import make_server as make_plan
 from retell.server import make_server as make_retell
 
-PORTS = [("home", 8764), ("shadow", 8765), ("dialogue", 8766),
-         ("plan", 8767), ("retell", 8768), ("listen", 8769)]
+# 前缀与首页 SLICES 的 kind 一致
+SLICES = [("listen", make_listen), ("shadow", make_shadow), ("retell", make_retell),
+          ("converse", make_dialogue), ("plan", make_plan)]
+INTERNAL_HOST = "127.0.0.1"
+
+
+def start(name, server, servers):
+    thread = threading.Thread(target=server.serve_forever, daemon=True, name=name)
+    thread.start()
+    servers.append((name, server, thread))
 
 
 def main():
     servers = []
-    for name, port in PORTS:
-        if name == "home":
-            server = make_home(port)
-        elif name == "shadow":
-            server = make_shadow(port)
-        elif name == "dialogue":
-            server = make_dialogue(port)
-        elif name == "plan":
-            server = make_plan(port)
-        elif name == "retell":
-            server = make_retell(port)
-        else:
-            server = make_listen(port)
-        thread = threading.Thread(target=server.serve_forever, daemon=True, name=name)
-        thread.start()
-        servers.append((name, server, thread))
-        print(f"{name}: http://127.0.0.1:{port}/")
-    print("\n统一首页：http://127.0.0.1:8764/ （Ctrl-C 停止全部）")
+    routes = {}
+    for kind, factory in SLICES:
+        server = factory(0, host=INTERNAL_HOST)
+        routes[kind] = (INTERNAL_HOST, server.server_address[1])
+        start(kind, server, servers)
+    home_port = int(os.environ.get("HEARSAY_HOME_PORT", "8764"))
+    home = make_home(home_port, routes=routes)
+    start("home", home, servers)
+    for kind, _factory in SLICES:
+        print(f"{kind}: http://127.0.0.1:{home_port}/{kind}/")
+    print(f"\n统一首页：http://127.0.0.1:{home_port}/ （Ctrl-C 停止全部）")
     try:
         for _name, _server, thread in servers:
             thread.join()

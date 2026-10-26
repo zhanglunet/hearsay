@@ -52,7 +52,7 @@ function renderMaterial(material) {
 }
 
 async function loadMaterial() {
-  const response = await fetch("/api/material");
+  const response = await fetch("api/material");
   renderMaterial(await response.json());
 }
 
@@ -95,7 +95,7 @@ function renderQuestion(q) {
     } else {
       answer = $(`answer-${q.id}`).value.trim();
     }
-    const response = await fetch("/api/answer", {
+    const response = await fetch("api/answer", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ session_id: state.sessionId, material_id: state.materialId,
@@ -118,7 +118,7 @@ $("generate").addEventListener("click", async () => {
   if (!topic) { setStatus("先写一个话题"); return; }
   setStatus("正在生成材料与题目（LLM，约十几秒）…");
   try {
-    const response = await fetch("/api/generate", {
+    const response = await fetch("api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ level: $("gen-level").value, topic }),
@@ -132,7 +132,7 @@ $("generate").addEventListener("click", async () => {
 
 $("finish").addEventListener("click", async () => {
   if (!state.sessionId) { setStatus("先至少作答一题"); return; }
-  const response = await fetch("/api/finish", {
+  const response = await fetch("api/finish", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ session_id: state.sessionId }),

@@ -94,6 +94,10 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(len(material["questions"]), 4)
         self.assertEqual(len(material["sentences"]), 6)
         self.assertNotIn("answer", material["questions"][0])
+        # 相对地址：挂在网关 /listen/ 下也能解析到本切片
+        self.assertEqual(material["audio_url"], "media/reference.wav")
+        with urllib.request.urlopen(f"{self.base}/{material['audio_url']}") as response:
+            self.assertTrue(response.read().startswith(b"RIFF"))
 
         status, payload = self.request("/api/answer", dict(question_id="q1", answer=0))
         self.assertTrue(payload["passed"])

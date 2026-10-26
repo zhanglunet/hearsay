@@ -5,7 +5,7 @@ const KIND_NAMES = { listen: "听", shadow: "跟读", retell: "复述", converse
 const SKILL_NAMES = { L: "听力", SP: "口语产出", SI: "口语互动", PH: "语音控制" };
 
 async function loadPlan() {
-  const response = await fetch(`/api/plan?minutes=${$("minutes").value}`);
+  const response = await fetch(`api/plan?minutes=${$("minutes").value}`);
   const plan = await response.json();
   if (!response.ok) { $("rationale").textContent = plan.error; return; }
   $("rationale").textContent = plan.rationale_zh;
@@ -32,7 +32,7 @@ function renderDueCards(items) {
   if (!items.length) return;
   const title = document.createElement("p");
   title.className = "note";
-  title.textContent = "到期复习卡：去 M2（127.0.0.1:8766）点「复习对话」用一遍，回来按表现评分（1 忘了 / 2 困难 / 3 记住了 / 4 轻松）";
+  title.textContent = "到期复习卡：去「对话 / 复习」点「复习对话」用一遍，回来按表现评分（1 忘了 / 2 困难 / 3 记住了 / 4 轻松）";
   container.appendChild(title);
   for (const item of items) {
     const row = document.createElement("div");
@@ -44,7 +44,7 @@ function renderDueCards(items) {
       const button = document.createElement("button");
       button.textContent = String(rating);
       button.addEventListener("click", async () => {
-        const response = await fetch("/api/review", {
+        const response = await fetch("api/review", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ item_id: item.item_id, rating }),
@@ -60,7 +60,7 @@ function renderDueCards(items) {
 }
 
 async function loadProgress() {
-  const response = await fetch("/api/progress");
+  const response = await fetch("api/progress");
   const payload = await response.json();
   const s = payload.summary;
   $("progress-summary").textContent =
@@ -103,7 +103,7 @@ async function loadProgress() {
 
 $("reload").addEventListener("click", loadPlan);
 $("add-evidence").addEventListener("click", async () => {
-  const response = await fetch("/api/evidence", {
+  const response = await fetch("api/evidence", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ can_do_id: $("evidence-id").value.trim(),
