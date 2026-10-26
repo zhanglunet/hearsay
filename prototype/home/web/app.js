@@ -4,7 +4,7 @@ const $ = (id) => document.getElementById(id);
 const KIND = { listen: "听", shadow: "跟读", retell: "复述", converse: "对话" };
 
 async function loadPlan() {
-  const response = await fetch(`/api/plan?minutes=${$("minutes").value}`);
+  const response = await fetch(`api/plan?minutes=${$("minutes").value}`);
   const plan = await response.json();
   if (!response.ok) { $("rationale").textContent = plan.error; return; }
   $("rationale").textContent = plan.rationale_zh;
@@ -38,7 +38,7 @@ async function loadPlan() {
 }
 
 async function loadProgress() {
-  const response = await fetch("/api/progress");
+  const response = await fetch("api/progress");
   const payload = await response.json();
   const s = payload.summary;
   $("progress-summary").textContent =
@@ -46,10 +46,11 @@ async function loadProgress() {
   const links = $("slices");
   for (const slice of payload.slices) {
     const a = document.createElement("a");
-    a.href = `http://127.0.0.1:${slice.port}/`;
+    a.href = slice.href;
     a.target = "_blank";
     a.textContent = slice.title;
     links.appendChild(a);
+    if (slice.kind === "plan") $("plan-link").href = slice.href;
   }
 }
 

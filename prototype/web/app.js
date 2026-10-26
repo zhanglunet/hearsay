@@ -66,7 +66,7 @@ function setMaterial(payload, audioUrl, owned) {
 
 async function loadDemo() {
   setStatus("正在加载演示材料…");
-  const response = await fetch("/api/demo");
+  const response = await fetch("api/demo");
   const payload = await response.json();
   if (!response.ok) {
     setStatus(payload.error || "演示材料加载失败");
@@ -130,7 +130,7 @@ async function onImport(event) {
     setStatus(err.message || "这段音频读不了");
     return;
   }
-  const response = await fetch("/api/segment", {
+  const response = await fetch("api/segment", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -452,7 +452,7 @@ async function scoreCurrent() {
   const sentence = currentSentence();
   if (!sentence) return;
   const hypothesis = $("hypothesis").value.trim();
-  const response = await fetch("/api/feedback", {
+  const response = await fetch("api/feedback", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -482,7 +482,7 @@ async function transcribeCurrent() {
     return;
   }
   setStatus("正在请求本机转写…");
-  const response = await fetch("/api/transcribe", {
+  const response = await fetch("api/transcribe", {
     method: "POST",
     headers: { "Content-Type": take.blob.type || "application/octet-stream" },
     body: take.blob,

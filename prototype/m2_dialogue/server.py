@@ -171,11 +171,11 @@ def _cleanup_audio(session) -> None:
         session.audio_dir = None
 
 
-def make_server(port: int, tutor=None) -> ThreadingHTTPServer:
+def make_server(port: int, tutor=None, host=None) -> ThreadingHTTPServer:
     global TUTOR
     TUTOR = tutor or make_tutor()
     ThreadingHTTPServer.allow_reuse_address = True
-    return ThreadingHTTPServer((os.environ.get("HEARSAY_HOST", "127.0.0.1"), port), Handler)
+    return ThreadingHTTPServer((host or os.environ.get("HEARSAY_HOST", "127.0.0.1"), port), Handler)
 
 
 def main() -> None:

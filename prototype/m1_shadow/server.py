@@ -165,9 +165,9 @@ class Handler(BaseHTTPRequestHandler):
         super().log_message(fmt, *args)
 
 
-def make_server(port: int) -> ThreadingHTTPServer:
+def make_server(port: int, host=None) -> ThreadingHTTPServer:
     ThreadingHTTPServer.allow_reuse_address = True
-    return ThreadingHTTPServer((os.environ.get("HEARSAY_HOST", "127.0.0.1"), port), Handler)
+    return ThreadingHTTPServer((host or os.environ.get("HEARSAY_HOST", "127.0.0.1"), port), Handler)
 
 
 def main() -> None:

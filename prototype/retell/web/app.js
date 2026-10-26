@@ -5,7 +5,7 @@ let startedAt = null;
 let durationSec = null;
 
 $("load-demo").addEventListener("click", async () => {
-  const response = await fetch("/api/demo");
+  const response = await fetch("api/demo");
   const payload = await response.json();
   $("material").value = payload.material_text;
   setStatus("已载入：" + payload.title);
@@ -16,7 +16,7 @@ function setStatus(text) { $("status").textContent = text; }
 $("evaluate").addEventListener("click", async () => {
   setStatus("正在评估…");
   try {
-    const response = await fetch("/api/evaluate", {
+    const response = await fetch("api/evaluate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -36,7 +36,7 @@ def load_demo_payload() -> dict:
             "generated_by": "imported",
             "session_type": "shadow",
             "learner_recording": False,
-            "audio_url": "/media/reference.wav",
+            "audio_url": "media/reference.wav",
             "timing_source": manifest["timing_source"],
             "timing_note_zh": manifest["timing_note_zh"],
             "tail_pad_ms": int(manifest.get("tail_pad_ms", 250)),

@@ -12,6 +12,6 @@ COPY prototype/ /app/prototype/
 RUN chown -R app:app /app
 
 USER app
-EXPOSE 8764 8765 8766 8767 8768 8769
+EXPOSE 8764
 
 CMD ["python", "start_all.py"]

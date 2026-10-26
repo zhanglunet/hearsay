@@ -44,7 +44,7 @@ async function startSession(mode) {
   $("recap-panel").hidden = true;
   state.ended = false;
   try {
-    const payload = await api("/api/session", mode ? { mode } : {});
+    const payload = await api("api/session", mode ? { mode } : {});
     if (payload.scenario) renderScenario(payload.scenario);
     state.sessionId = payload.session_id;
     addMessage("agent", payload.opening);
@@ -64,7 +64,7 @@ async function sendTurn() {
       body.audio_b64 = await blobToBase64(state.audioBlob);
       body.audio_type = state.audioBlob.type;
     }
-    const payload = await api("/api/turn", body);
+    const payload = await api("api/turn", body);
     state.audioBlob = null;
     addMessage("learner", text);
     $("input").value = "";
@@ -90,7 +90,7 @@ async function endSession() {
   if (!state.sessionId) return;
   setStatus("正在整理复盘…");
   try {
-    const recap = await api("/api/end", { session_id: state.sessionId });
+    const recap = await api("api/end", { session_id: state.sessionId });
     state.ended = true;
     setConversationEnabled(false);
     $("start").disabled = false;
@@ -242,7 +242,7 @@ function renderScenario(scenario) {
   }
 }
 
-fetch("/api/scenario").then((r) => r.json()).then((payload) => {
+fetch("api/scenario").then((r) => r.json()).then((payload) => {
   renderScenario(payload.scenario);
   $("tutor-note").textContent = `tutor 后端：${payload.tutor}。${payload.notes}`;
 }).catch(() => setStatus("场景加载失败。确认是用 python -m m2_dialogue 打开的。"));
