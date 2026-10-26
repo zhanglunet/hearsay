@@ -56,13 +56,15 @@ python -m m2_dialogue
 
 ```bash
 python -m pip install -r prototype/m2_dialogue/requirements-realtime.txt   # Python 3.11/3.12
-HEARSAY_ANTHROPIC_API_KEY=... python -m m2_dialogue.realtime --host 127.0.0.1 --port 7860
+HEARSAY_LLM_API_KEY=... python -m m2_dialogue.realtime --host 127.0.0.1 --port 7860
 ```
 
 pipecat 流水线：transport → Silero VAD → faster-whisper STT → Claude → Piper TTS。
 STT 模型用 `HEARSAY_M2_STT_MODEL` 改（默认 base），LLM 模型用 `HEARSAY_LLM_MODEL`。
-Kimi 接入：`ANTHROPIC_BASE_URL=https://api.kimi.com/coding/` +
-`ANTHROPIC_API_KEY`（Anthropic 协议；令牌过期时用 `docs` 里的刷新接口更新）。
+Kimi 接入：`ANTHROPIC_BASE_URL=https://api.kimi.com/coding/` + `HEARSAY_LLM_API_KEY`
+（Anthropic 协议；令牌过期时用 `docs` 里的刷新接口更新）。注意 `ANTHROPIC_BASE_URL` 只对
+`realtime.py` 有效，由 Anthropic SDK 读取，填到 `/coding/` 为止；其他切片读的是
+`HEARSAY_LLM_BASE_URL`，要填完整的 Messages 端点，如 `https://api.kimi.com/coding/v1/messages`。
 断开时把实时转写与规则 recast 写到 `prototype/runtime/m2-realtime-*.json`（已忽略，勿提交）。
 
 **实测记录（2026-10-26）**：aiortc 客户端向 `/api/offer` 注入演示音频，

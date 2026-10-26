@@ -1,0 +1,36 @@
+/**
+ * Hearsay → Cloudflare Containers。部署步骤见 docs/ops/cloudflare-deploy.md。
+ * 需要 Workers Paid 计划；`wrangler deploy` 时本机或构建环境需要能运行 Docker。
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "hearsay",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  "observability": { "enabled": true },
+
+  // 非敏感默认值。敏感或因人而异的值用 `npx wrangler secret put <名字>` 设置，不要写在这里：
+  //   HEARSAY_LLM_API_KEY  HEARSAY_LLM_BASE_URL
+  //   HEARSAY_R2_ACCOUNT_ID  HEARSAY_R2_BUCKET  HEARSAY_R2_ACCESS_KEY_ID  HEARSAY_R2_SECRET_ACCESS_KEY
+  // 注意：每次部署都会用这里的 vars 覆盖 Dashboard 上同名的明文变量；要改默认值请改这个文件。
+  "vars": {
+    "HEARSAY_LLM": "mock",
+    "HEARSAY_LLM_MODEL": "claude-haiku-4-5-20251001",
+    "HEARSAY_R2_KEY": "learner/m3-learner.json"
+  },
+
+  "containers": [
+    {
+      "class_name": "HearsayContainer",
+      "image": "./Dockerfile",
+      // 单学习者、单数据文件：只允许一个实例，避免并发写同一个 R2 对象
+      "max_instances": 1,
+      // 1/4 vCPU、1 GiB 内存：够跑 6 个标准库 Python 服务；不含 whisperX 等模型
+      "instance_type": "basic"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [{ "class_name": "HearsayContainer", "name": "HEARSAY" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["HearsayContainer"] }]
+}

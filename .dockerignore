@@ -6,3 +6,12 @@ prototype/runtime/
 experiments/.venv/
 experiments/data/
 *.log
+node_modules/
+worker/
+.wrangler/
+wrangler.jsonc
+package.json
+package-lock.json
+docs/
+!docs/design/cefr-can-do-listening-speaking.md
+experiments/
