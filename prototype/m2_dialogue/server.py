@@ -9,6 +9,7 @@ import shutil
 import tempfile
 import traceback
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from hearsay_http import HearsayHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -175,7 +176,7 @@ def make_server(port: int, tutor=None, host=None) -> ThreadingHTTPServer:
     global TUTOR
     TUTOR = tutor or make_tutor()
     ThreadingHTTPServer.allow_reuse_address = True
-    return ThreadingHTTPServer((host or os.environ.get("HEARSAY_HOST", "127.0.0.1"), port), Handler)
+    return HearsayHTTPServer((host or os.environ.get("HEARSAY_HOST", "127.0.0.1"), port), Handler)
 
 
 def main() -> None:
