@@ -19,6 +19,16 @@ async function loadPlan() {
     body.textContent = block.content_zh;
     div.appendChild(head);
     div.appendChild(body);
+    if (block.detail_zh) {
+      // 实现说明默认收起
+      const details = document.createElement("details");
+      details.className = "dev";
+      const summary = document.createElement("summary");
+      summary.textContent = "实现说明";
+      details.appendChild(summary);
+      details.appendChild(document.createTextNode(block.detail_zh));
+      body.appendChild(details);
+    }
     $("blocks").appendChild(div);
   }
   const due = $("due-cards");

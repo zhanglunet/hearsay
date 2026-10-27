@@ -10,7 +10,8 @@
   <header class="masthead">
     <p class="eyebrow">Hearsay · 复述原型</p>
     <h1>用自己的话讲一遍</h1>
-    <p class="lede">读一段材料，不看原文复述。反馈：内容覆盖、流利度、语法。不是语义判分。</p>
+    <p class="lede">读一段材料，不看原文复述。反馈：内容覆盖、流利度、语法。</p>
+    <details class="dev"><summary>实现说明</summary>按词级覆盖度判断内容，不是语义判分。</details>
   </header>
 
   <section class="panel">
@@ -23,7 +24,7 @@
       <button id="mic" type="button">🎤 开始复述</button>
       <span id="timer" class="note"></span>
     </div>
-    <textarea id="retell" lang="en" rows="4" placeholder="复述内容：语音识别会填进来（Chromium），也可以直接打字"></textarea>
+    <textarea id="retell" lang="en" rows="4" placeholder="点「🎤 开始复述」说英语，识别结果会填进来；也可以直接打字"></textarea>
     <div class="row">
       <button id="evaluate" class="primary" type="button">评估复述</button>
       <span id="status" class="status" role="status"></span>

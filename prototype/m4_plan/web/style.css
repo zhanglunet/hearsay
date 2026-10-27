@@ -16,3 +16,20 @@ td, th { text-align: left; padding: .35rem .4rem; border-bottom: 1px solid #e6ec
 .badge.demonstrated { background: #e0f2e5; color: #175c2a; }
 .badge.emerging { background: #fff3d6; color: #8a5a00; }
 .badge.not_started { background: #eceff1; color: #607d8b; }
+details.dev { color: #557; font-size: .85rem; margin: .4rem 0; }
+details.dev summary { cursor: pointer; color: #6a7a78; }
+details.dev[open] summary { margin-bottom: .2rem; }
+details.skill { border-top: 1px solid #e6ecea; }
+details.skill summary { cursor: pointer; font-weight: 600; padding: .6rem .2rem; }
+#progress-items td { overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  body { padding: .75rem; }
+  .panel { padding: .8rem; }
+  button, input, select { min-height: 44px; font-size: 1rem; }
+  #due-cards .row button { min-width: 44px; }
+  /* 窄屏上表格四列挤不下：每条 can-do 改成一张小卡片 */
+  #progress-items table, #progress-items tbody, #progress-items tr, #progress-items td { display: block; width: auto; }
+  #progress-items tr { padding: .5rem .2rem; border-bottom: 1px solid #e6ecea; }
+  #progress-items td { border: 0; padding: .1rem 0; }
+  #progress-items td:first-child { font-weight: 600; }
+}

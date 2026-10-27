@@ -11,7 +11,9 @@ async function playSentence(sentence) {
   const voice = await HearsayVoice.cloudStatus();
   if (voice.tts || state.useTts) {
     $("audio").pause();
-    HearsayVoice.speak(sentence.text);
+    HearsayVoice.speak(sentence.text).then((played) => {
+      if (!played) setStatus("浏览器拦下了播放，再点一次这一句。");
+    });
     return;
   }
   const audio = $("audio");
