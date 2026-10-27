@@ -96,6 +96,14 @@ npx wrangler secret put HEARSAY_LLM_BASE_URL
 
 当前部署（2026-10-27）的状态：Access 应用「hearsay 听说练习」用的是 Workers 类型的目标，直接绑定 `hearsay` 这个 Worker，类型为「Worker 的生产和预览 URL」，策略 `hearsay-owner-only` 只放行账号所有者的邮箱。之后 `workers_dev` 已改为 `true`，地址是 `hearsay.zhanglu-net.workers.dev`。
 
+自定义域 `hearsay.fans` 和 `www.hearsay.fans` 写在 `wrangler.jsonc` 的 `routes` 里（`custom_domain: true`）。**Access 的 Workers 类型目标只覆盖 workers.dev 的生产和预览地址，不覆盖自定义域**，所以这两个主机名另外作为「公共主机名」加进了同一个 Access 应用，路径留空，策略不变。2026-10-27 直连 Cloudflare 权威服务器验证：未登录访问两个域名的页面、读接口和写接口都被 302 到 Access 登录页。
+
+以后再加域名，顺序是：
+
+1. 先在 Access 应用里加这个公共主机名。
+2. 再把它写进 `wrangler.jsonc` 的 `routes` 并部署。
+3. 用 `curl -I https://<域名>/` 确认返回 302、跳到 `cloudflareaccess.com`。
+
 ### 5. 验证
 
 1. 打开首页，确认 Access 先要求登录。

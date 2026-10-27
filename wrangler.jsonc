@@ -28,6 +28,14 @@
   // 生产和预览 URL，只放行账号所有者邮箱。删掉那个 Access 应用前，先把这里改回 false。
   "workers_dev": true,
 
+  // 自定义域。写在配置里，避免以后从仓库部署时被当作配置之外的路由处理掉。
+  // 注意：Access 的「Worker 的生产和预览 URL」目标不覆盖自定义域；这两个主机名已作为
+  // 公共主机名单独加进 Access 应用「hearsay 听说练习」。以后再加域名，务必同时加进 Access。
+  "routes": [
+    { "pattern": "hearsay.fans", "custom_domain": true },
+    { "pattern": "www.hearsay.fans", "custom_domain": true }
+  ],
+
   "containers": [
     {
       "class_name": "HearsayContainer",
