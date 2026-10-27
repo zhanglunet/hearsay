@@ -42,6 +42,31 @@
 - M2 批处理默认关闭。
 - `realtime.py` 不在 `start_all.py` 里，不随容器运行。
 
+## 语音（朗读与识别）
+
+听力、复述、对话三个页面的朗读和语音识别，在线上走 Workers AI，不用浏览器自带的接口。Worker 在 `/voice/` 下直接处理，不进容器，见 `worker/voice.ts`：
+
+| 接口 | 作用 | 模型 | 计费 |
+|---|---|---|---|
+| `GET /voice/status` | 前端探测云端语音是否可用 | 无 | 无 |
+| `POST /voice/tts` | 文本转语音，返回 MP3；同一句按模型、声音、文本缓存 | `@cf/deepgram/aura-2-en`，默认声音 `luna` | $0.03 / 千字符 |
+| `POST /voice/asr` | 录音原始字节转文字，原样转写，保留语法错误 | `@cf/openai/whisper-large-v3-turbo` | $0.000513 / 音频分钟 |
+
+为什么不用浏览器接口：
+
+- **朗读机械**：系统默认的英文声音听起来机械、生硬。
+- **识别慢、不准**：Chrome 的语音识别要把录音发到 Google，从国内访问慢且常不完整；而且它会把语法错误自动改对，纠错就失去了依据。
+
+前端共用 `prototype/shared/voice.js`。探测 `/voice/status` 失败时，例如本地开发没有 Worker，会退回浏览器的 `speechSynthesis` 和 `SpeechRecognition`。
+
+`/voice/*` 与网站同域名，同样受 Access 保护。
+
+**本地调试的已知限制**：`wrangler dev` 调用远程 AI 绑定时，要经过 workers.dev 上的预览地址。这个地址被 Access 保护，所以会报「Too many redirects」，本地无法真实调用模型，线上不受影响。接口逻辑用下面的命令单测，不发真实请求：
+
+```bash
+npm run test:worker
+```
+
 ## 前提
 
 - Cloudflare 账号开通 **Workers Paid** 计划，Containers 只在付费计划上可用。

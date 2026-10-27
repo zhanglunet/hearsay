@@ -11,9 +11,13 @@
  *   由 Worker 用 R2 绑定（env.LEARNER_BUCKET）直接读写。
  *   所以整条链路上没有 R2 访问密钥；容器只能读写这一个对象键。
  *
+ * 语音（/voice/status、/voice/tts、/voice/asr）在 Worker 里直接调 Workers AI，不进容器，
+ * 见 worker/voice.ts。
+ *
  * 访问控制不在这里做：开放公网地址前，先在 Cloudflare Zero Trust 里给它配 Access。
  */
 import { Container, getContainer } from "@cloudflare/containers";
+import { handleVoice } from "./voice";
 
 // 出站拦截必须从入口导出 ContainerProxy
 export { ContainerProxy } from "@cloudflare/containers";
@@ -23,6 +27,7 @@ const LEARNER_STORE_HOST = "learner-store.hearsay.internal";
 interface Env {
   HEARSAY: DurableObjectNamespace<HearsayContainer>;
   LEARNER_BUCKET: R2Bucket;
+  AI: Ai;
   // wrangler.jsonc 的 vars（非敏感默认值）
   HEARSAY_LLM: string;
   HEARSAY_LLM_MODEL: string;
@@ -154,7 +159,10 @@ HearsayContainer.outboundByHost = {
 };
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    // 语音接口在 Worker 里处理，不唤醒容器
+    const voice = await handleVoice(request, env, ctx);
+    if (voice) return voice;
     // 单学习者、单数据文件：所有请求都进同一个实例，避免两个容器并发写同一个对象。
     // durable_object 调度策略不支持 max_instances，单实例完全靠这里固定用同一个名字
     return getContainer(env.HEARSAY).fetch(request);

@@ -5,12 +5,13 @@ const state = { sessionId: null, sentences: [], questions: [], materialId: "demo
 
 function setStatus(text) { $("status").textContent = text; }
 
-function playSentence(sentence) {
-  if (state.useTts) {
-    const utterance = new SpeechSynthesisUtterance(sentence.text);
-    utterance.lang = "en-US";
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
+async function playSentence(sentence) {
+  // 云端朗读可用时，演示材料（原为 espeak 合成音频）和生成材料都逐句用自然人声；
+  // 不可用时：生成材料退回浏览器朗读，演示材料播放原音频片段
+  const voice = await HearsayVoice.cloudStatus();
+  if (voice.tts || state.useTts) {
+    $("audio").pause();
+    HearsayVoice.speak(sentence.text);
     return;
   }
   const audio = $("audio");
