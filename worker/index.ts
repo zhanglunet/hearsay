@@ -103,6 +103,25 @@ export class HearsayContainer extends Container<Env> {
       HEARSAY_R2_SECRET_ACCESS_KEY: "unused",
     });
     this.envVars = vars;
+
+    // durable_object 调度策略要求启动时指定命名镜像（wrangler.jsonc 的 images.base），
+    // 但 @cloudflare/containers 0.3.7 调 ctx.container.start() 时不传 image。
+    // 这里给库持有的容器对象包一层：start 时补上 images.base，其余原样转发。
+    const raw = ctx.container as any;
+    if (raw) {
+      (this as any).container = new Proxy(raw, {
+        get(target, prop) {
+          if (prop === "start") {
+            return (opts: Record<string, unknown> = {}) => {
+              const image = opts.image ?? target.images?.base;
+              return target.start(image ? { ...opts, image } : opts);
+            };
+          }
+          const value = Reflect.get(target, prop, target);
+          return typeof value === "function" ? value.bind(target) : value;
+        },
+      });
+    }
   }
 }
 
@@ -112,7 +131,8 @@ HearsayContainer.outboundByHost = {
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    // 单学习者、单数据文件：所有请求都进同一个实例，避免两个容器并发写同一个对象
+    // 单学习者、单数据文件：所有请求都进同一个实例，避免两个容器并发写同一个对象。
+    // durable_object 调度策略不支持 max_instances，单实例完全靠这里固定用同一个名字
     return getContainer(env.HEARSAY).fetch(request);
   },
 };
