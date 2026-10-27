@@ -31,7 +31,8 @@
   - 删除学习者数据时，R2 上的对象一起删掉。
 
   容器不持有任何 R2 密钥。它的读写请求发往一个公网不存在的内部主机名，被 Worker 拦截后经 R2 绑定读写；拦截处理只认 `/<桶>/<键>` 这一个对象，其他路径返回 403。所以不需要建 R2 API 令牌。
-- **只跑一个实例。** `max_instances` 设为 1，因为只有一个学习者、一个数据文件，两个实例并发写同一个 R2 对象会互相覆盖。
+- **只跑一个实例。** 只有一个学习者、一个数据文件，两个实例并发写同一个 R2 对象会互相覆盖。容器用的是 `durable_object` 调度策略（本账号不允许 `default`），它不支持 `max_instances`，所以单实例靠 Worker 始终用同一个名字取实例来保证。
+- **规格是 `lite`。** 1/16 vCPU、256 MiB 内存，这是 `durable_object` 策略下的默认值，`@cloudflare/containers` 0.3.7 也不支持改它。2026-10-27 在同样的资源限制下实测：启动 4 秒，所有页面响应在 35 毫秒内，内存 18.7 MiB。以后要在容器里跑 whisperX 之类的模型，就得换更大的规格。
 
 镜像只含标准库代码，不含 whisperX、piper、faster-whisper 的模型：
 
@@ -152,7 +153,11 @@ Dashboard → **Workers 和 Pages** → `hearsay` → 设置 → 构建 → 连�
 
 ## 本地验证
 
-`npx wrangler dev` 会在本机 Docker 里跑容器，但在 OrbStack 上从 Worker 到容器的入站请求会卡住（2026-10-27 实测，与本项目代码无关）；容器到 Worker 的出站拦截和本地 R2 能正常验证。
+`npx wrangler dev` 会在本机 Docker 里跑容器和本地 R2。2026-10-27 在 OrbStack 上实测：
+
+- 首次启动时，经 Worker 访问各页面、写入数据、数据落进本地 R2 都正常。
+- 重启 `wrangler dev` 后，全新容器能从本地 R2 拉回数据，但 Worker 到容器的入站请求有时会卡住。这是本地开发环境的问题，和项目代码无关。遇到时删掉 `workerd-hearsay-*` 容器再启动。
+- 不要用 `docker rm` 直接删正在运行的容器来模拟休眠：Durable Object 不知道容器没了，会一直报「Network connection lost」。
 
 不连 Cloudflare，只校验配置和打包：
 

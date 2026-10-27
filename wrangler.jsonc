@@ -30,11 +30,13 @@
   "containers": [
     {
       "class_name": "HearsayContainer",
-      "image": "./Dockerfile",
-      // 单学习者、单数据文件：只允许一个实例，避免并发写同一个 R2 对象
-      "max_instances": 1,
-      // 1/4 vCPU、1 GiB 内存：够跑 6 个标准库 Python 服务；不含 whisperX 等模型
-      "instance_type": "basic"
+      // durable_object 策略只接受命名镜像（images），不接受 image
+      "images": { "base": { "dockerfile": "./Dockerfile" } },
+      // 本账号只允许 durable_object 调度策略（default 会被拒绝）。这个策略不支持
+      // max_instances，也不在这里设规格：实例由 Durable Object 启动，规格默认 lite
+      // （1/16 vCPU、256 MiB）。2026-10-27 按 lite 限制实测：启动 4s、内存 18.7 MiB。
+      // 单实例由 worker/index.ts 里固定用同一个名字 getContainer() 保证。
+      "scheduling_policy": "durable_object"
     }
   ],
   "durable_objects": {
