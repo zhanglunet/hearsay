@@ -4,11 +4,14 @@ import assert from "node:assert/strict";
 import { pathToFileURL } from "node:url";
 const { handleVoice, TTS_MODEL, ASR_MODEL, MAX_TTS_CHARS } = await import(pathToFileURL(process.argv[2]).href);
 
-// 假的 Cache API（Node 没有 caches.default）
+// 假的 Cache API（Node 没有 caches.default）。按真实规则：Cache-Control 含 private / no-store 的不存
 const store = new Map();
 globalThis.caches = { default: {
   async match(req) { const r = store.get(req.url); return r ? r.clone() : undefined; },
-  async put(req, res) { store.set(req.url, res); },
+  async put(req, res) {
+    if (/private|no-store/i.test(res.headers.get("cache-control") || "")) return;
+    store.set(req.url, res);
+  },
 } };
 const waits = [];
 const ctx = { waitUntil: (p) => waits.push(p) };
@@ -38,11 +41,17 @@ assert.deepEqual((await r.json()).asr, true);
 r = await handleVoice(req("/voice/tts", json({ text: "  Hello there.  ", speaker: "not-a-voice" })), env, ctx);
 assert.equal(r.status, 200);
 assert.equal(r.headers.get("content-type"), "audio/mpeg");
+assert.equal(r.headers.get("x-hearsay-tts-cache"), "MISS");
+assert.match(r.headers.get("cache-control"), /^private/, "返回给浏览器的是 private");
 assert.equal((await r.arrayBuffer()).byteLength, 5);
 assert.deepEqual(calls.at(-1), { model: TTS_MODEL, input: { text: "Hello there.", speaker: "luna" } });
 await Promise.all(waits);
+assert.match(store.values().next().value.headers.get("cache-control"), /^public/, "存进边缘缓存的是 public");
 r = await handleVoice(req("/voice/tts", json({ text: "Hello there." })), env, ctx);
 assert.equal(r.status, 200);
+assert.equal(r.headers.get("x-hearsay-tts-cache"), "HIT");
+assert.match(r.headers.get("cache-control"), /^private/, "命中缓存时返回给浏览器的仍是 private");
+assert.equal((await r.arrayBuffer()).byteLength, 5, "命中缓存时音频完整");
 assert.equal(calls.filter((c) => c.model === TTS_MODEL).length, 1, "第二次应命中缓存，不再调模型");
 r = await handleVoice(req("/voice/tts", json({ text: "Hi", speaker: "orion" })), env, ctx);
 assert.equal(calls.at(-1).input.speaker, "orion");
