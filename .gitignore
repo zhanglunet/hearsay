@@ -15,3 +15,8 @@ prototype/runtime/
 # M1 真人录音复测（issue #4）：音频、签署件、花名册只存本地，勿提交公开仓
 m1_human_audio/
 **/consents/
+
+# Cloudflare Worker
+node_modules/
+.wrangler/
+.dev.vars

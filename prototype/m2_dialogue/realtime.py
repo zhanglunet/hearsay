@@ -2,7 +2,7 @@
 
 运行（Python 3.11+，先装 requirements-realtime.txt 里的依赖）：
 
-    HEARSAY_ANTHROPIC_API_KEY=... python -m m2_dialogue.realtime --host 127.0.0.1 --port 7860
+    HEARSAY_LLM_API_KEY=... python -m m2_dialogue.realtime --host 127.0.0.1 --port 7860
 
 流水线：transport → Silero VAD → faster-whisper STT（实时、带归一化）
 → Claude（导师 system prompt，与 mock 切片同场景）→ Piper TTS（本地）→ transport。
@@ -21,7 +21,7 @@ import time
 from pathlib import Path
 
 from m2_dialogue.recast import scan_recasts
-from m2_dialogue.tutor import KEY_ENV, SYSTEM_PROMPT
+from m2_dialogue.tutor import SYSTEM_PROMPT, llm_api_key
 
 try:
     from loguru import logger
@@ -140,7 +140,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     if os.environ.get("HEARSAY_LLM_MODEL"):
         llm_settings["model"] = os.environ["HEARSAY_LLM_MODEL"]
     llm = AnthropicLLMService(
-        api_key=os.environ.get(KEY_ENV, ""),
+        api_key=llm_api_key(),
         settings=AnthropicLLMService.Settings(**llm_settings),
     )
     _orig_push_llm_text = llm._push_llm_text
