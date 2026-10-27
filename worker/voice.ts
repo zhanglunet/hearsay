@@ -37,6 +37,22 @@ const VERBATIM_PROMPT =
   "Transcribe exactly what the speaker says, word for word, keeping all grammar mistakes " +
   "such as 'he go', 'two book', 'I very like', 'in Monday'. Do not correct anything.";
 
+// 朗读缓存：返回给浏览器的标 private（只给当前用户）；存进边缘缓存的那份必须是 public，
+// Cache API 不存 Cache-Control 为 private 的响应（2026-10-27 线上实测：同一句第二次仍要约 2.8 秒
+// 重新合成、重复计费）。x-hearsay-tts-cache 标明 HIT / MISS，便于在线上确认缓存是否生效。
+const BROWSER_CACHE_CONTROL = "private, max-age=86400";
+const EDGE_CACHE_CONTROL = "public, max-age=2592000"; // 30 天
+
+function ttsResponse(body: BodyInit | null, cacheStatus: "HIT" | "MISS"): Response {
+  return new Response(body, {
+    headers: {
+      "content-type": "audio/mpeg",
+      "cache-control": BROWSER_CACHE_CONTROL,
+      "x-hearsay-tts-cache": cacheStatus,
+    },
+  });
+}
+
 interface VoiceEnv {
   AI: Ai;
 }
@@ -80,7 +96,7 @@ async function handleTts(request: Request, env: VoiceEnv, ctx: ExecutionContext)
   const cacheKey = new Request(
     `https://voice-cache.hearsay.internal/tts/${await sha256Hex(`${TTS_MODEL}|${speaker}|${text}`)}`);
   const cached = await cache.match(cacheKey);
-  if (cached) return cached;
+  if (cached) return ttsResponse(cached.body, "HIT");
 
   let audio: ReadableStream;
   try {
@@ -90,14 +106,10 @@ async function handleTts(request: Request, env: VoiceEnv, ctx: ExecutionContext)
     return json(502, { error: "语音合成失败，请稍后重试" });
   }
   const bytes = await new Response(audio).arrayBuffer();
-  const response = new Response(bytes, {
-    headers: {
-      "content-type": "audio/mpeg",
-      "cache-control": "private, max-age=86400",
-    },
-  });
-  ctx.waitUntil(cache.put(cacheKey, response.clone()));
-  return response;
+  ctx.waitUntil(cache.put(cacheKey, new Response(bytes.slice(0), {
+    headers: { "content-type": "audio/mpeg", "cache-control": EDGE_CACHE_CONTROL },
+  })));
+  return ttsResponse(bytes, "MISS");
 }
 
 async function handleAsr(request: Request, env: VoiceEnv): Promise<Response> {
