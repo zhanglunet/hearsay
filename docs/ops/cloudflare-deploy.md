@@ -92,6 +92,8 @@ npx wrangler secret put HEARSAY_LLM_BASE_URL
 
 顺序不能反。练习界面和 API 没有自己的登录，一旦公开，任何人都能读写你的学习者数据，也能消耗你的 LLM 额度。
 
+当前部署（2026-10-27）的状态：Access 应用「hearsay 听说练习」用的是 Workers 类型的目标，直接绑定 `hearsay` 这个 Worker，类型为「Worker 的生产和预览 URL」，策略 `hearsay-owner-only` 只放行账号所有者的邮箱。之后 `workers_dev` 已改为 `true`，地址是 `hearsay.zhanglu-net.workers.dev`。
+
 ### 5. 验证
 
 1. 打开首页，确认 Access 先要求登录。
