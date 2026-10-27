@@ -14,15 +14,26 @@ from m2_dialogue.tutor import (DEFAULT_MODEL, TutorError, anthropic_request,
 from m4_plan.can_do import load_statements
 
 GENERATE_PROMPT = """你是英语听力材料编写器，为中文母语的英语学习者出一段材料和理解题。
-要求：
-- 等级 {level}，话题「{topic}」，写 6 句自然、简单的英文（日常场景，互相连贯）。
-- 出 4 道题：1 道 gist（主旨选择）、1 道 detail（关键词简答）、1 道 dictation（听写整句）、
-  1 道 discrimination（二选一听辨，含一处容易听混的对立，如 can/can't、ship/sheep）。
-- 每题给 q_zh（中文题干）；gist/discrimination 给 options 和正确答案下标 answer；
-  detail 给 required_keywords（判分必需英文关键词）和 answer（参考答案）；
-  dictation 给 sentence_idx（听写哪一句，0 起）。
-- 能映射就给 can_do_id（如 L-A2-01 主旨、L-A2-02 细节、L-B1-04 连读弱读），没有就 null。
-- 只输出 JSON：{{"title":"...","sentences":["..."],"questions":[...]}}，不要解释。"""
+
+材料：等级 {level}，话题「{topic}」，写 6 句自然、简单、互相连贯的英文。
+
+出 4 道题，每题都必须有 "type" 字段，取值依次是 gist、detail、dictation、discrimination：
+- gist（主旨选择）：q_zh、options（3–4 个中文选项）、answer（正确选项下标，0 起）。
+- detail（关键词简答）：q_zh、sentence_idx（答案所在句，0 起）、required_keywords（判分必需的英文关键词，出自该句）、answer（参考答案）。
+- dictation（听写）：q_zh、sentence_idx（听写哪一句，0 起）。
+- discrimination（二选一听辨）：
+  - 先选定材料里的一句，sentence_idx 写它的下标（0 起）。这句里必须含一处容易听混的对立，如 can/can't、ship/sheep、thirteen/thirty。
+  - options 正好 2 项。正确的一项必须是这句原文，一字不改地照抄（大小写和标点可以不同）；另一项只把那个对立词换掉，其余一字不改。
+  - answer 是照抄原文那一项的下标。干扰项不能和原文相同。
+  - 例：材料第 2 句是 "I'm afraid we can't finish the report by Friday."，则 sentence_idx=1，options=["I'm afraid we can't finish the report by Friday.", "I'm afraid we can finish the report by Friday."]，answer=0。
+  - 可加 error_codes，如 ["H02"]（弱读听辨）。
+
+每题能映射就给 can_do_id（如 L-A2-01 主旨、L-A2-02 细节、L-B1-04 连读弱读），没有就 null。
+
+只输出一个 JSON 对象，不要解释、不要 Markdown 代码块：
+{{"title":"...","sentences":["...","..."],"questions":[{{"type":"gist",...}},{{"type":"detail",...}},{{"type":"dictation",...}},{{"type":"discrimination",...}}]}}"""
+
+GENERATE_ATTEMPTS = 2  # 模型输出不合格（无 JSON / JSON 坏 / 校验不过）时最多再试 1 次
 
 CODE_H = re.compile(r"^H\d{2}$")
 
@@ -35,19 +46,38 @@ def _idx(value, n, required=True):
     return value
 
 
-def _infer_idx_from_options(options, sentences):
-    """discrimination 缺句序时，取与某选项最相似的句子；相似度过低说明题目与材料脱节。"""
-    import difflib
-    best, best_i = 0.0, None
-    for i, sentence in enumerate(sentences):
-        for option in options:
-            ratio = difflib.SequenceMatcher(a=sentence.lower(), b=str(option).lower(),
-                                            autojunk=False).ratio()
-            if ratio > best:
-                best, best_i = ratio, i
-    if best_i is None or best < 0.5:
-        raise ValueError("无法推断 discrimination 的 sentence_idx（选项与材料句子不匹配）")
-    return best_i
+_NORM = re.compile(r"[^a-z0-9' ]+")
+
+
+def _norm(text):
+    """小写，去掉标点但保留撇号（can 与 can't 要分开），合并空白。"""
+    return " ".join(_NORM.sub(" ", str(text).lower().replace("’", "'")).split())
+
+
+def _heard_in(option, sentence):
+    """选项是否就是这句话：整句相同，或是句中一个完整的词或短语。"""
+    o, s = _norm(option), _norm(sentence)
+    return bool(o) and (o == s or f" {o} " in f" {s} ")
+
+
+def _check_discrimination(options, answer, sentence_idx, sentences):
+    """听辨题的正确项必须是学习者实际听到的内容，干扰项不能也出现在原句里。
+
+    没给 sentence_idx 时，按正确项能在哪一句里找到来定位。返回确定的句下标。
+    """
+    correct = options[answer]
+    if sentence_idx is None:
+        hits = [i for i, s in enumerate(sentences) if _heard_in(correct, s)]
+        if not hits:
+            raise ValueError("discrimination 的正确选项不在任何一句材料里")
+        sentence_idx = hits[0]
+    sentence = sentences[sentence_idx]
+    if not _heard_in(correct, sentence):
+        raise ValueError("discrimination 的正确选项与所选句子原文不一致")
+    for i, option in enumerate(options):
+        if i != answer and _heard_in(option, sentence):
+            raise ValueError("discrimination 的干扰项也出现在原句里，无法判分")
+    return sentence_idx
 
 
 def validate_material(raw):
@@ -80,8 +110,9 @@ def validate_material(raw):
                 raise ValueError(f"第 {i} 题 options 应为 2–4 项")
             if not isinstance(q.get("answer"), int) or not 0 <= q["answer"] < len(options):
                 raise ValueError(f"第 {i} 题 answer 下标不合法")
-            if qtype == "discrimination" and out["sentence_idx"] is None:
-                out["sentence_idx"] = _infer_idx_from_options(options, sentences)
+            if qtype == "discrimination":
+                out["sentence_idx"] = _check_discrimination(
+                    options, q["answer"], out["sentence_idx"], sentences)
             out.update(options=[str(o) for o in options], answer=q["answer"])
         elif qtype == "detail":
             keys = q.get("required_keywords")
@@ -112,6 +143,18 @@ def validate_material(raw):
                 questions=questions, generated_by="llm")
 
 
+def _parse_material(text):
+    """从模型输出里取出 JSON 并校验；不合格抛 ValueError。"""
+    m = re.search(r"\{.*\}", text, re.S)
+    if not m:
+        raise ValueError("没有返回 JSON")
+    try:
+        raw = json.loads(m.group(0))
+    except json.JSONDecodeError as exc:
+        raise ValueError("JSON 不合法") from exc
+    return validate_material(raw)
+
+
 def generate_material(level, topic):
     api_key = llm_api_key()
     if not api_key:
@@ -120,13 +163,12 @@ def generate_material(level, topic):
                    max_tokens=4096,
                    system="你是材料编写器，只输出 JSON。",
                    messages=[dict(role="user", content=GENERATE_PROMPT.format(level=level, topic=topic))])
-    data = anthropic_request(payload, api_key, llm_endpoint())
-    text = response_text(data)
-    m = re.search(r"\{.*\}", text, re.S)
-    if not m:
-        raise TutorError("材料生成没有返回 JSON。")
-    try:
-        raw = json.loads(m.group(0))
-    except json.JSONDecodeError as exc:
-        raise TutorError("材料生成的 JSON 不合法。") from exc
-    return validate_material(raw)
+    # 只在模型输出不合格时重试；缺密钥、接口报错（TutorError）直接抛出，重试也没用
+    reasons = []
+    for _attempt in range(GENERATE_ATTEMPTS):
+        text = response_text(anthropic_request(payload, api_key, llm_endpoint()))
+        try:
+            return _parse_material(text)
+        except ValueError as exc:
+            reasons.append(str(exc))
+    raise TutorError(f"模型连续 {GENERATE_ATTEMPTS} 次没有生成合格的材料：{'；'.join(reasons)}。请重试或换个话题。")
