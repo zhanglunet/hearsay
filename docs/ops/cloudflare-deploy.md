@@ -13,9 +13,13 @@
                                   ▼
                      容器（仓库根目录 Dockerfile，python start_all.py）
                        统一首页 8764 兼网关 ─► /listen/ /shadow/ /retell/ /converse/ /plan/
-                                  │ 每次保存学习者数据
+                                  │ 每次保存学习者数据：S3 协议请求发往
+                                  │ http://learner-store.hearsay.internal/…（公网不存在）
                                   ▼
-                       R2 存储桶（S3 兼容 API，learner/m3-learner.json）
+                       Worker 的出站拦截（outboundByHost）
+                                  │ R2 绑定 env.LEARNER_BUCKET，只认一个对象键
+                                  ▼
+                       R2 存储桶 hearsay-learner（learner/m3-learner.json）
 ```
 
 三件事要知道：
@@ -25,6 +29,8 @@
   - 新容器启动、本地没有数据文件时，先从 R2 拉取。
   - 每次保存后，把同一份字节同步上传。
   - 删除学习者数据时，R2 上的对象一起删掉。
+
+  容器不持有任何 R2 密钥。它的读写请求发往一个公网不存在的内部主机名，被 Worker 拦截后经 R2 绑定读写；拦截处理只认 `/<桶>/<键>` 这一个对象，其他路径返回 403。所以不需要建 R2 API 令牌。
 - **只跑一个实例。** `max_instances` 设为 1，因为只有一个学习者、一个数据文件，两个实例并发写同一个 R2 对象会互相覆盖。
 
 镜像只含标准库代码，不含 whisperX、piper、faster-whisper 的模型：
@@ -40,66 +46,52 @@
 
 ## 第一次部署
 
-### 1. 建 R2 存储桶和 API 令牌
+下面用本机命令行部署，需要先 `npx wrangler login` 登录。也可以改用 Workers Builds 从 GitHub 自动部署，见本节末尾。
 
-1. Dashboard → **R2 对象存储** → 创建存储桶，例如 `hearsay-learner`。不要开启公开访问。
-2. R2 → **管理 R2 API 令牌** → 创建令牌：
-   - 权限选「对象读和写」
-   - 范围只限上一步的存储桶
-3. 记下这几项，下一步要用：
-   - Access Key ID
-   - Secret Access Key
-   - 账户 ID，在 R2 概览页右侧
-
-### 2. 连接 GitHub（Workers Builds）
-
-Dashboard → **Workers 和 Pages** → 创建 → 导入存储库 → 选 `zhanglunet/hearsay`。
-
-| 设置 | 值 |
-|---|---|
-| 项目名称 | `hearsay`，必须和 `wrangler.jsonc` 的 `name` 一致 |
-| 生产分支 | `main` |
-| 构建命令 | `npm ci` |
-| 部署命令 | `npx wrangler deploy` |
-| 根目录 | 仓库根目录，留空 |
-
-非生产分支默认只上传版本，不更新镜像。只有生产分支跑 `wrangler deploy` 才会更新容器。
-
-### 3. 设置密钥
-
-Worker → 设置 → **变量和机密**，下面每一项都选「密钥」类型添加：
-
-| 名字 | 值 |
-|---|---|
-| `HEARSAY_R2_ACCOUNT_ID` | 第 1 步的账户 ID |
-| `HEARSAY_R2_BUCKET` | 存储桶名，例如 `hearsay-learner` |
-| `HEARSAY_R2_ACCESS_KEY_ID` | 第 1 步的 Access Key ID |
-| `HEARSAY_R2_SECRET_ACCESS_KEY` | 第 1 步的 Secret Access Key |
-| `HEARSAY_LLM_API_KEY` | LLM 的 API key，不用真实 LLM 可以不设 |
-| `HEARSAY_LLM_BASE_URL` | Anthropic 兼容的完整 Messages 端点，例如 `https://api.kimi.com/coding/v1/messages`；用官方 API 可以不设 |
-
-也可以在本机命令行设置，效果相同：
+### 1. 建 R2 存储桶
 
 ```bash
-npx wrangler secret put HEARSAY_R2_SECRET_ACCESS_KEY
+npx wrangler r2 bucket create hearsay-learner
 ```
 
-要启用真实 LLM，还要改 `wrangler.jsonc` 里 `vars` 的 `HEARSAY_LLM`，从 `mock` 改成 `anthropic`，然后提交。每次部署都会用 `vars` 覆盖 Dashboard 上同名的明文变量，所以 `vars` 里的值要在文件里改。
+桶名要和 `wrangler.jsonc` 里的 `HEARSAY_R2_BUCKET` 与 `r2_buckets[].bucket_name` 一致。不要开启公开访问。
+
+### 2. 部署，先不开公网地址
+
+`wrangler.jsonc` 里 `workers_dev` 是 `false`，所以第一次部署后 Worker 没有可访问的地址。
+
+```bash
+npm ci
+npx wrangler deploy
+```
+
+需要本机 Docker 在运行，wrangler 会在本机构建镜像再推送。
+
+### 3. 设置 LLM 密钥（可选）
+
+不用真实 LLM 可以跳过，对话等切片会用离线的 mock。
+
+```bash
+npx wrangler secret put HEARSAY_LLM_API_KEY
+npx wrangler secret put HEARSAY_LLM_BASE_URL
+```
+
+`HEARSAY_LLM_BASE_URL` 要填 Anthropic 兼容的完整 Messages 端点，例如 `https://api.kimi.com/coding/v1/messages`；用官方 API 可以不设。
+
+要启用真实 LLM，还要把 `wrangler.jsonc` 里 `vars` 的 `HEARSAY_LLM` 从 `mock` 改成 `anthropic`，再部署。每次部署都会用 `vars` 覆盖 Dashboard 上同名的明文变量，所以 `vars` 里的值要在文件里改。
 
 容器只在启动时读环境变量。改了密钥以后，要等容器下次启动才生效：重新部署，或者等它空闲休眠后再访问。
 
-### 4. 先配 Access，再公开
+### 4. 先配 Access，再打开公网地址
 
-Dashboard → **Zero Trust** → Access → 应用程序 → 添加「自托管」应用：
+1. Dashboard → **Zero Trust** → Access → 应用程序 → 添加「自托管」应用：
+   - 域名填 `hearsay.<你的子域>.workers.dev`，或者你绑定的自定义域名。
+   - 策略：只允许你自己的邮箱。
+2. 把 `wrangler.jsonc` 里的 `workers_dev` 改成 `true`，再部署一次。
 
-- 域名填 Worker 的地址，例如 `hearsay.<你的子域>.workers.dev`，或者你绑定的自定义域名。
-- 策略：只允许你自己的邮箱。
+顺序不能反。练习界面和 API 没有自己的登录，一旦公开，任何人都能读写你的学习者数据，也能消耗你的 LLM 额度。
 
-在这一步完成之前，不要把地址发给任何人。练习界面和 API 没有自己的登录，一旦公开，任何人都能读写你的学习者数据，也能消耗你的 LLM 额度。
-
-### 5. 部署并验证
-
-推送到 `main` 会触发 Workers Builds。首次部署后，按顺序检查：
+### 5. 验证
 
 1. 打开首页，确认 Access 先要求登录。
 2. 把五个练习各点一遍：
@@ -107,9 +99,26 @@ Dashboard → **Zero Trust** → Access → 应用程序 → 添加「自托管�
    ```text
    /listen/  /shadow/  /retell/  /converse/  /plan/
    ```
-3. 在复述或对话里完成一次练习，让学习者数据写入。然后在 R2 存储桶里确认 `learner/m3-learner.json` 出现了。
-4. 等 10 分钟以上，让容器休眠，再打开 `/plan/`，确认刚才的复习卡还在。
-5. 如果数据没有保存下来，到 Worker → 日志里搜 `[hearsay r2]`，看上传或拉取失败的原因。
+3. 在复述或对话里完成一次练习，让学习者数据写入，然后确认对象出现了：
+
+   ```bash
+   npx wrangler r2 object get hearsay-learner/learner/m3-learner.json --remote --pipe
+   ```
+4. 等 10 分钟以上，让容器休眠，再打开 `/plan/`，确认刚才的记录还在。
+5. 如果数据没有保存下来，用 `npx wrangler tail hearsay` 看实时日志，搜 `[hearsay r2]`。
+
+### 改用 Workers Builds（可选）
+
+Dashboard → **Workers 和 Pages** → `hearsay` → 设置 → 构建 → 连接 `zhanglunet/hearsay`：
+
+| 设置 | 值 |
+|---|---|
+| 生产分支 | `main` |
+| 构建命令 | `npm ci` |
+| 部署命令 | `npx wrangler deploy` |
+| 根目录 | 留空 |
+
+之后推送到 `main` 就会自动部署。非生产分支默认只上传版本，不更新镜像。
 
 ## 环境变量参考
 
@@ -125,25 +134,25 @@ Dashboard → **Zero Trust** → Access → 应用程序 → 添加「自托管�
 | `HEARSAY_ANTHROPIC_API_KEY` | 旧变量名，仍兼容；Worker 不传它，新部署用上一行 | 无 | 本地开发 |
 | `ANTHROPIC_BASE_URL` | 只对 `realtime.py` 有效（由 Anthropic SDK 读取），容器里用不到 | 无 | 本地开发 |
 | `HEARSAY_LLM_BASE_URL` | Anthropic 兼容的完整 Messages 端点，不是只到域名 | `https://api.anthropic.com/v1/messages` | 密钥 |
-| `HEARSAY_R2_ACCOUNT_ID` | Cloudflare 账户 ID | 无 | 密钥 |
-| `HEARSAY_R2_BUCKET` | R2 存储桶名 | 无 | 密钥 |
-| `HEARSAY_R2_ACCESS_KEY_ID` | R2 API 令牌 | 无 | 密钥 |
-| `HEARSAY_R2_SECRET_ACCESS_KEY` | R2 API 令牌 | 无 | 密钥 |
+| `HEARSAY_R2_BUCKET` | R2 存储桶名 | `hearsay-learner` | `wrangler.jsonc` vars |
 | `HEARSAY_R2_KEY` | R2 对象键 | `learner/m3-learner.json` | `wrangler.jsonc` vars |
-| `HEARSAY_R2_ENDPOINT` | 覆盖 R2 端点，只用于测试或其他 S3 兼容服务 | 由账户 ID 拼出 | 本地开发 |
+| `HEARSAY_R2_ENDPOINT` | 容器内的存储端点 | Worker 固定传 `http://learner-store.hearsay.internal` | Worker 自动设置 |
+| `HEARSAY_R2_ACCOUNT_ID`、`HEARSAY_R2_ACCESS_KEY_ID`、`HEARSAY_R2_SECRET_ACCESS_KEY` | 在 Cloudflare 上只是占位，签名由 Worker 忽略；在别的 S3 兼容服务上才是真凭据 | Worker 传占位值 | Worker 自动设置 |
 | `HEARSAY_M3_STORE` | 容器内学习者数据文件路径 | `prototype/runtime/m3-learner.json` | 一般不改 |
 | `HEARSAY_M2_BATCH` | 批处理开关 | 关闭 | 镜像里没有 whisperX，不要开 |
 
-四个 `HEARSAY_R2_ACCOUNT_ID`、`BUCKET`、`ACCESS_KEY_ID`、`SECRET_ACCESS_KEY` 要全部设置才会启用 R2；少一个就退回纯本地存储，容器休眠后数据会丢。
+在 Cloudflare 上，R2 相关变量全部由 Worker 自动传入，不用手动设置。在别处运行容器时，四个 `HEARSAY_R2_ACCOUNT_ID`、`BUCKET`、`ACCESS_KEY_ID`、`SECRET_ACCESS_KEY` 要全部设置才会启用镜像；少一个就退回纯本地存储。
 
 ## 安全提醒
 
-- 先配 Access 再上线，原因见第 4 步。
-- 密钥只走 Worker 密钥和容器环境变量，不进镜像，不进仓库，也不写日志。
-- R2 令牌只给一个存储桶的对象读写权限，存储桶不要开公开访问。
+- 先配 Access 再打开公网地址，原因见第 4 步。
+- LLM 密钥只走 Worker 密钥和容器环境变量，不进镜像，不进仓库，也不写日志。
+- 容器不持有 R2 密钥，只能经 Worker 读写一个对象键。存储桶不要开公开访问。
 - 学习者录音默认不经过服务端。M2 批处理开启时，录音才写进系统临时目录，处理结束后删除。
 
 ## 本地验证
+
+`npx wrangler dev` 会在本机 Docker 里跑容器，但在 OrbStack 上从 Worker 到容器的入站请求会卡住（2026-10-27 实测，与本项目代码无关）；容器到 Worker 的出站拦截和本地 R2 能正常验证。
 
 不连 Cloudflare，只校验配置和打包：
 

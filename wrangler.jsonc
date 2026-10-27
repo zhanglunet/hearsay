@@ -9,15 +9,23 @@
   "compatibility_date": "2026-10-01",
   "observability": { "enabled": true },
 
-  // 非敏感默认值。敏感或因人而异的值用 `npx wrangler secret put <名字>` 设置，不要写在这里：
+  // 非敏感默认值。LLM 密钥用 `npx wrangler secret put <名字>` 设置，不要写在这里：
   //   HEARSAY_LLM_API_KEY  HEARSAY_LLM_BASE_URL
-  //   HEARSAY_R2_ACCOUNT_ID  HEARSAY_R2_BUCKET  HEARSAY_R2_ACCESS_KEY_ID  HEARSAY_R2_SECRET_ACCESS_KEY
-  // 注意：每次部署都会用这里的 vars 覆盖 Dashboard 上同名的明文变量；要改默认值请改这个文件。
+  // 每次部署都会用这里的 vars 覆盖 Dashboard 上同名的明文变量；要改默认值请改这个文件。
   "vars": {
     "HEARSAY_LLM": "mock",
     "HEARSAY_LLM_MODEL": "claude-haiku-4-5-20251001",
+    "HEARSAY_R2_BUCKET": "hearsay-learner",
     "HEARSAY_R2_KEY": "learner/m3-learner.json"
   },
+
+  // 学习者数据。容器不持有 R2 密钥：它的读写请求被 Worker 拦截，经这个绑定落到 R2
+  // （见 worker/index.ts 的 outboundByHost）。bucket_name 要和上面的 HEARSAY_R2_BUCKET 一致。
+  "r2_buckets": [{ "binding": "LEARNER_BUCKET", "bucket_name": "hearsay-learner" }],
+
+  // 先不开 workers.dev 公网地址：配好 Cloudflare Access 之前，练习界面不能裸露在公网。
+  // Access 配好后改成 true 再部署。
+  "workers_dev": false,
 
   "containers": [
     {
