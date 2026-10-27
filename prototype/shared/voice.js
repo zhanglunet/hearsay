@@ -12,6 +12,7 @@
 (function () {
   let statusPromise = null;
   let currentAudio = null;
+  let finishCurrent = null; // 结束当前 speak() 的 Promise；被 stop() 打断时也要结束，否则调用方会一直等
 
   // 用根路径：线上 /voice/* 由 Worker 接住；本地网关和单独运行的切片都没有它，探测会失败
   function cloudStatus() {
@@ -39,12 +40,17 @@
   function browserSpeak(text) {
     if (!("speechSynthesis" in window)) return Promise.resolve();
     return new Promise((resolve) => {
+      const done = () => {
+        if (finishCurrent === done) finishCurrent = null;
+        resolve();
+      };
+      finishCurrent = done;
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "en-US";
       const voice = pickBrowserVoice();
       if (voice) utterance.voice = voice;
-      utterance.onend = resolve;
-      utterance.onerror = resolve;
+      utterance.onend = done;
+      utterance.onerror = done;
       window.speechSynthesis.cancel();
       window.speechSynthesis.speak(utterance);
     });
@@ -54,6 +60,11 @@
     if (currentAudio) {
       currentAudio.pause();
       currentAudio = null;
+    }
+    if (finishCurrent) {
+      const finish = finishCurrent;
+      finishCurrent = null;
+      finish();
     }
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   }
@@ -73,11 +84,17 @@
         const url = URL.createObjectURL(await r.blob());
         const audio = new Audio(url);
         currentAudio = audio;
+        let mine = null;
         await new Promise((resolve) => {
+          mine = resolve;
+          finishCurrent = resolve;
           audio.onended = resolve;
           audio.onerror = resolve;
           audio.play().catch(resolve);
         });
+        // 只清自己的：被打断后若已开始下一句，finishCurrent 指向的是下一句
+        if (currentAudio === audio) currentAudio = null;
+        if (finishCurrent === mine) finishCurrent = null;
         URL.revokeObjectURL(url);
         return;
       } catch (_err) {

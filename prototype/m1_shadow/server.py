@@ -35,6 +35,8 @@ STATIC = {
     "/": (WEB_DIR / "index.html", "text/html; charset=utf-8"),
     "/index.html": (WEB_DIR / "index.html", "text/html; charset=utf-8"),
     "/app.js": (WEB_DIR / "app.js", "text/javascript; charset=utf-8"),
+    # 与听力、复述、对话共用的语音模块（线上走 Workers AI，本地退回浏览器接口）
+    "/voice.js": (WEB_DIR.parent / "shared" / "voice.js", "text/javascript; charset=utf-8"),
     "/style.css": (WEB_DIR / "style.css", "text/css; charset=utf-8"),
     "/media/reference.wav": (AUDIO_PATH, "audio/wav"),
 }

@@ -12,6 +12,10 @@ const state = {
   recognition: null,
   recording: false,
   hypothesisDraft: "",
+  // demo：演示材料（espeak 合成）；import：学习者导入的真人音频
+  source: "demo",
+  // 云端语音（Workers AI）是否可用；本地开发没有 Worker 时都是 false
+  cloud: { tts: false, asr: false },
 };
 
 let playToken = 0;
@@ -34,6 +38,7 @@ function stopPlayback() {
   playToken += 1;
   state.audio.pause();
   stopExtra();
+  if (window.HearsayVoice) HearsayVoice.stop();
 }
 
 function fmt(ms) {
@@ -52,6 +57,8 @@ function setMaterial(payload, audioUrl, owned) {
   for (const take of state.takes.values()) URL.revokeObjectURL(take.url);
   state.takes.clear();
   state.ownedUrl = owned ? audioUrl : null;
+  // 导入的是真人原声，跟读要模仿它本身，不用合成音替换；只有演示材料改用云端人声
+  state.source = owned ? "import" : "demo";
   state.audio.src = audioUrl;
   state.audio.load();
   state.title = payload.title || "导入的材料";
@@ -73,7 +80,9 @@ async function loadDemo() {
     return;
   }
   setMaterial(payload, payload.audio_url, false);
-  setStatus("已载入演示材料。参考音是 espeak-ng 合成的，不是学习者录音。");
+  setStatus(state.cloud.tts
+    ? "已载入演示材料。原句用云端人声朗读（Deepgram aura-2-en），不是学习者录音。"
+    : "已载入演示材料。参考音是 espeak-ng 合成的，不是学习者录音。");
 }
 
 async function fileDurationMs(file) {
@@ -231,6 +240,7 @@ function renderTransport() {
   $("play-take").disabled = !hasAudio || state.recording;
   $("score").disabled = state.recording;
   $("transcribe").disabled = !hasAudio || state.recording;
+  $("transcribe").textContent = state.cloud.asr ? "重新识别（云端）" : "尝试本机 ASR";
   if (!state.recording) {
     $("hypothesis").value = take && take.hypothesis ? take.hypothesis : $("hypothesis").value;
   }
@@ -320,6 +330,17 @@ function playRange(startMs, endMs) {
       audio.addEventListener("error", () => finish(false), { once: true });
     }
   });
+}
+
+// 播放当前句的原句：演示材料在云端朗读可用时用自然人声，导入的真人音频播放原片段
+async function playSentenceRef(sentence) {
+  if (state.cloud.tts && state.source === "demo") {
+    stopPlayback();
+    const token = playToken;
+    await HearsayVoice.speak(sentence.text);
+    return token === playToken;
+  }
+  return playRange(sentence.start_ms, sentence.end_ms);
 }
 
 function playUrl(url) {
@@ -424,12 +445,22 @@ async function toggleRecord() {
     state.recorder = null;
     $("hypothesis").value = hypothesis;
     render();
+    if (state.cloud.asr) {
+      transcribeCurrent();
+      return;
+    }
     setStatus(hypothesis ? "录音留在本页。正在计算词级相似度。" : "录音留在本页。还没有转写，可以粘贴后再计算。");
     if (hypothesis) scoreCurrent();
   };
   state.recorder = recorder;
   state.recording = true;
-  startRecognition();
+  if (state.cloud.asr) {
+    // 云端识别：停止后整段上传，录音时不再开浏览器识别（它会把语法错误自动改对）
+    state.hypothesisDraft = "";
+    $("hypothesis").value = "";
+  } else {
+    startRecognition();
+  }
   recorder.start();
   render();
   setStatus("正在录音。再说一次当前句，说完点停止。");
@@ -478,7 +509,26 @@ async function transcribeCurrent() {
   const sentence = currentSentence();
   const take = sentence && state.takes.get(sentence.idx);
   if (!take || !take.blob) {
-    setStatus("先录一段，才能送给本机 ASR。");
+    setStatus("先录一段，才能识别。");
+    return;
+  }
+  if (state.cloud.asr) {
+    setStatus("识别中…");
+    $("transcribe").disabled = true;
+    try {
+      const result = await HearsayVoice.transcribe(take.blob);
+      take.hypothesis = result.text || "";
+      $("hypothesis").value = take.hypothesis;
+      if (take.hypothesis) {
+        await scoreCurrent();
+        setStatus("已识别（云端 Whisper，原样转写）并计算了词级相似度。");
+      } else {
+        setStatus("没有识别到内容，可以重录或粘贴转写。");
+      }
+    } catch (err) {
+      setStatus(`${err.message}。可以重录或粘贴转写。`);
+    }
+    render();
     return;
   }
   setStatus("正在请求本机转写…");
@@ -500,7 +550,7 @@ async function playReference() {
   const sentence = currentSentence();
   if (!sentence) return;
   setStatus("正在播放原句。");
-  const ok = await playRange(sentence.start_ms, sentence.end_ms);
+  const ok = await playSentenceRef(sentence);
   if (ok) setStatus("原句播完了。");
 }
 
@@ -517,7 +567,7 @@ async function playBoth() {
   const take = sentence && state.takes.get(sentence.idx);
   if (!sentence || !take || !take.url) return;
   setStatus("先听原句，再听你的录音。");
-  const ok = await playRange(sentence.start_ms, sentence.end_ms);
+  const ok = await playSentenceRef(sentence);
   if (!ok) return;
   await playUrl(take.url);
   setStatus("对照播完了。");
@@ -544,4 +594,15 @@ const initialRule = "实验 D 未通过，本页不写音素级错误。完整�
 $("product-rule").textContent = initialRule;
 state.productRule = initialRule;
 render();
-loadDemo().catch(() => setStatus("演示材料加载失败。确认是用 python -m m1_shadow 打开的。"));
+
+// 先探测云端语音，再加载演示材料（加载提示与原句播放方式取决于它）
+(window.HearsayVoice ? HearsayVoice.cloudStatus() : Promise.resolve({ tts: false, asr: false }))
+  .then((cloud) => {
+    state.cloud = cloud;
+    if (cloud.asr) {
+      $("asr-hint").textContent = "识别走云端 Whisper（Workers AI）：录完自动上传，原样转写，保留语法错误；演示材料的原句用云端人声朗读，导入的音频仍播放原声。";
+    }
+    render();
+  })
+  .then(() => loadDemo())
+  .catch(() => setStatus("演示材料加载失败。确认是用 python -m m1_shadow 打开的。"));
