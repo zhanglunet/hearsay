@@ -26,10 +26,8 @@ function addMessage(speaker, text) {
   div.appendChild(document.createTextNode(text));
   $("chat").appendChild(div);
   div.scrollIntoView({ block: "nearest" });
-  if (speaker === "agent" && $("speak-agent").checked && "speechSynthesis" in window) {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "en-US";
-    window.speechSynthesis.speak(utterance);
+  if (speaker === "agent" && $("speak-agent").checked) {
+    HearsayVoice.speak(text);
   }
 }
 
@@ -164,7 +162,48 @@ function renderBatch(batch) {
   }
 }
 
-function setupMic() {
+// 云端识别（Workers AI Whisper，原样转写）：录音 → 停止后上传识别，录音同时留给批处理
+function setupCloudMic() {
+  const recorder = HearsayVoice.createRecorder();
+  if (!recorder.supported) return false;
+  async function start() {
+    state.audioBlob = null;
+    HearsayVoice.stop();
+    try {
+      await recorder.start();
+    } catch (err) {
+      setStatus("麦克风不可用：" + err.message);
+      return;
+    }
+    state.recognizing = true;
+    $("mic").textContent = "正在听…再点停止";
+    setStatus("说完再点一次。");
+  }
+  async function stop() {
+    state.recognizing = false;
+    $("mic").textContent = "🎤 说话";
+    $("mic").disabled = true;
+    setStatus("识别中…");
+    try {
+      state.audioBlob = await recorder.stop();
+      const result = await HearsayVoice.transcribe(state.audioBlob);
+      $("input").value = result.text;
+      setStatus(result.text ? "识别完成（原样转写，保留了你的原话），可修改后发送。" : "没有识别到内容，可重说或打字。");
+    } catch (err) {
+      setStatus(`${err.message}。可重说或打字。`);
+    }
+    $("mic").disabled = false;
+    $("input").focus();
+  }
+  $("mic").addEventListener("click", () => {
+    if (state.recognizing) stop();
+    else start();
+  });
+  return true;
+}
+
+// 本地开发兜底：浏览器识别（会归一化文本），同时录音留给批处理
+function setupBrowserMic() {
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const canRecord = Boolean(navigator.mediaDevices && navigator.mediaDevices.getUserMedia &&
                             window.MediaRecorder);
@@ -228,7 +267,9 @@ $("end").addEventListener("click", endSession);
 $("input").addEventListener("keydown", (event) => {
   if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); sendTurn(); }
 });
-setupMic();
+HearsayVoice.cloudStatus().then((voice) => {
+  if (!(voice.asr && setupCloudMic())) setupBrowserMic();
+});
 
 function renderScenario(scenario) {
   $("scenario-title").textContent = scenario.title;

@@ -50,11 +50,61 @@ $("evaluate").addEventListener("click", async () => {
   } catch (err) { setStatus(err.message); }
 });
 
-const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-if (!Recognition) {
-  $("mic").textContent = "无语音识别，请打字";
-  $("mic").disabled = true;
-} else {
+function startTimer() {
+  startedAt = Date.now();
+  durationSec = null;
+  $("timer").textContent = "正在录音…再点停止";
+  $("mic").textContent = "停止";
+}
+
+function stopTimer() {
+  durationSec = (Date.now() - startedAt) / 1000;
+  $("timer").textContent = `复述时长 ${durationSec.toFixed(1)} 秒（含停顿）`;
+  startedAt = null;
+  $("mic").textContent = "🎤 开始复述";
+}
+
+// 云端识别（Workers AI Whisper，原样转写、保留语法错误）：录音 → 停止后上传
+function setupCloudMic() {
+  const recorder = HearsayVoice.createRecorder();
+  if (!recorder.supported) return false;
+  $("mic").addEventListener("click", async () => {
+    if (startedAt) {
+      stopTimer();
+      $("mic").disabled = true;
+      setStatus("识别中…");
+      try {
+        const blob = await recorder.stop();
+        const result = await HearsayVoice.transcribe(blob);
+        $("retell").value = result.text;
+        setStatus(result.text ? "识别完成，可修改后点「评估复述」。" : "没有识别到内容，可重录或打字。");
+      } catch (err) {
+        setStatus(`${err.message}。可重录或打字。`);
+      }
+      $("mic").disabled = false;
+    } else {
+      try {
+        await recorder.start();
+      } catch (err) {
+        setStatus("麦克风不可用：" + err.message);
+        return;
+      }
+      $("retell").value = "";
+      startTimer();
+      setStatus("正在录音，说完再点「停止」。");
+    }
+  });
+  return true;
+}
+
+// 本地开发兜底：浏览器识别（会把语法错误自动改对，不是原样转写）
+function setupBrowserMic() {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Recognition) {
+    $("mic").textContent = "无语音识别，请打字";
+    $("mic").disabled = true;
+    return;
+  }
   const recognition = new Recognition();
   recognition.lang = "en-US";
   recognition.continuous = true;
@@ -70,18 +120,16 @@ if (!Recognition) {
   $("mic").addEventListener("click", () => {
     if (startedAt) {
       recognition.stop();
-      durationSec = (Date.now() - startedAt) / 1000;
-      $("timer").textContent = `复述时长 ${durationSec.toFixed(1)} 秒（含停顿）`;
-      startedAt = null;
-      $("mic").textContent = "🎤 开始复述";
+      stopTimer();
     } else {
       finalText = "";
       $("retell").value = "";
-      startedAt = Date.now();
-      durationSec = null;
-      $("timer").textContent = "正在录音…再点停止";
-      $("mic").textContent = "停止";
+      startTimer();
       recognition.start();
     }
   });
 }
+
+HearsayVoice.cloudStatus().then((voice) => {
+  if (!(voice.asr && setupCloudMic())) setupBrowserMic();
+});

@@ -28,6 +28,10 @@
   // （见 worker/index.ts 的 outboundByHost）。bucket_name 要和上面的 HEARSAY_R2_BUCKET 一致。
   "r2_buckets": [{ "binding": "LEARNER_BUCKET", "bucket_name": "hearsay-learner" }],
 
+  // Workers AI：/voice/tts（@cf/deepgram/aura-2-en）与 /voice/asr（@cf/openai/whisper-large-v3-turbo），
+  // 见 worker/voice.ts。按用量计费：朗读 $0.03 / 千字符，识别 $0.000513 / 音频分钟。
+  "ai": { "binding": "AI" },
+
   // workers.dev 公网地址：hearsay.zhanglu-net.workers.dev。
   // 2026-10-27 已在 Zero Trust 配好 Access 应用「hearsay 听说练习」，绑定这个 Worker 的
   // 生产和预览 URL，只放行账号所有者邮箱。删掉那个 Access 应用前，先把这里改回 false。
