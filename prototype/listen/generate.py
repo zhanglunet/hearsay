@@ -117,7 +117,7 @@ def generate_material(level, topic):
     if not api_key:
         raise TutorError("材料生成需要 HEARSAY_LLM_API_KEY（或 HEARSAY_ANTHROPIC_API_KEY）。")
     payload = dict(model=os.environ.get("HEARSAY_LLM_MODEL") or DEFAULT_MODEL,
-                   max_tokens=2000,
+                   max_tokens=4096,
                    system="你是材料编写器，只输出 JSON。",
                    messages=[dict(role="user", content=GENERATE_PROMPT.format(level=level, topic=topic))])
     data = anthropic_request(payload, api_key, llm_endpoint())

@@ -28,9 +28,10 @@ interface Env {
   HEARSAY_LLM_MODEL: string;
   HEARSAY_R2_BUCKET: string;
   HEARSAY_R2_KEY: string;
+  HEARSAY_LLM_BASE_URL?: string;
+  HEARSAY_LLM_THINKING?: string;
   // wrangler secret put（不写进仓库）
   HEARSAY_LLM_API_KEY?: string;
-  HEARSAY_LLM_BASE_URL?: string;
 }
 
 // 原样传进容器的变量；未设置的不传（容器内按默认值处理）
@@ -39,6 +40,7 @@ const PASS_THROUGH = [
   "HEARSAY_LLM_MODEL",
   "HEARSAY_LLM_API_KEY",
   "HEARSAY_LLM_BASE_URL",
+  "HEARSAY_LLM_THINKING",
 ] as const;
 
 /** 处理容器发往 LEARNER_STORE_HOST 的 S3 风格请求。只认 /<bucket>/<key> 这一个对象。 */

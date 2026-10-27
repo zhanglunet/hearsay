@@ -17,18 +17,25 @@ python -m m2_dialogue
 浏览器打开 <http://127.0.0.1:8766/>（端口用 `HEARSAY_M2_PORT` 改）。
 默认 tutor 后端是 **mock**：离线脚本，不需要 key 和网络，用来验证完整流程。
 
-用 Claude 当导师（也兼容 Kimi 的 Anthropic 协议端点）：
+用真实 LLM 当导师（任何 Anthropic Messages 兼容端点）：
 
 ```bash
-HEARSAY_LLM=anthropic HEARSAY_ANTHROPIC_API_KEY=... python -m m2_dialogue
-# 模型默认 claude-haiku-4-5-20251001，用 HEARSAY_LLM_MODEL 覆盖
+# Claude 官方 API；模型默认 claude-haiku-5-5，用 HEARSAY_LLM_MODEL 覆盖
+HEARSAY_LLM=anthropic HEARSAY_LLM_API_KEY=... python -m m2_dialogue
 
-# 或用 Kimi（https://www.kimi.com/code/docs/en/ 的 Anthropic 兼容地址）：
+# DeepSeek（线上部署用的就是这一套，见 wrangler.jsonc）
 HEARSAY_LLM=anthropic \
-HEARSAY_LLM_BASE_URL=https://api.kimi.com/coding/v1/messages \
-HEARSAY_LLM_API_KEY=... HEARSAY_LLM_MODEL=kimi-for-coding \
+HEARSAY_LLM_BASE_URL=https://api.deepseek.com/anthropic/v1/messages \
+HEARSAY_LLM_API_KEY=... HEARSAY_LLM_MODEL=deepseek-flash \
+HEARSAY_LLM_THINKING=disabled \
 python -m m2_dialogue
 ```
+
+`HEARSAY_LLM_THINKING=disabled` 会在请求里带 `thinking: {type: "disabled"}`，让实时对话回得更快；
+不设就不发这个字段（Claude Opus 5.5 等模型不允许关闭 thinking，发了会 400）。
+
+注意：编程套餐（GLM Coding Plan、Kimi Code 会员）的密钥按各自条款只用于编程工具，
+不要接到这个应用里；在自己的产品里调用，请用各家开放平台的按量 API。
 
 密钥只从环境变量读，不写日志、不进响应。切到 Claude 不需要改前端。
 `HEARSAY_LLM_API_KEY` 优先于 `HEARSAY_ANTHROPIC_API_KEY`；端点、密钥、模型
@@ -61,10 +68,10 @@ HEARSAY_LLM_API_KEY=... python -m m2_dialogue.realtime --host 127.0.0.1 --port 7
 
 pipecat 流水线：transport → Silero VAD → faster-whisper STT → Claude → Piper TTS。
 STT 模型用 `HEARSAY_M2_STT_MODEL` 改（默认 base），LLM 模型用 `HEARSAY_LLM_MODEL`。
-Kimi 接入：`ANTHROPIC_BASE_URL=https://api.kimi.com/coding/` + `HEARSAY_LLM_API_KEY`
-（Anthropic 协议；令牌过期时用 `docs` 里的刷新接口更新）。注意 `ANTHROPIC_BASE_URL` 只对
-`realtime.py` 有效，由 Anthropic SDK 读取，填到 `/coding/` 为止；其他切片读的是
-`HEARSAY_LLM_BASE_URL`，要填完整的 Messages 端点，如 `https://api.kimi.com/coding/v1/messages`。
+接其他 Anthropic 兼容端点：`ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic` + `HEARSAY_LLM_API_KEY`。
+注意 `ANTHROPIC_BASE_URL` 只对 `realtime.py` 有效，由 Anthropic SDK 读取，填到 `/anthropic` 为止；
+其他切片读的是 `HEARSAY_LLM_BASE_URL`，要填完整的 Messages 端点，如
+`https://api.deepseek.com/anthropic/v1/messages`。
 断开时把实时转写与规则 recast 写到 `prototype/runtime/m2-realtime-*.json`（已忽略，勿提交）。
 
 **实测记录（2026-10-26）**：aiortc 客户端向 `/api/offer` 注入演示音频，
