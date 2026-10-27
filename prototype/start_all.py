@@ -5,10 +5,15 @@
 对外只有一个端口：统一首页（HEARSAY_HOME_PORT，默认 8764，监听 HEARSAY_HOST）。
 各切片挂在路径前缀下：/listen/、/shadow/、/retell/、/converse/、/plan/。
 切片本身只监听 127.0.0.1 的临时端口，由首页反向代理，不对外暴露。
-各服务独立线程，Ctrl-C 全部停止。LLM 与存储配置仍走各服务原有的环境变量。
+各服务独立线程，Ctrl-C 或 SIGTERM 全部停止。LLM 与存储配置仍走各服务原有的环境变量。
+
+为什么要处理 SIGTERM：容器里本进程是 1 号进程。Linux 不对 1 号进程执行信号的默认动作，
+没有注册处理函数时 SIGTERM 会被直接忽略。Cloudflare Containers 空闲 sleepAfter 后
+就是发 SIGTERM 让容器休眠，忽略它会让容器一直运行、一直计费（2026-10-27 线上实测）。
 """
 
 import os
+import signal
 import threading
 
 from home.server import make_server as make_home
@@ -24,6 +29,11 @@ SLICES = [("listen", make_listen), ("shadow", make_shadow), ("retell", make_rete
 INTERNAL_HOST = "127.0.0.1"
 
 
+def _stop_on_sigterm(_signum, _frame):
+    # 复用 Ctrl-C 的停止路径：关掉全部服务后正常退出
+    raise KeyboardInterrupt
+
+
 def start(name, server, servers):
     thread = threading.Thread(target=server.serve_forever, daemon=True, name=name)
     thread.start()
@@ -31,6 +41,7 @@ def start(name, server, servers):
 
 
 def main():
+    signal.signal(signal.SIGTERM, _stop_on_sigterm)
     servers = []
     routes = {}
     for kind, factory in SLICES:
@@ -47,7 +58,7 @@ def main():
         for _name, _server, thread in servers:
             thread.join()
     except KeyboardInterrupt:
-        print("\n正在停止…")
+        print("\n正在停止…", flush=True)
         for _name, server, _thread in servers:
             server.shutdown()
         for _name, server, _thread in servers:
