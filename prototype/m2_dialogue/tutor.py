@@ -20,7 +20,8 @@ KEY_ENV = "HEARSAY_ANTHROPIC_API_KEY"
 MODEL_ENV = "HEARSAY_LLM_MODEL"
 BASE_URL_ENV = "HEARSAY_LLM_BASE_URL"
 UNIFIED_KEY_ENV = "HEARSAY_LLM_API_KEY"
-DEFAULT_MODEL = "claude-haiku-4-5-20251001"
+THINKING_ENV = "HEARSAY_LLM_THINKING"
+DEFAULT_MODEL = "claude-haiku-5-5"
 DEFAULT_ENDPOINT = "https://api.anthropic.com/v1/messages"
 
 
@@ -30,8 +31,24 @@ def llm_api_key():
 
 
 def llm_endpoint():
-    """Anthropic Messages 兼容端点。Kimi 用 https://api.kimi.com/coding/v1/messages。"""
+    """Anthropic Messages 兼容端点（完整 URL，含 /v1/messages）。
+    DeepSeek：https://api.deepseek.com/anthropic/v1/messages"""
     return os.environ.get(BASE_URL_ENV, DEFAULT_ENDPOINT)
+
+
+def llm_thinking():
+    """HEARSAY_LLM_THINKING：可选，目前只认 "disabled"。
+
+    设置了就在请求里带 thinking={"type": "disabled"}，让实时对话少一段推理、回得更快
+    （DeepSeek 的 Anthropic 兼容端点支持）。不设置就不发这个字段：Claude Opus 5.5 等
+    模型不允许关闭 thinking，发了会 400。
+    """
+    value = os.environ.get(THINKING_ENV, "").strip()
+    if not value:
+        return None
+    if value != "disabled":
+        raise TutorError(f"{THINKING_ENV} 只支持 disabled 或留空。")
+    return {"type": "disabled"}
 
 
 class TutorError(RuntimeError):
@@ -139,7 +156,7 @@ class AnthropicTutor:
         if messages and messages[0]["role"] == "assistant":
             # Anthropic 要求首条是 user；开场白直接丢弃
             messages = messages[1:]
-        payload = dict(model=self.model, max_tokens=400,
+        payload = dict(model=self.model, max_tokens=1024,
                        system=system_prompt_for(session.scenario), messages=messages)
         data = anthropic_request(payload, self.api_key, self.endpoint)
         text = response_text(data)
@@ -164,6 +181,9 @@ class AnthropicTutor:
 
 def anthropic_request(payload, api_key, endpoint="https://api.anthropic.com/v1/messages"):
     """共享的 Claude Messages 调用。api_key 只进请求头，不写日志、不进异常消息。"""
+    thinking = llm_thinking()
+    if thinking is not None and "thinking" not in payload:
+        payload = dict(payload, thinking=thinking)
     req = urllib.request.Request(
         endpoint,
         data=json.dumps(payload).encode("utf-8"),
@@ -180,10 +200,24 @@ def anthropic_request(payload, api_key, endpoint="https://api.anthropic.com/v1/m
 
 
 def response_text(data):
+    """取出所有 text 块的文字。thinking 块没有 text 字段，自然被跳过。
+
+    stop_reason 为 refusal、或 max_tokens 且没有任何正文时，给出可操作的错误，
+    而不是让页面拿到一句空回复。max_tokens 但已有正文时照常返回（调用方会尝试解析）。
+    """
     try:
-        return " ".join(b.get("text", "") for b in data["content"]).strip()
+        text = " ".join(b.get("text", "") for b in data["content"]
+                        if isinstance(b, dict) and b.get("type", "text") == "text").strip()
     except (KeyError, TypeError) as exc:
-        raise TutorError("Claude 响应结构不符合预期。") from exc
+        raise TutorError("模型响应结构不符合预期。") from exc
+    stop = data.get("stop_reason")
+    if stop == "refusal":
+        raise TutorError("模型拒绝回答这次请求。换一种说法再试。")
+    if not text:
+        if stop == "max_tokens":
+            raise TutorError("模型输出被 max_tokens 截断，没有产生正文。")
+        raise TutorError("模型没有返回文字内容。")
+    return text
 
 
 def make_tutor():

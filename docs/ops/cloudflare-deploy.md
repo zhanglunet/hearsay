@@ -70,18 +70,19 @@ npx wrangler deploy
 
 需要本机 Docker 在运行，wrangler 会在本机构建镜像再推送。
 
-### 3. 设置 LLM 密钥（可选）
+### 3. 设置 LLM 密钥
 
-不用真实 LLM 可以跳过，对话等切片会用离线的 mock。
+当前配置用 DeepSeek 的 Anthropic 兼容端点：`wrangler.jsonc` 的 `vars` 里已写好 `HEARSAY_LLM=anthropic`、模型 `deepseek-flash`、完整端点 `https://api.deepseek.com/anthropic/v1/messages`，以及 `HEARSAY_LLM_THINKING=disabled`。这些都不是机密。只有密钥要单独设置：
 
 ```bash
 npx wrangler secret put HEARSAY_LLM_API_KEY
-npx wrangler secret put HEARSAY_LLM_BASE_URL
 ```
 
-`HEARSAY_LLM_BASE_URL` 要填 Anthropic 兼容的完整 Messages 端点，例如 `https://api.kimi.com/coding/v1/messages`；用官方 API 可以不设。
+**先设密钥，再部署 `HEARSAY_LLM=anthropic` 的版本。** 没有密钥时，对话页会报「没有设置 HEARSAY_LLM_API_KEY」。
 
-要启用真实 LLM，还要把 `wrangler.jsonc` 里 `vars` 的 `HEARSAY_LLM` 从 `mock` 改成 `anthropic`，再部署。每次部署都会用 `vars` 覆盖 Dashboard 上同名的明文变量，所以 `vars` 里的值要在文件里改。
+密钥在 platform.deepseek.com 创建，用按量计费的开放 API。编程套餐（GLM Coding Plan、Kimi Code 会员）的密钥按各自条款只用于编程工具，不要用在这里。
+
+不想接真实 LLM 时，把 `vars` 里的 `HEARSAY_LLM` 改回 `mock` 再部署，对话等切片会用离线脚本。每次部署都会用 `vars` 覆盖 Dashboard 上同名的明文变量，所以 `vars` 里的值要在文件里改。
 
 容器只在启动时读环境变量。改了密钥以后，要等容器下次启动才生效：重新部署，或者等它空闲休眠后再访问。
 
@@ -141,12 +142,13 @@ Dashboard → **Workers 和 Pages** → `hearsay` → 设置 → 构建 → 连�
 |---|---|---|---|
 | `HEARSAY_HOST` | 首页（网关）监听地址；切片始终只监听 127.0.0.1 | 镜像里已设 `0.0.0.0`，本地默认 127.0.0.1 | Dockerfile |
 | `HEARSAY_HOME_PORT` | 统一首页端口 | 8764 | Dockerfile |
-| `HEARSAY_LLM` | `mock` 或 `anthropic` | `mock`（离线） | `wrangler.jsonc` vars |
-| `HEARSAY_LLM_MODEL` | 模型名 | `claude-haiku-4-5-20251001` | `wrangler.jsonc` vars |
+| `HEARSAY_LLM` | `mock` 或 `anthropic`（任何 Anthropic Messages 兼容端点） | 线上 `anthropic`，代码默认 `mock` | `wrangler.jsonc` vars |
+| `HEARSAY_LLM_MODEL` | 模型名 | 线上 `deepseek-flash`，代码默认 `claude-haiku-5-5` | `wrangler.jsonc` vars |
+| `HEARSAY_LLM_THINKING` | 留空或 `disabled`；`disabled` 时请求带 `thinking: {type: "disabled"}` | 线上 `disabled`，代码默认留空 | `wrangler.jsonc` vars |
 | `HEARSAY_LLM_API_KEY` | LLM key（优先） | 无 | 密钥 |
 | `HEARSAY_ANTHROPIC_API_KEY` | 旧变量名，仍兼容；Worker 不传它，新部署用上一行 | 无 | 本地开发 |
 | `ANTHROPIC_BASE_URL` | 只对 `realtime.py` 有效（由 Anthropic SDK 读取），容器里用不到 | 无 | 本地开发 |
-| `HEARSAY_LLM_BASE_URL` | Anthropic 兼容的完整 Messages 端点，不是只到域名 | `https://api.anthropic.com/v1/messages` | 密钥 |
+| `HEARSAY_LLM_BASE_URL` | Anthropic 兼容的完整 Messages 端点，不是只到域名 | 线上 `https://api.deepseek.com/anthropic/v1/messages`，代码默认 `https://api.anthropic.com/v1/messages` | `wrangler.jsonc` vars |
 | `HEARSAY_R2_BUCKET` | R2 存储桶名 | `hearsay-learner` | `wrangler.jsonc` vars |
 | `HEARSAY_R2_KEY` | R2 对象键 | `learner/m3-learner.json` | `wrangler.jsonc` vars |
 | `HEARSAY_R2_ENDPOINT` | 容器内的存储端点 | Worker 固定传 `http://learner-store.hearsay.internal` | Worker 自动设置 |

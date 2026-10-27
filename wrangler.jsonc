@@ -9,12 +9,17 @@
   "compatibility_date": "2026-10-01",
   "observability": { "enabled": true },
 
-  // 非敏感默认值。LLM 密钥用 `npx wrangler secret put <名字>` 设置，不要写在这里：
-  //   HEARSAY_LLM_API_KEY  HEARSAY_LLM_BASE_URL
-  // 每次部署都会用这里的 vars 覆盖 Dashboard 上同名的明文变量；要改默认值请改这个文件。
+  // 非敏感配置。LLM 密钥用 `npx wrangler secret put HEARSAY_LLM_API_KEY` 设置，不要写在这里。
+  // 每次部署都会用这里的 vars 覆盖 Dashboard 上同名的明文变量；要改请改这个文件。
+  // LLM：DeepSeek 的 Anthropic 兼容端点（按量计费的开放 API，可用于自建应用）。
+  //   HEARSAY_LLM_BASE_URL 是完整的 Messages 端点；鉴权走 x-api-key，与 Claude 官方 API 相同。
+  //   deepseek-flash 便宜且快，适合实时对话；关闭 thinking 让回复更快。
+  //   换回 Claude 官方 API：删掉 HEARSAY_LLM_BASE_URL 与 HEARSAY_LLM_THINKING，改 HEARSAY_LLM_MODEL。
   "vars": {
-    "HEARSAY_LLM": "mock",
-    "HEARSAY_LLM_MODEL": "claude-haiku-4-5-20251001",
+    "HEARSAY_LLM": "anthropic",
+    "HEARSAY_LLM_MODEL": "deepseek-flash",
+    "HEARSAY_LLM_BASE_URL": "https://api.deepseek.com/anthropic/v1/messages",
+    "HEARSAY_LLM_THINKING": "disabled",
     "HEARSAY_R2_BUCKET": "hearsay-learner",
     "HEARSAY_R2_KEY": "learner/m3-learner.json"
   },

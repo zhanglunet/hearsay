@@ -56,7 +56,7 @@ def score_review(session):
     dialogue = "\n".join(f"{t['speaker']}: {t['text']}" for t in session.turns)
     learner_text = " ".join(session.learner_texts)
     payload = dict(model=os.environ.get("HEARSAY_LLM_MODEL") or DEFAULT_MODEL,
-                   max_tokens=800,
+                   max_tokens=2048,
                    system="你是复习评分器，只输出 JSON。",
                    messages=[dict(role="user", content=SCORE_PROMPT.format(
                        codes=", ".join(codes), dialogue=dialogue))])

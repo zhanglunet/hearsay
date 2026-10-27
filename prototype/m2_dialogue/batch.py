@@ -166,7 +166,7 @@ def llm_detect(transcripts):
                          "或设 HEARSAY_M2_DETECT=rule 用规则。")
     utterances = [dict(utterance_id=t["utterance_id"], text=t["batch_text"]) for t in transcripts]
     payload = dict(model=os.environ.get("HEARSAY_LLM_MODEL") or DEFAULT_MODEL,
-                   max_tokens=1500, system=DETECT_SYSTEM_PROMPT,
+                   max_tokens=4096, system=DETECT_SYSTEM_PROMPT,
                    messages=[dict(role="user", content=json.dumps(utterances, ensure_ascii=False))])
     data = anthropic_request(payload, api_key, llm_endpoint())
     text = response_text(data)
