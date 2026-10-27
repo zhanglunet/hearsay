@@ -97,10 +97,11 @@ runner 需另装 fastapi/uvicorn/python-multipart（已写入 requirements-realt
 
 ## 交互
 
-- 打字或点麦克风说话。麦克风同时做两件事：浏览器语音识别填文本（仅 Chromium 系，
-  会归一化，不是权威转写），以及 MediaRecorder 录音（供事后批处理）。
-  没有语音识别时可以录音 + 打字补转写。
-- Agent 发言可用 speechSynthesis 朗读，页面可关。
+- 打字或点麦克风说话。线上（Cloudflare）录音交给云端 Whisper 原样转写，各浏览器
+  （含 iPhone Safari）都能用；本地开发退回浏览器语音识别（仅 Chromium 系，会归一化），
+  同时 MediaRecorder 录音供事后批处理。
+- Agent 回复线上用云端人声朗读，本地用 speechSynthesis，页面可关。每条回复旁有「▶ 听」
+  可重听；iPhone 拦下自动播放时也靠它手动播放。
 - 「结束并复盘」给出：轮次与词数、学习者输出占比、objectives 覆盖、
   待核对 recast 清单、中文小结；启用批处理时还有权威转写与核对结果。
 

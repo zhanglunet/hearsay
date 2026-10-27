@@ -11,10 +11,13 @@
   <header class="masthead">
     <p class="eyebrow">Hearsay · M1 原型</p>
     <h1>听说 · 跟读</h1>
-    <p class="lede">选一段参考音频，逐句听，自己录，再并排听回去。反馈只做到词级相似度。</p>
+    <p class="lede">选一段参考音频，逐句听，自己录，再并排听回去。</p>
   </header>
 
-  <aside id="product-rule" class="rule">正在加载说明…</aside>
+  <details class="dev"><summary>实现说明</summary>
+    <p>反馈只做到词级相似度。</p>
+    <p id="product-rule">正在加载说明…</p>
+  </details>
   <p id="status" class="status" role="status"></p>
 
   <section class="panel">
@@ -35,7 +38,7 @@
       <button type="submit" class="primary">切句并使用</button>
     </form>
     <p id="material-title" class="material-title"></p>
-    <p id="timing-note" class="note"></p>
+    <details class="dev"><summary>时间戳说明</summary><p id="timing-note"></p></details>
     <p id="warning" class="warning" hidden></p>
   </section>
 
@@ -63,7 +66,8 @@
       <button id="score" type="button">计算词级相似度</button>
       <button id="transcribe" type="button">尝试本机 ASR</button>
     </div>
-    <p id="asr-hint" class="note">本机 ASR：安装了 faster-whisper 就自动启用，首次转写才下载模型；没装会提示安装方法。浏览器语音识别会归一化，不是实验 A 里的 verbatim whisperX。</p>
+    <p class="note">录完会自动识别，填进上面的转写框；识别不对可以直接改。</p>
+    <details class="dev"><summary>实现说明</summary><p id="asr-hint">本机 ASR：安装了 faster-whisper 就自动启用，首次转写才下载模型；没装会提示安装方法。浏览器语音识别会归一化，不是实验 A 里的 verbatim whisperX。</p></details>
     <div id="feedback" class="feedback"></div>
   </section>
 

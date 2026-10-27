@@ -11,19 +11,20 @@
   <header class="masthead">
     <p class="eyebrow">Hearsay · M2 原型</p>
     <h1>听说 · 对话</h1>
-    <p class="lede">一个场景，几轮对话，结束后复盘。复盘里的纠错只是待核对提示，不写学习者模型。</p>
+    <p class="lede">一个场景，几轮对话，结束后复盘。</p>
+    <details class="dev"><summary>实现说明</summary>复盘里的纠错只是待核对提示，不写学习者模型。</details>
   </header>
 
   <section class="panel">
     <h2 id="scenario-title">载入场景中…</h2>
     <p id="scenario-roles" class="note"></p>
     <ul id="scenario-objectives"></ul>
-    <p id="tutor-note" class="note"></p>
+    <details class="dev"><summary>实现说明</summary><p id="tutor-note"></p></details>
     <div class="row">
       <button id="start" class="primary" type="button">开始对话</button>
-      <button id="start-review" type="button" title="用 M3 学习者模型里的到期复习卡生成场景">复习对话（M3 到期卡）</button>
+      <button id="start-review" type="button" title="用 M3 学习者模型里的到期复习卡生成场景">复习对话</button>
       <button id="end" type="button" disabled>结束并复盘</button>
-      <label class="note"><input id="speak-agent" type="checkbox" checked> 朗读 Agent 发言</label>
+      <label class="note"><input id="speak-agent" type="checkbox" checked> 朗读 Alex 的回复</label>
     </div>
     <p id="status" class="status" role="status"></p>
   </section>
@@ -31,7 +32,7 @@
   <section>
     <div id="chat" class="chat" aria-live="polite"></div>
     <div class="row">
-      <textarea id="input" lang="en" rows="2" placeholder="说英语，或在这里打字。麦克风只在 Chromium 系浏览器可用。" disabled></textarea>
+      <textarea id="input" lang="en" rows="2" placeholder="点「🎤 说话」说英语，或在这里打字。" disabled></textarea>
       <button id="mic" type="button" disabled>🎤 说话</button>
       <button id="send" class="primary" type="button" disabled>发送</button>
     </div>
@@ -46,7 +47,7 @@
     <h3>待核对 recast 提示</h3>
     <div id="recap-recasts"></div>
     <div id="recap-batch"></div>
-    <p id="recap-notes" class="note"></p>
+    <details class="dev"><summary>实现说明</summary><p id="recap-notes"></p></details>
   </section>
 
   <script src="voice.js"></script>

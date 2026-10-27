@@ -282,6 +282,10 @@ function selectSentence(index) {
   const take = state.takes.get(currentSentence().idx);
   $("hypothesis").value = take && take.hypothesis ? take.hypothesis : "";
   render();
+  // 窄屏上当前句面板不悬浮，在句子列表下方；选句后滚过去，不用手动找
+  if (window.matchMedia("(max-width: 640px)").matches) {
+    document.querySelector(".transport").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 }
 
 function playRange(startMs, endMs) {
@@ -337,7 +341,11 @@ async function playSentenceRef(sentence) {
   if (state.cloud.tts && state.source === "demo") {
     stopPlayback();
     const token = playToken;
-    await HearsayVoice.speak(sentence.text);
+    const played = await HearsayVoice.speak(sentence.text);
+    if (!played && token === playToken) {
+      setStatus("浏览器拦下了播放，再点一次「播放原句」。");
+      return false;
+    }
     return token === playToken;
   }
   return playRange(sentence.start_ms, sentence.end_ms);

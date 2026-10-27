@@ -9,3 +9,11 @@ button.primary { background: #0c5c5c; color: #fff; }
 textarea { width: 100%; box-sizing: border-box; padding: .5rem; border: 1px solid #b9c7c4; border-radius: 6px; font: inherit; margin: .3rem 0; }
 .status { color: #0c5c5c; }
 .error { border-left: 3px solid #c90; padding: .3rem .6rem; margin: .4rem 0; background: #fffbe8; }
+details.dev { color: #557; font-size: .85rem; margin: .2rem 0 .6rem; }
+details.dev summary { cursor: pointer; color: #6a7a78; }
+@media (max-width: 640px) {
+  body { padding: .75rem; }
+  .panel { padding: .8rem; }
+  button, select, textarea { font-size: 1rem; }
+  button { min-height: 44px; }
+}

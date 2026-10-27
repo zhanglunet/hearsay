@@ -10,13 +10,14 @@
   <header class="masthead">
     <p class="eyebrow">Hearsay · 听力原型</p>
     <h1>听懂了吗，做题看看</h1>
-    <p class="lede">逐句听材料，做主旨、细节、听写和听辨题。规则判定；inference 与口头回答未接。</p>
+    <p class="lede">逐句听材料，做主旨、细节、听写和听辨题。</p>
+    <details class="dev"><summary>实现说明</summary>规则判定；inference 与口头回答未接。</details>
   </header>
 
   <section class="panel">
     <div class="row">
       <select id="gen-level"><option>A1</option><option selected>A2</option><option>B1</option><option>B2</option></select>
-      <input id="gen-topic" type="text" placeholder="话题，如 上班通勤" style="flex:1;min-width:200px">
+      <input id="gen-topic" type="text" placeholder="话题，如 上班通勤" style="flex:1;min-width:0">
       <button id="generate" type="button">生成新材料（LLM）</button>
     </div>
     <h2 id="material-title">载入中…</h2>

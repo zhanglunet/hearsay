@@ -4,6 +4,19 @@ const $ = (id) => document.getElementById(id);
 const KIND_NAMES = { listen: "听", shadow: "跟读", retell: "复述", converse: "对话" };
 const SKILL_NAMES = { L: "听力", SP: "口语产出", SI: "口语互动", PH: "语音控制" };
 
+// 实现说明默认收起，不占学习者的屏幕
+function devDetails(text) {
+  const details = document.createElement("details");
+  details.className = "dev";
+  const summary = document.createElement("summary");
+  summary.textContent = "实现说明";
+  const body = document.createElement("div");
+  body.textContent = text;
+  details.appendChild(summary);
+  details.appendChild(body);
+  return details;
+}
+
 async function loadPlan() {
   const response = await fetch(`api/plan?minutes=${$("minutes").value}`);
   const plan = await response.json();
@@ -21,6 +34,7 @@ async function loadPlan() {
     body.textContent = block.content_zh;
     div.appendChild(head);
     div.appendChild(body);
+    if (block.detail_zh) div.appendChild(devDetails(block.detail_zh));
     $("blocks").appendChild(div);
   }
   renderDueCards(plan.due_items || []);
@@ -66,39 +80,42 @@ async function loadProgress() {
   $("progress-summary").textContent =
     `共 ${s.total} 条：demonstrated ${s.demonstrated} ｜ emerging ${s.emerging} ｜ not_started ${s.not_started}`;
   $("progress-items").textContent = "";
-  const table = document.createElement("table");
-  let lastSkill = null;
+  const groups = new Map();
   for (const item of payload.items) {
-    if (item.skill !== lastSkill) {
-      lastSkill = item.skill;
+    if (!groups.has(item.skill)) groups.set(item.skill, []);
+    groups.get(item.skill).push(item);
+  }
+  for (const [skill, items] of groups) {
+    const done = items.filter((item) => item.status === "demonstrated").length;
+    const details = document.createElement("details");
+    details.className = "skill";
+    const summary = document.createElement("summary");
+    summary.textContent = `${SKILL_NAMES[skill] || skill}（${done} / ${items.length} 已掌握）`;
+    details.appendChild(summary);
+    const table = document.createElement("table");
+    for (const item of items) {
       const tr = document.createElement("tr");
-      tr.className = "skill-head";
+      const values = [
+        item.id + (item.schedulable ? "" : "（保留）"),
+        item.zh,
+        `证据 ${item.evidence}（demonstrated ${item.demonstrated} / partial ${item.partial}）`,
+      ];
+      for (const value of values) {
+        const td = document.createElement("td");
+        td.textContent = value;
+        tr.appendChild(td);
+      }
       const td = document.createElement("td");
-      td.colSpan = 4;
-      td.textContent = SKILL_NAMES[item.skill] || item.skill;
+      const badge = document.createElement("span");
+      badge.className = `badge ${item.status}`;
+      badge.textContent = item.status;
+      td.appendChild(badge);
       tr.appendChild(td);
       table.appendChild(tr);
     }
-    const tr = document.createElement("tr");
-    const values = [
-      item.id + (item.schedulable ? "" : "（保留）"),
-      item.zh,
-      `证据 ${item.evidence}（demonstrated ${item.demonstrated} / partial ${item.partial}）`,
-    ];
-    for (const value of values) {
-      const td = document.createElement("td");
-      td.textContent = value;
-      tr.appendChild(td);
-    }
-    const td = document.createElement("td");
-    const badge = document.createElement("span");
-    badge.className = `badge ${item.status}`;
-    badge.textContent = item.status;
-    td.appendChild(badge);
-    tr.appendChild(td);
-    table.appendChild(tr);
+    details.appendChild(table);
+    $("progress-items").appendChild(details);
   }
-  $("progress-items").appendChild(table);
 }
 
 $("reload").addEventListener("click", loadPlan);

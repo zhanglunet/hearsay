@@ -22,13 +22,13 @@
     <p id="rationale" class="note"></p>
     <div id="blocks"></div>
     <div id="due-cards"></div>
-    <p id="plan-notes" class="note"></p>
+    <details class="dev"><summary>实现说明</summary><p id="plan-notes"></p></details>
   </section>
 
   <section class="panel">
     <h2>can-do 进度</h2>
     <p id="progress-summary" class="note"></p>
-    <p class="note">证据只来自显式记录；本切片不自动判 can-do（LLM 判定一致性未验证）。C1/C2 仅保留 ID。</p>
+    <details class="dev"><summary>实现说明</summary><p>证据只来自显式记录；本切片不自动判 can-do（LLM 判定一致性未验证）。C1/C2 仅保留 ID。</p></details>
     <div class="row">
       <input id="evidence-id" placeholder="如 SI-A2-01">
       <select id="evidence-verdict">

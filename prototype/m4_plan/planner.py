@@ -30,14 +30,20 @@ def build_plan(store, now=None, minutes=15, level=None):
     for kind, base_min in template:
         block_min = max(1, round(base_min * scale))
         block = dict(type=kind, minutes=block_min)
+        # content_zh 给学习者看；detail_zh 是实现说明，页面上默认收起
         if kind == "listen":
-            block["content_zh"] = "用 listen 切片听材料做理解题：主旨/细节/听写/听辨，规则判定并回流 can-do 与 H 类错误；可用 LLM 生成自定义材料"
+            block["content_zh"] = "听一段材料，答主旨、细节、听写和听辨题"
+            block["detail_zh"] = ("listen 切片：规则判定并回流 can-do 与 H 类错误；"
+                                  "可用 LLM 生成自定义材料")
         elif kind == "shadow":
-            block["content_zh"] = "用 M1 切片跟读 4–6 句；优先含近期错误代码的句子（自动选材未接）"
+            block["content_zh"] = "跟读 4–6 句，注意连读和重音"
+            block["detail_zh"] = "M1 切片：优先含近期错误代码的句子（自动选材未接）"
         elif kind == "retell":
-            block["content_zh"] = "用 retell 切片复述刚听的材料：词级覆盖度、WPM、语法反馈并回流 M3"
+            block["content_zh"] = "用自己的话复述刚听的材料"
+            block["detail_zh"] = "retell 切片：词级覆盖度、WPM、语法反馈并回流 M3"
         else:
-            block["content_zh"] = f"对话场景：{scenario['title']}，注入复习代码 {target_codes or '无'}"
+            block["content_zh"] = f"情景对话：{scenario['title']}"
+            block["detail_zh"] = f"注入复习代码 {target_codes or '无'}"
             block["scenario"] = scenario
         blocks.append(block)
 

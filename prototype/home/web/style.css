@@ -13,3 +13,12 @@ input#minutes { width: 4.5rem; padding: .3rem .4rem; border: 1px solid #b9c7c4; 
 .slice-links a:hover { background: #e6efed; }
 .due { border-left: 3px solid #c90; padding: .3rem .6rem; margin: .4rem 0; background: #fffbe8; }
 a { color: #0c5c5c; }
+details.dev { color: #557; font-size: .85rem; margin: .4rem 0; }
+details.dev summary { cursor: pointer; color: #6a7a78; }
+details.dev[open] summary { margin-bottom: .2rem; }
+@media (max-width: 640px) {
+  body { padding: .75rem; }
+  .block { flex-direction: column; gap: .2rem; }
+  button, input#minutes { min-height: 44px; font-size: 1rem; }
+  .slice-links a { padding: .9rem .7rem; }
+}

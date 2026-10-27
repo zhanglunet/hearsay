@@ -24,10 +24,22 @@ function addMessage(speaker, text) {
   who.textContent = speaker === "agent" ? "Alex（Agent）" : "你";
   div.appendChild(who);
   div.appendChild(document.createTextNode(text));
+  if (speaker === "agent") {
+    // 重听按钮；也是 iPhone 自动朗读被拦下时的手动入口（点按钮本身就是用户手势）
+    const replay = document.createElement("button");
+    replay.type = "button";
+    replay.className = "replay";
+    replay.textContent = "▶ 听";
+    replay.setAttribute("aria-label", "朗读这条回复");
+    replay.addEventListener("click", () => HearsayVoice.speak(text));
+    div.appendChild(replay);
+  }
   $("chat").appendChild(div);
   div.scrollIntoView({ block: "nearest" });
   if (speaker === "agent" && $("speak-agent").checked) {
-    HearsayVoice.speak(text);
+    HearsayVoice.speak(text).then((played) => {
+      if (!played) setStatus("浏览器没有自动播放 Alex 的回复，点回复旁的「▶ 听」收听。");
+    });
   }
 }
 
