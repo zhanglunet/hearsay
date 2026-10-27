@@ -44,7 +44,7 @@
 
 ## 语音（朗读与识别）
 
-听力、复述、对话三个页面的朗读和语音识别，在线上走 Workers AI，不用浏览器自带的接口。Worker 在 `/voice/` 下直接处理，不进容器，见 `worker/voice.ts`：
+听力、跟读、复述、对话四个页面的朗读和语音识别，在线上走 Workers AI，不用浏览器自带的接口。跟读页只把演示材料（espeak 合成）的原句换成云端人声；学习者导入的真人音频照常播放原声，跟读要模仿的就是它本身。Worker 在 `/voice/` 下直接处理，不进容器，见 `worker/voice.ts`：
 
 | 接口 | 作用 | 模型 | 计费 |
 |---|---|---|---|
@@ -61,10 +61,14 @@
 
 `/voice/*` 与网站同域名，同样受 Access 保护。
 
-**本地调试的已知限制**：`wrangler dev` 调用远程 AI 绑定时，要经过 workers.dev 上的预览地址。这个地址被 Access 保护，所以会报「Too many redirects」，本地无法真实调用模型，线上不受影响。接口逻辑用下面的命令单测，不发真实请求：
+**本地调试的已知限制**：`wrangler dev` 调用远程 AI 绑定时，要经过 workers.dev 上的预览地址。这个地址被 Access 保护，所以会报「Too many redirects」，本地无法真实调用模型，线上不受影响。接口逻辑与前端模块的中断语义用下面的命令单测，不发真实请求：
 
 ```bash
 npm run test:worker
+```
+
+```bash
+npm run test:voice-js
 ```
 
 ## 前提

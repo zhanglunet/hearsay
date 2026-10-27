@@ -1,4 +1,4 @@
-"""听力、复述、对话三个切片都提供共用语音模块 /voice.js，页面在 app.js 之前加载它。"""
+"""听力、跟读、复述、对话四个切片都提供共用语音模块 /voice.js，页面在 app.js 之前加载它。"""
 
 import os
 import sys
@@ -25,9 +25,10 @@ class VoiceStaticTests(unittest.TestCase):
 
     def test_slices_serve_shared_voice_module(self):
         from listen.server import make_server as listen
+        from m1_shadow.server import make_server as shadow
         from m2_dialogue.server import make_server as dialogue
         from retell.server import make_server as retell
-        for factory in (listen, retell, dialogue):
+        for factory in (listen, shadow, retell, dialogue):
             httpd = factory(0, host="127.0.0.1")
             threading.Thread(target=httpd.serve_forever, daemon=True).start()
             try:
@@ -41,8 +42,11 @@ class VoiceStaticTests(unittest.TestCase):
                 httpd.server_close()
 
     def test_pages_load_voice_before_app(self):
-        for slice_ in ("listen", "retell", "m2_dialogue"):
-            html = (PROTOTYPE / slice_ / "web" / "index.html").read_text(encoding="utf-8")
+        pages = [PROTOTYPE / s / "web" / "index.html" for s in ("listen", "retell", "m2_dialogue")]
+        pages.append(PROTOTYPE / "web" / "index.html")  # 跟读页（m1_shadow）
+        for page in pages:
+            slice_ = page.parent.parent.name
+            html = page.read_text(encoding="utf-8")
             self.assertLess(html.index('src="voice.js"'), html.index('src="app.js"'), slice_)
 
     def test_module_uses_worker_voice_endpoints(self):
