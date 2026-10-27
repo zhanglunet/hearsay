@@ -32,6 +32,8 @@
 
   容器不持有任何 R2 密钥。它的读写请求发往一个公网不存在的内部主机名，被 Worker 拦截后经 R2 绑定读写；拦截处理只认 `/<桶>/<键>` 这一个对象，其他路径返回 403。所以不需要建 R2 API 令牌。
 - **只跑一个实例。** 只有一个学习者、一个数据文件，两个实例并发写同一个 R2 对象会互相覆盖。容器用的是 `durable_object` 调度策略（本账号不允许 `default`），它不支持 `max_instances`，所以单实例靠 Worker 始终用同一个名字取实例来保证。
+- **休眠靠 SIGTERM。** 空闲 `sleepAfter`（10 分钟）后，Durable Object 给容器发 SIGTERM。容器里 `python start_all.py` 是 1 号进程，必须自己处理 SIGTERM，否则 Linux 会直接忽略它，容器永远不休眠。`start_all.py` 已注册处理函数；Worker 另有兜底：15 秒内没退出就发 SIGKILL。日志里看到 `Activity expired, sending SIGTERM` 之后紧跟 `sending SIGKILL`，说明镜像里的信号处理失效了。
+- **删除容器应用不会结束运行中的实例。** 由 Durable Object 管理的实例要靠上面的休眠流程或 `destroy()` 结束，`wrangler containers delete` 再重新部署并不会把它停掉（2026-10-27 实测）。
 - **规格是 `lite`。** 1/16 vCPU、256 MiB 内存，这是 `durable_object` 策略下的默认值，`@cloudflare/containers` 0.3.7 也不支持改它。2026-10-27 在同样的资源限制下实测：启动 4 秒，所有页面响应在 35 毫秒内，内存 18.7 MiB。以后要在容器里跑 whisperX 之类的模型，就得换更大的规格。
 
 镜像只含标准库代码，不含 whisperX、piper、faster-whisper 的模型：

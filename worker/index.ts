@@ -125,6 +125,28 @@ export class HearsayContainer extends Container<Env> {
   }
 }
 
+// 休眠时先 SIGTERM，容器若 STOP_GRACE_MS 内没退出就 SIGKILL。
+// 起因（2026-10-27 线上实测）：容器里 python 是 1 号进程，旧镜像没注册 SIGTERM 处理函数，
+// 每次 "Activity expired, signalling container to stop" 都被忽略，容器一直运行、一直计费；
+// 删除容器应用再部署也不会结束由 Durable Object 管理的运行中实例。新镜像已处理 SIGTERM，
+// 这里作为兜底：学习者数据每次保存都已同步写进 R2，强制结束不会丢数据。
+const STOP_GRACE_MS = 15_000;
+
+HearsayContainer.prototype.onActivityExpired = async function (this: HearsayContainer) {
+  const raw = (this.ctx as any).container;
+  if (!raw?.running) return;
+  console.log("Activity expired, sending SIGTERM");
+  await this.stop();
+  const deadline = Date.now() + STOP_GRACE_MS;
+  while (raw.running && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+  if (raw.running) {
+    console.log(`Container ignored SIGTERM for ${STOP_GRACE_MS / 1000}s, sending SIGKILL`);
+    await this.destroy();
+  }
+};
+
 HearsayContainer.outboundByHost = {
   [LEARNER_STORE_HOST]: (req: Request, env: Env) => handleLearnerStore(req, env),
 };
