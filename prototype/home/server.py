@@ -10,6 +10,7 @@ import json
 import os
 import traceback
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from hearsay_http import HearsayHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
@@ -158,7 +159,7 @@ def make_server(port: int, store=None, routes=None) -> ThreadingHTTPServer:
     ROUTES.clear()
     ROUTES.update(routes or {})
     ThreadingHTTPServer.allow_reuse_address = True
-    return ThreadingHTTPServer((os.environ.get("HEARSAY_HOST", "127.0.0.1"), port), Handler)
+    return HearsayHTTPServer((os.environ.get("HEARSAY_HOST", "127.0.0.1"), port), Handler)
 
 
 def main() -> None:
