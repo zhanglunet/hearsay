@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hearsay · 听说</title>
+  <meta name="description" content="为中文母语者做的英语听说陪练：听、跟读、复述、对话，说错的话在新对话里再练一次。">
+  <meta property="og:title" content="Hearsay · 听说">
+  <meta property="og:description" content="听得懂，说得出。为中文母语者做的英语听说陪练。">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#0c5c5c">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <span class="brand">HEARSAY · 听说</span>
+    <a class="login" href="https://app.hearsay.fans/">登录</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>听得懂，说得出</h1>
+      <p class="lede">多邻国让你每天打开 App；Hearsay 让你每天开口说英语。材料按你的水平和兴趣来，你说错的话，下次会在新的对话里再练一次。</p>
+      <a class="cta" href="#apply">申请试用 ↓</a>
+    </section>
+
+    <section>
+      <h2>一条循环，说的时间过半</h2>
+      <ol class="loop">
+        <li><span class="step">1</span><b>听</b>逐句听一段材料，答主旨、细节、听写和听辨题。</li>
+        <li><span class="step">2</span><b>跟读</b>一句一句跟着说，录下来和原声并排回放。</li>
+        <li><span class="step">3</span><b>复述</b>不看原文用自己的话讲一遍，看内容覆盖、语速和语法。</li>
+        <li><span class="step">4</span><b>对话</b>进入场景和 AI 角色聊几轮，结束后复盘你说过的话。</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>和刷题 App 不一样的地方</h2>
+      <ul class="points">
+        <li><b>从你的错误里长出复习。</b>你说错的表达会变成复习卡，不是翻卡片，而是在新的对话场景里被要求再用一次。</li>
+        <li><b>进度是「能做什么」，不是宝石。</b>比如「能听懂语速正常的日常对话」，每一条都要被你的实际表现验证过。</li>
+        <li><b>为中文母语者设计。</b>冠词、时态、单复数、词尾辅音这些中文母语者的常见难点，会被专门盯住。</li>
+        <li><b>原样识别你说的话。</b>语音识别保留你的语法错误，不替你「改对」，纠错才有依据。</li>
+      </ul>
+    </section>
+
+    <section id="apply" class="apply">
+      <h2>申请试用</h2>
+      <p class="note">Hearsay 还在小范围打磨，现在只登记，开放时会发邮件通知你。</p>
+      <form id="apply-form" novalidate>
+        <label for="email">邮箱</label>
+        <input id="email" name="email" type="email" inputmode="email" autocomplete="email" required placeholder="you@example.com">
+        <label for="note">想练什么（可选）</label>
+        <input id="note" name="note" type="text" maxlength="200" placeholder="比如：开会发言、出国旅行、雅思口语">
+        <div class="hp" aria-hidden="true">
+          <label for="website">网站</label>
+          <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+        </div>
+        <div id="turnstile" data-sitekey="1x00000000000000000000AA"></div>
+        <button id="submit" type="submit">提交申请</button>
+        <p class="fine">只用于开放时通知你，不会用于其他用途。</p>
+      </form>
+      <p id="result" class="result" role="status"></p>
+    </section>
+  </main>
+
+  <footer>Hearsay · 听说 — 听得懂，说得出</footer>
+  <script src="app.js"></script>
+</body>
+</html>
