@@ -1,0 +1,32 @@
+/**
+ * Hearsay 公开门户站（hearsay.fans）。部署：npm run deploy:portal；说明见 portal/README.md。
+ * 与应用 Worker（仓库根目录 wrangler.jsonc，app.hearsay.fans）分开部署。
+ */
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "hearsay-portal",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "observability": { "enabled": true },
+
+  "workers_dev": false,
+
+  // 所有请求先进 Worker：www 跳转和应用旧路径跳转都要先判断
+  "assets": { "directory": "./public", "binding": "ASSETS", "run_worker_first": true },
+
+  "d1_databases": [
+    { "binding": "DB", "database_name": "hearsay-portal", "database_id": "81fc9190-8e5d-4de6-8fbc-70ce34351d4c" }
+  ],
+
+  // Email Routing：只能发给已验证的收件地址
+  "send_email": [{ "name": "NOTIFY", "destination_address": "zhanglu.net@gmail.com" }],
+
+  // 同一 IP 每 60 秒最多 3 次申请（该绑定的窗口只支持 10 秒或 60 秒）
+  "ratelimits": [{ "name": "APPLY_LIMITER", "namespace_id": "1001", "simple": { "limit": 3, "period": 60 } }],
+
+  // 应用在 app.hearsay.fans（仓库根目录 wrangler.jsonc），受 Access 保护
+  "routes": [
+    { "pattern": "hearsay.fans", "custom_domain": true },
+    { "pattern": "www.hearsay.fans", "custom_domain": true }
+  ]
+}

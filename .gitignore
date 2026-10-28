@@ -20,3 +20,6 @@ m1_human_audio/
 node_modules/
 .wrangler/
 .dev.vars
+
+# 头脑风暴草图（本地）
+.superpowers/

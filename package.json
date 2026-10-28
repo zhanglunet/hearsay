@@ -8,7 +8,9 @@
     "dev": "wrangler dev",
     "check": "wrangler deploy --dry-run --outdir .wrangler/dry-run",
     "test:worker": "esbuild worker/voice.ts --format=esm --platform=neutral --outfile=.wrangler/voice-test/voice.mjs --log-level=warning && node worker/voice.test.mjs ./.wrangler/voice-test/voice.mjs",
-    "test:voice-js": "node prototype/shared/voice.test.mjs prototype/shared/voice.js"
+    "test:voice-js": "node prototype/shared/voice.test.mjs prototype/shared/voice.js",
+    "test:portal": "esbuild portal/src/apply.ts portal/src/routes.ts portal/src/mail.ts --format=esm --platform=neutral --outdir=.wrangler/portal-test --log-level=warning && node portal/test/portal.test.mjs .wrangler/portal-test",
+    "deploy:portal": "wrangler deploy --config portal/wrangler.jsonc"
   },
   "dependencies": {
     "@cloudflare/containers": "0.3.7"

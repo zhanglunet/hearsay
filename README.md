@@ -3,7 +3,7 @@
 > 一个为非英语母语者量身定制的英语听说陪练 Agent。
 > 名字取自 **hear + say**，中文名「听说」——既是"听与说"两项核心技能，也是"道听途说"的双关：语言本来就是从别人嘴里听来、再从自己嘴里说出去的东西。
 
-状态（[v0.1.0](https://github.com/zhanglunet/hearsay/releases/tag/v0.1.0)，2026-10-28）：听、跟读、复述、对话、每日计划五个原型切片已串成一天的闭环，部署在 Cloudflare 上自用（[hearsay.fans](https://hearsay.fans)，Cloudflare Access 保护，只对作者开放）。仍是原型，不是产品：还没有账户体系、音素级发音反馈和实时语音对话。对照见 [2026-10-24 状态清单](docs/design/2026-10-24-status-checklist.md)。
+状态（[v0.1.0](https://github.com/zhanglunet/hearsay/releases/tag/v0.1.0)，2026-10-28）：听、跟读、复述、对话、每日计划五个原型切片已串成一天的闭环，部署在 Cloudflare 上自用（应用在 app.hearsay.fans，Cloudflare Access 保护，只对作者开放）。公开介绍页在 [hearsay.fans](https://hearsay.fans)，可以登记试用意向（见 [portal/](portal/README.md)）。仍是原型，不是产品：还没有账户体系、音素级发音反馈和实时语音对话。对照见 [2026-10-24 状态清单](docs/design/2026-10-24-status-checklist.md)。
 
 ### 现在能做什么
 
