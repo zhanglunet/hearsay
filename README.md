@@ -3,7 +3,20 @@
 > 一个为非英语母语者量身定制的英语听说陪练 Agent。
 > 名字取自 **hear + say**，中文名「听说」——既是"听与说"两项核心技能，也是"道听途说"的双关：语言本来就是从别人嘴里听来、再从自己嘴里说出去的东西。
 
-状态：M0 设计文档和 M1 风险验证已经完成（2026-10-23）。跟读原型只有最小切片，产品功能还没交付。对照见 [2026-10-24 状态清单](docs/design/2026-10-24-status-checklist.md)。
+状态（[v0.1.0](https://github.com/zhanglunet/hearsay/releases/tag/v0.1.0)，2026-10-28）：听、跟读、复述、对话、每日计划五个原型切片已串成一天的闭环，部署在 Cloudflare 上自用（[hearsay.fans](https://hearsay.fans)，Cloudflare Access 保护，只对作者开放）。仍是原型，不是产品：还没有账户体系、音素级发音反馈和实时语音对话。对照见 [2026-10-24 状态清单](docs/design/2026-10-24-status-checklist.md)。
+
+### 现在能做什么
+
+| 切片 | 路径 | 做什么 |
+|---|---|---|
+| 首页 | `/` | 今日 15 分钟计划、到期复习卡、can-do 概况 |
+| 听 | `/listen/` | 逐句听材料，做主旨、细节、听写、听辨题；可让 LLM 按水平和话题生成新材料 |
+| 跟读 | `/shadow/` | 逐句听原句、录音、并排回放，给词级相似度 |
+| 复述 | `/retell/` | 不看原文复述，反馈内容覆盖、语速（WPM）和语法 |
+| 对话 | `/converse/` | 和 LLM 扮演的角色就一个场景对话，结束后复盘；可用到期复习卡生成「复习对话」 |
+| 计划 | `/plan/` | 按错误档案和复习卡编排当日计划；109 条 can-do 的证据进度 |
+
+线上朗读用 Workers AI 的 Deepgram Aura 人声，识别用 Whisper large-v3 turbo 原样转写（保留 "he go" 这类语法错误，纠错才有依据）；本地开发退回浏览器语音接口。页面适配手机，iPhone 上的自动播放限制也已处理。
 
 ---
 
@@ -87,11 +100,15 @@ Agent 维护一份持续更新的学习者画像，所有内容生成和练习�
 
 **调研结论**：底层能力（识别、合成、发音评测、对齐、间隔重复）都有成熟开源件可用；真正缺的是把它们串起来的"学习者模型 + 内容生成 + 练习编排"这一层。这正是 Hearsay 要做的部分。
 
-## 五、技术方向（我的初步选择，可推翻）
+## 五、技术方向
 
-- **Agent 层**：Claude 作为导师大脑，负责生成材料、控制对话难度、给出重述式纠错、维护学习者模型
-- **语音层**：实时对话走 pipecat 流水线；跟读评测走 whisperX + OpenPronounce 的离线批处理
-- **客户端**：先做 Web（PWA），麦克风权限和实时音频在浏览器里已经够用
+v0.1.0 实际采用的做法（标注「计划」的还没做）：
+
+- **Agent 层**：LLM 作为导师大脑，负责生成材料、扮演对话角色、给出重述式纠错。接口按 Anthropic Messages 格式写，线上用 DeepSeek 的兼容端点（`deepseek-flash`），也可切回 Claude 或本地 mock
+- **语音层**：线上朗读用 Workers AI `@cf/deepgram/aura-2-en`（边缘缓存，同一句不重复合成），识别用 `@cf/openai/whisper-large-v3-turbo` 加 verbatim 提示原样转写；计划：实时对话走 pipecat 流水线
+- **发音评测**：M1 实验 D 中 OpenPronounce 音素级精确率只有 0.148，所以 v0.1.0 只给词级相似度，不写音素级错误
+- **客户端**：Web 页面，适配手机浏览器；计划：PWA
+- **部署**：Cloudflare Workers + Containers（Python 服务跑在容器里，空闲 10 分钟休眠），学习者数据存 R2，Cloudflare Access 做访问控制。见 [部署文档](docs/ops/cloudflare-deploy.md)
 - **数据**：转写、发音评测和 LLM 判定在服务端运行，录音需上传，保留 30 天供回放后自动删除。学习者模型、错误档案、复习项的主副本在服务端账户下，客户端缓存；全部数据随时可整体导出（JSON）和一键删除。本地优先是后续目标，不是 v1 承诺
 
 ## 六、路线图
@@ -100,7 +117,7 @@ Agent 维护一份持续更新的学习者画像，所有内容生成和练习�
 
 - [x] M0 — 设计文档：[学习者模型](docs/design/2026-10-22-m0-learner-model.md)、[CEFR 听说 can-do 清单](docs/design/cefr-can-do-listening-speaking.md)（109 条）、[中文母语者错误清单](docs/design/l1-zh-error-taxonomy.md)（66 条）
 - [ ] M1 — 跟读原型：导入一段音频 → 逐句播放 → 录音 → 发音反馈。风险实验见 [报告](docs/design/2026-10-23-m1-risk-validation.md)：A / B / C 已通过，D 未通过（OpenPronounce 音素级精确率 0.148，所以不要用它写 P 类错误）。真人录音复测仍是 [issue #4](https://github.com/zhanglunet/hearsay/issues/4)，还没采集。最小切片在 [prototype/](prototype/README.md)，还没满足 [issue #8](https://github.com/zhanglunet/hearsay/issues/8) 的全部验收，所以这里不勾选。
-- [ ] M2 — 对话原型：一个场景，实时语音对话，结束后复盘。[设计草案](docs/design/2026-10-25-m2-dialogue.md)与最小切片 [prototype/m2_dialogue/](prototype/m2_dialogue/README.md) 已能本地跑（mock / 可选 Claude，浏览器语音；事后 whisperX 批处理与 Claude 错误检测可选启用）；pipecat 实时链路 `realtime.py` 与 [风险测量脚本](experiments/exp_e_dialogue/README.md)已写但均未实测，所以这里不勾选。
+- [ ] M2 — 对话原型：一个场景，实时语音对话，结束后复盘。[设计草案](docs/design/2026-10-25-m2-dialogue.md)与最小切片 [prototype/m2_dialogue/](prototype/m2_dialogue/README.md) 已能运行（mock / Claude / DeepSeek，线上用云端朗读与识别；事后 whisperX 批处理与 LLM 错误检测可选启用）；pipecat 实时链路 `realtime.py` 与 [风险测量脚本](experiments/exp_e_dialogue/README.md)已写但均未实测，所以这里不勾选。
 - [ ] M3 — 学习者模型 + FSRS：把 M1/M2 中的错误变成复习项，并在新场景中复现。最小切片 [prototype/m3_learner/](prototype/m3_learner/README.md) 已能本地跑（confirmed 导入、FSRS-4.5 核心调度、复习场景 JSON 输出），但词项/机会数/趋势统计和在线回注通道未做，所以这里不勾选。
 - [ ] M4 — 每日计划与 can-do 进度页。最小切片 [prototype/m4_plan/](prototype/m4_plan/README.md) 已能本地跑（按错误档案与到期卡编排 15 分钟计划、109 条 can-do 证据进度页），但材料生成与自动选材、can-do 自动判定未接，所以这里不勾选。
 
@@ -108,7 +125,7 @@ Agent 维护一份持续更新的学习者画像，所有内容生成和练习�
 
 M2/M3/M4 已串成一天的闭环：M4 出计划与到期卡 → M2 点「复习对话」用 M3 场景 → `/api/end` 复盘自动回流 M3 → M4 给复习卡评分推进 FSRS。存储默认都在 `prototype/runtime/`（已忽略）。复述环节另有 [prototype/retell/](prototype/retell/README.md) 切片（覆盖度/WPM/语法反馈并回流 M3），听力理解题见 [prototype/listen/](prototype/listen/README.md)（规则判定，can-do 与 H 类错误回流）。
 
-**统一入口**：`cd prototype && python start_all.py` 一键启动全部切片，统一首页在 `127.0.0.1:8764`，各切片挂在同一端口的路径前缀下（`/listen/`、`/shadow/`、`/retell/`、`/converse/`、`/plan/`，见 [prototype/home/README.md](prototype/home/README.md)）。容器化上线见 [docs/ops/cloudflare-deploy.md](docs/ops/cloudflare-deploy.md)。
+**统一入口**：`cd prototype && python start_all.py` 一键启动全部切片，统一首页在 `127.0.0.1:8764`，各切片挂在同一端口的路径前缀下（`/listen/`、`/shadow/`、`/retell/`、`/converse/`、`/plan/`，见 [prototype/home/README.md](prototype/home/README.md)）。容器化上线见 [docs/ops/cloudflare-deploy.md](docs/ops/cloudflare-deploy.md)。版本变化见 [Releases](https://github.com/zhanglunet/hearsay/releases)。
 
 ## 许可证
 
