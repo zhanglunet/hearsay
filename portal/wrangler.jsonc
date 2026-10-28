@@ -24,6 +24,9 @@
   // 同一 IP 每 60 秒最多 3 次申请（该绑定的窗口只支持 10 秒或 60 秒）
   "ratelimits": [{ "name": "APPLY_LIMITER", "namespace_id": "1001", "simple": { "limit": 3, "period": 60 } }],
 
-  // 迁移第 4 步才绑定 hearsay.fans、www.hearsay.fans（见计划 Task 5）
-  "routes": []
+  // 应用在 app.hearsay.fans（仓库根目录 wrangler.jsonc），受 Access 保护
+  "routes": [
+    { "pattern": "hearsay.fans", "custom_domain": true },
+    { "pattern": "www.hearsay.fans", "custom_domain": true }
+  ]
 }

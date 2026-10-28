@@ -41,8 +41,8 @@
   // 注意：Access 的「Worker 的生产和预览 URL」目标不覆盖自定义域；这两个主机名已作为
   // 公共主机名单独加进 Access 应用「hearsay 听说练习」。以后再加域名，务必同时加进 Access。
   "routes": [
-    { "pattern": "hearsay.fans", "custom_domain": true },
-    { "pattern": "www.hearsay.fans", "custom_domain": true }
+    // hearsay.fans、www.hearsay.fans 归公开门户站（portal/wrangler.jsonc）
+    { "pattern": "app.hearsay.fans", "custom_domain": true }
   ],
 
   "containers": [

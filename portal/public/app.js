@@ -23,7 +23,10 @@
         "expired-callback": () => { token = ""; },
         "error-callback": () => { token = ""; },
       });
-    } catch (_err) { /* 渲染失败就不带 token 提交 */ }
+    } catch (_err) {
+      // 脚本对象已出现但还没准备好时 render 会抛错：下一轮轮询再试；一直失败就不带 token 提交
+      rendered = false;
+    }
   }
 
   // 脚本是 async 加载的，轮询到它出现为止（最多 15 秒）
