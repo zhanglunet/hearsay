@@ -103,7 +103,9 @@ const read = async (res) => ({ status: res.status, body: await res.json() });
 // ---------- honeypot ----------
 {
   const { deps, sent } = makeDeps();
+  const log = console.log; console.log = () => {};
   const r = await read(await handleApply(post({ email: "bot@spam.com", website: "http://x" }), deps));
+  console.log = log;
   assert.deepEqual(r, { status: 200, body: { ok: true } });
   assert.equal(deps.db.rows.size, 0);
   assert.equal(sent.length, 0);
@@ -118,6 +120,25 @@ const read = async (res) => ({ status: res.status, body: await res.json() });
   const r = await read(await handleApply(post({ email: "u9@a.com" }), deps));
   assert.deepEqual(r, { status: 429, body: { ok: false, error: "提交太频繁，请稍后再试" } });
   assert.equal(deps.db.rows.has("u9@a.com"), false);
+}
+
+// ---------- 邮箱写错不消耗限流额度：先报「邮箱不对」，不是「太频繁」 ----------
+{
+  const { deps } = makeDeps();
+  for (let i = 0; i < 5; i++) {
+    const r = await read(await handleApply(post({ email: "a@b" }), deps));
+    assert.deepEqual(r, { status: 400, body: { ok: false, error: "请填写正确的邮箱地址" } });
+  }
+  assert.equal((await handleApply(post({ email: "fixed@b.com" }), deps)).status, 200);
+}
+
+// ---------- 蜜罐命中要留日志（真实用户被浏览器自动填充时可追查） ----------
+{
+  const { deps } = makeDeps();
+  const logs = []; const log = console.log; console.log = (m) => logs.push(String(m));
+  await handleApply(post({ email: "Real@User.com", website: "x" }), deps);
+  console.log = log;
+  assert.ok(logs.some((m) => m.includes("honeypot") && m.includes("real@user.com")), logs.join("|"));
 }
 
 // ---------- missing ip：没有来访 IP、没有限流绑定都不崩 ----------

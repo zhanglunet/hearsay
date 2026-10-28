@@ -76,18 +76,23 @@ export async function handleApply(request: Request, deps: ApplyDeps): Promise<Re
   } catch {
     return fail(400, "请求格式不对");
   }
-  if (typeof body.website === "string" && body.website.trim()) return reply(200, { ok: true });
-
-  const ip = request.headers.get("cf-connecting-ip") || "unknown";
-  if (deps.limiter && !(await deps.limiter.limit({ key: ip })).success) {
-    return fail(429, "提交太频繁，请稍后再试");
+  if (typeof body.website === "string" && body.website.trim()) {
+    // 假装成功；留一条日志，万一是浏览器自动填充了隐藏字段，可以按邮箱找回这个真实申请
+    console.log(`apply honeypot hit: ${normalizeEmail(body.email) ?? "(invalid email)"}`);
+    return reply(200, { ok: true });
   }
 
+  // 先校验再限流：输错邮箱不该耗掉额度（大陆移动网络常多人共用一个出口 IP）
   const email = normalizeEmail(body.email);
   if (!email) return fail(400, "请填写正确的邮箱地址");
   const noteCheck = validateNote(body.note);
   if (!noteCheck.ok) return fail(400, noteCheck.error);
   const note = noteCheck.note;
+
+  const ip = request.headers.get("cf-connecting-ip") || "unknown";
+  if (deps.limiter && !(await deps.limiter.limit({ key: ip })).success) {
+    return fail(429, "提交太频繁，请稍后再试");
+  }
 
   const verified = await deps.verifyTurnstile(typeof body.token === "string" ? body.token : "", ip);
   const country = String((request as { cf?: { country?: string } }).cf?.country ?? "");
