@@ -177,4 +177,43 @@ const read = async (res) => ({ status: res.status, body: await res.json() });
   assert.equal(await verifyTurnstile("sec", "tok", "1.2.3.4", async () => { throw new Error("blocked"); }), false);
 }
 
+// ---------- redirectTarget ----------
+{
+  const { redirectTarget, APP_ORIGIN, PORTAL_ORIGIN } = await load("routes");
+  assert.equal(APP_ORIGIN, "https://app.hearsay.fans");
+  assert.equal(PORTAL_ORIGIN, "https://hearsay.fans");
+  const t = (u) => redirectTarget(new URL(u));
+  assert.equal(t("https://www.hearsay.fans/abc?x=1"), "https://hearsay.fans/abc?x=1");
+  assert.equal(t("https://www.hearsay.fans/listen/"), "https://hearsay.fans/listen/");
+  assert.equal(t("https://hearsay.fans/listen/"), "https://app.hearsay.fans/listen/");
+  assert.equal(t("https://hearsay.fans/plan/api/plan?minutes=15"), "https://app.hearsay.fans/plan/api/plan?minutes=15");
+  assert.equal(t("https://hearsay.fans/converse"), "https://app.hearsay.fans/converse");
+  for (const p of ["shadow", "retell"]) assert.equal(t(`https://hearsay.fans/${p}/x`), `https://app.hearsay.fans/${p}/x`);
+  assert.equal(t("https://hearsay.fans/listening"), null);
+  assert.equal(t("https://hearsay.fans/"), null);
+  assert.equal(t("https://hearsay.fans/api/apply"), null);
+  assert.equal(t("https://hearsay.fans/style.css"), null);
+}
+
+// ---------- buildMime ----------
+{
+  const { buildMime } = await load("mail");
+  const text = "邮箱：a@b.com\n想练什么：" + "开会".repeat(60);
+  const mime = buildMime("noreply@hearsay.fans", "zhanglu.net@gmail.com",
+    "[未验证] Hearsay 新申请：a@b.com", text, new Date("2026-10-28T00:00:00Z"));
+  assert.match(mime, /^From: noreply@hearsay\.fans\r\n/m);
+  assert.match(mime, /^To: zhanglu\.net@gmail\.com\r\n/m);
+  const subj = mime.match(/^Subject: =\?UTF-8\?B\?([A-Za-z0-9+/=]+)\?=\r\n/m);
+  assert.ok(subj, "中文标题按 RFC 2047 编码");
+  assert.equal(Buffer.from(subj[1], "base64").toString("utf8"), "[未验证] Hearsay 新申请：a@b.com");
+  assert.match(mime, /^Date: Wed, 28 Oct 2026 00:00:00 GMT\r\n/m);
+  assert.match(mime, /^Message-ID: <[^>\s]+@hearsay\.fans>\r\n/m);
+  assert.match(mime, /^MIME-Version: 1\.0\r\n/m);
+  assert.match(mime, /Content-Type: text\/plain; charset=UTF-8\r\n/);
+  assert.match(mime, /Content-Transfer-Encoding: base64\r\n/);
+  const [, bodyPart] = mime.split("\r\n\r\n");
+  for (const line of bodyPart.split("\r\n")) assert.ok(line.length <= 76, "正文每行不超过 76 字符");
+  assert.equal(Buffer.from(bodyPart.replace(/\r\n/g, ""), "base64").toString("utf8"), text);
+}
+
 console.log("portal：全部断言通过");
