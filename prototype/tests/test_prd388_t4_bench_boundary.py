@@ -107,8 +107,13 @@ class TestModuleIsolation(unittest.TestCase):
         gates_imported = _imports_of(
             PROTO / "m1_shadow" / "correction_verify_bench_gates.py")
         self.assertLessEqual(gates_imported - {"__future__", "typing",
-                                               "m1_shadow.correction_verify_bench"},
-                             set())
+                                               "m1_shadow"}, set())
+        tree = ast.parse((PROTO / "m1_shadow" / "correction_verify_bench_gates.py")
+                         .read_text(encoding="utf-8"))
+        from_mods = {n.module for n in ast.walk(tree)
+                     if isinstance(n, ast.ImportFrom) and n.module}
+        self.assertIn("m1_shadow.correction_verify_bench", from_mods,
+                      from_mods)
         for mod in BENCH_MODULES:
             names = {n.lower() for n in _code_names(PROTO / "m1_shadow" / mod)}
             for word in ("phoneme_write", "write_phoneme"):
