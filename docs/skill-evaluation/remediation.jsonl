@@ -1,0 +1,4 @@
+{"date": "2026-11-17", "prd": "PRD-493", "skill": "shadow", "type": "失效/待整改", "evidence": "绝对错误率 6.0% > 5%", "status": "待整改"}
+{"date": "2026-11-17", "prd": "PRD-493", "skill": "retell", "type": "疑似失效", "evidence": "触发率 8.0% < 10%，进复核（不直接判死）", "status": "待整改"}
+{"date": "2026-11-17", "prd": "PRD-493", "skill": "converse", "type": "失效/待整改", "evidence": "漏判率恶化 3.0pp > 2pp", "status": "待整改"}
+{"date": "2026-11-17", "prd": "PRD-493", "skill": "plan", "type": "失效/待整改", "evidence": "错误率相对下降 10.0% < 20%；绝对错误率 9.0% > 5%", "status": "待整改"}
