@@ -1,0 +1,38 @@
+{
+  "_note": "合成演示数据：仅用于验证质量门判定器跑通，非真实对照实验结果；真实对照在 T5 跑真实任务后复核。",
+  "listen": {
+    "baseline_error_rate": 0.1,
+    "skill_error_rate": 0.04,
+    "baseline_miss_rate": 0.2,
+    "skill_miss_rate": 0.19,
+    "trigger_rate": 0.35
+  },
+  "shadow": {
+    "baseline_error_rate": 0.1,
+    "skill_error_rate": 0.06,
+    "baseline_miss_rate": 0.2,
+    "skill_miss_rate": 0.18,
+    "trigger_rate": 0.4
+  },
+  "retell": {
+    "baseline_error_rate": 0.1,
+    "skill_error_rate": 0.04,
+    "baseline_miss_rate": 0.2,
+    "skill_miss_rate": 0.19,
+    "trigger_rate": 0.08
+  },
+  "converse": {
+    "baseline_error_rate": 0.1,
+    "skill_error_rate": 0.04,
+    "baseline_miss_rate": 0.2,
+    "skill_miss_rate": 0.23,
+    "trigger_rate": 0.3
+  },
+  "plan": {
+    "baseline_error_rate": 0.1,
+    "skill_error_rate": 0.09,
+    "baseline_miss_rate": 0.2,
+    "skill_miss_rate": 0.2,
+    "trigger_rate": 0.25
+  }
+}
