@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 """PRD-586/T3 测试（trend #2942 的 T3 环节）：巡检校验闸门。
 运行：uv run --with pytest python -m pytest prototype/tests/test_hearsay_hunt_gate.py -q
 覆盖：append-only 复核/复现证据可验证（REPRO_MISSING）/误报复核一票否决
